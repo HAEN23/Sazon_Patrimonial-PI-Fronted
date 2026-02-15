@@ -1,0 +1,103 @@
+.vistaPrincipal {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* HEADER */
+.headerPrincipal {
+  background-color: #8a0000;
+  padding: 20px;
+  color: white;
+}
+
+.logoContainer {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* MAIN */
+.registroContainer {
+  display: flex;
+  padding: 40px;
+  gap: 40px;
+}
+
+.formSection {
+  flex: 1;
+}
+
+.imageSection {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.controls {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+}
+
+.button {
+  padding: 12px;
+  background-color: #b10000;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.imagenesGroup {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.inputFile {
+  background: #eee;
+  padding: 10px;
+  cursor: pointer;
+}
+
+/* FOOTER */
+.footer {
+  background-color: #222;
+  color: white;
+  padding: 30px;
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+}
+
+.footerLogos {
+  display: flex;
+  gap: 20px;
+}
+
+/* MODAL */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modalContenido {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.cerrar {
+  cursor: pointer;
+  font-size: 20px;
+  float: right;
+}

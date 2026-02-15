@@ -1,0 +1,116 @@
+.vistaPrincipal {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* HEADER */
+.headerPrincipal {
+  background: #8a0000;
+  color: white;
+  padding: 20px;
+}
+
+.headerContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logoutBtn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+/* MAIN */
+.main {
+  padding: 40px;
+}
+
+.section {
+  margin-bottom: 30px;
+}
+
+.sectionFlex {
+  display: flex;
+  gap: 40px;
+  margin-bottom: 30px;
+}
+
+.galeria {
+  display: flex;
+  gap: 20px;
+}
+
+.imagenSlot {
+  cursor: pointer;
+}
+
+.imagenPlaceholder {
+  width: 120px;
+  height: 120px;
+  background: #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.input {
+  display: block;
+  margin-bottom: 10px;
+  padding: 8px;
+  width: 250px;
+}
+
+.select {
+  display: block;
+  margin-bottom: 10px;
+  padding: 8px;
+}
+
+.btnAplicar {
+  background: #b10000;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* FOOTER */
+.footer {
+  background: #222;
+  color: white;
+  padding: 30px;
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+}
+
+.footerLogos {
+  display: flex;
+  gap: 20px;
+}
+
+/* MODALES */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modalContent {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+}

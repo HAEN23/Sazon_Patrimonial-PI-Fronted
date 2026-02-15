@@ -1,0 +1,149 @@
+.vistaPrincipal {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ================= HEADER ================= */
+
+.headerPrincipal {
+  background-color: #8b0000;
+  color: white;
+  padding: 15px 40px;
+}
+
+.headerContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logoContainer {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.logoutButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  transition: opacity 0.3s ease;
+}
+
+.logoutButton:hover {
+  opacity: 0.7;
+}
+
+/* ================= PANEL ADMIN ================= */
+
+.adminPanel {
+  display: flex;
+  flex: 1;
+}
+
+/* ================= SIDEBAR ================= */
+
+.sidebar {
+  width: 220px;
+  background-color: #f4f4f4;
+  padding: 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.sidebarItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  text-align: left;
+  transition: background 0.3s ease;
+}
+
+.sidebarItem:hover {
+  background-color: #e0e0e0;
+}
+
+/* ================= CONTENIDO ================= */
+
+.contenido {
+  flex: 1;
+  padding: 40px;
+  background-color: #f9f9f9;
+}
+
+.contenido h2 {
+  margin-bottom: 20px;
+}
+
+/* ================= TABLA ================= */
+
+.tablaAdmin {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.tablaAdmin th {
+  background-color: #8b0000;
+  color: white;
+  padding: 12px;
+  text-align: left;
+  font-size: 14px;
+}
+
+.tablaAdmin td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+}
+
+.tablaAdmin tr:hover {
+  background-color: #f5f5f5;
+}
+
+/* ================= FOOTER ================= */
+
+.footer {
+  background-color: #8b0000;
+  color: white;
+  padding: 30px 40px;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.footerContactos {
+  max-width: 300px;
+}
+
+.footerContactos h4 {
+  margin-bottom: 10px;
+}
+
+.footerContactos p {
+  margin: 5px 0;
+}
+
+.footerLogos {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}

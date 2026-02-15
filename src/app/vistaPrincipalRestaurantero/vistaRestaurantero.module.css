@@ -1,0 +1,183 @@
+.vistaPrincipal {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ================= HEADER ================= */
+
+.headerPrincipal {
+  background-color: #8b0000;
+  color: white;
+  padding: 15px 40px;
+}
+
+.headerContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logoContainer {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.accionesUsuario {
+  display: flex;
+  gap: 20px;
+}
+
+.botonHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  transition: opacity 0.3s ease;
+}
+
+.botonHeader:hover {
+  opacity: 0.7;
+}
+
+/* ================= HERO ================= */
+
+.heroSection {
+  position: relative;
+  height: 500px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.heroImage {
+  object-fit: cover;
+  z-index: 0;
+}
+
+.heroContenido {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  color: white;
+  padding-bottom: 40px;
+}
+
+.heroContenido h1 {
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+.heroContenido p {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+/* ================= BUSQUEDA ================= */
+
+.barraBusqueda {
+  display: inline-flex;
+  align-items: center;
+  background: white;
+  padding: 5px;
+  border-radius: 30px;
+  gap: 10px;
+}
+
+.barraBusqueda input {
+  border: none;
+  outline: none;
+  padding: 8px;
+  width: 200px;
+}
+
+.barraBusqueda button {
+  background-color: #8b0000;
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.barraBusqueda button:hover {
+  background-color: #a30000;
+}
+
+/* ================= FILTROS ================= */
+
+.barraFiltros {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  background-color: #ffffff;
+  padding: 20px;
+  flex-wrap: wrap;
+}
+
+.barraFiltros select {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.btnFiltrar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #8b0000;
+  color: white;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.btnFiltrar:hover {
+  background-color: #a30000;
+}
+
+/* ================= CONTENIDO ================= */
+
+.contenidoPrincipal {
+  flex: 1;
+  padding: 40px;
+  background-color: #f5f5f5;
+}
+
+/* ================= FOOTER ================= */
+
+.footer {
+  background-color: #8b0000;
+  color: white;
+  padding: 30px 40px;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.footer h4 {
+  margin-bottom: 10px;
+}
+
+.footer p {
+  margin: 5px 0;
+}
+
+.footerLogos {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
