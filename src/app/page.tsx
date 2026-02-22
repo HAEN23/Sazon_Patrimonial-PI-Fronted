@@ -1,11 +1,42 @@
 // src/app/page.tsx
-'use client'; // <-- 1. Agregamos use client para poder usar estados
-import { useState } from 'react'; // <-- 2. Importamos useState
+'use client'; 
+import { useState } from 'react';
 import styles from './page.module.css';
 import LoginModal from './LoginModal/LoginModal';
+import LoginAdmin from './LoginAdmin/LoginAdmin';
+import LoginRest from './LoginRest/LoginRest';
+import LoginUser from './LoginUser/LoginUser'; // Importamos el nuevo modal de usuario
+
 export default function Home() {
-  // <-- 4. Creamos el estado para controlar si el modal se ve o no
+  // Estados para controlar qué modal está abierto
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+  const [isRestModalOpen, setIsRestModalOpen] = useState(false);
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+
+  // Funciones para abrir cada formulario específico
+  const handleOpenAdmin = () => {
+    setIsLoginModalOpen(false);
+    setIsAdminModalOpen(true);
+  };
+
+  const handleOpenRest = () => {
+    setIsLoginModalOpen(false);
+    setIsRestModalOpen(true);
+  };
+
+  const handleOpenUser = () => {
+    setIsLoginModalOpen(false);
+    setIsUserModalOpen(true);
+  };
+
+  // Función global para que la flecha de regreso cierre cualquier form y vuelva al menú
+  const handleBackToLogin = () => {
+    setIsAdminModalOpen(false);
+    setIsRestModalOpen(false);
+    setIsUserModalOpen(false);
+    setIsLoginModalOpen(true);
+  };
 
   return (
     <div className={styles['vista-principal']}>
@@ -22,7 +53,7 @@ export default function Home() {
               <span className={styles.registrarse}>Registrarse</span>
             </button>
             
-            {/* <-- 5. Le agregamos el evento onClick al botón de Iniciar sesión */}
+            {/* Botón que abre el modal principal de selección de roles */}
             <button 
               className={styles['log-in-parent']} 
               type="button"
@@ -129,10 +160,36 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* <-- 6. Agregamos el componente del Modal justo antes de cerrar el div principal */}
+      {/* ZONA DE MODALES */}
+      
+      {/* 1. Modal selector de roles */}
       <LoginModal 
         isOpen={isLoginModalOpen} 
         onClose={() => setIsLoginModalOpen(false)} 
+        onOpenAdmin={handleOpenAdmin} 
+        onOpenRest={handleOpenRest}
+        onOpenUser={handleOpenUser}
+      />
+
+      {/* 2. Modal Administrador */}
+      <LoginAdmin 
+        isOpen={isAdminModalOpen} 
+        onClose={() => setIsAdminModalOpen(false)} 
+        onBack={handleBackToLogin} 
+      />
+
+      {/* 3. Modal Restaurantero */}
+      <LoginRest 
+        isOpen={isRestModalOpen} 
+        onClose={() => setIsRestModalOpen(false)} 
+        onBack={handleBackToLogin} 
+      />
+      
+      {/* 4. Modal Usuario */}
+      <LoginUser 
+        isOpen={isUserModalOpen} 
+        onClose={() => setIsUserModalOpen(false)} 
+        onBack={handleBackToLogin} 
       />
     </div>
   );

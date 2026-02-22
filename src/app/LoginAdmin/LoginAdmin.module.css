@@ -1,4 +1,4 @@
-/* src/app/LoginModal/LoginModal.module.css */
+/* src/app/LoginAdmin/LoginAdmin.module.css */
 
 .overlay {
   position: fixed;
@@ -21,7 +21,6 @@
   visibility: visible;
 }
 
-/* Cambiamos .choose por .modalBox */
 .modalBox {
   position: relative;
   width: 400px;
@@ -41,12 +40,11 @@
   opacity: 1;
 }
 
-/* Agregamos viewContainer para que centre los botones */
 .viewContainer {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px; 
+  gap: 16px;
   width: 100%;
 }
 
@@ -65,70 +63,73 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.8);
   transition: all 0.2s ease;
-  z-index: 10;
 }
 
-.closeButton:hover {
-  background: rgba(255, 255, 255, 1);
-  color: #B64040;
-}
+.closeButton:hover { color: #B64040; }
 
-.logo {
-  display: block;
-  margin: 0 auto;
-}
-
-.titulo {
-  text-align: center;
-  font-size: 2.2rem;
-  margin: 0 0 10px 0;
-}
-
-/* Cambiamos .button por .roleButton */
-.roleButton {
+.backButton {
+  position: absolute;
+  top: 10px;
+  left: 15px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #912F2F;
+  width: 30px;
+  height: 30px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  width: 100%;
-  max-width: 280px;
-  padding: 14px 0px;
-  background: linear-gradient(90deg, #912F2F 60%, #6A1E1E 100%);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1rem;
-  font-family: 'Rubik', sans-serif;
   justify-content: center;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(182, 64, 64, 0.08);
+  border-radius: 50%;
+  transition: all 0.2s ease;
 }
 
-.roleButton:hover {
+.backButton:hover { color: #B64040; }
+
+.logo { display: block; margin: 0 auto; }
+.titulo { text-align: center; font-size: 2.2rem; margin: 0 0 10px 0; }
+.inputGroup { width: 100%; display: flex; flex-direction: column; }
+.label { display: block; margin-bottom: 6px; color: #912F2F; font-weight: 500; font-family: 'Rubik', sans-serif; text-align: left; }
+
+.controls {
+  width: 100%;
+  background: #ffffff;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1.5px solid #B64040;
+  font-family: 'Rubik', sans-serif;
+  color: #912F2F;
+  box-sizing: border-box;
+}
+
+.controls::placeholder { color: #912F2F; opacity: 0.7; }
+.controls:focus { outline: none; border-color: #6A1E1E; box-shadow: 0 0 5px rgba(145, 47, 47, 0.3); }
+
+.submitButton {
+  width: 100%;
+  background: linear-gradient(90deg, #912F2F 60%, #6A1E1E 100%);
+  border: none;
+  padding: 12px;
+  color: #ffffff;
+  margin: 10px 0;
+  font-size: 16px;
+  font-family: 'Rubik', sans-serif;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.submitButton:hover {
   background: linear-gradient(90deg, #6A1E1E 60%, #912F2F 100%);
   transform: translateY(-2px) scale(1.03);
 }
 
-.roleButton img {
-  width: 24px;
-  height: 24px;
-}
-
-.registerLink {
-  color: #912F2F;
-  text-decoration: underline;
-  font-size: 0.9rem;
-  cursor: pointer;
-  background: none;
-  border: none;
-  padding: 0;
-  margin-top: 10px;
-  font-family: inherit;
-  transition: color 0.2s ease;
-}
-
-.registerLink:hover {
-  color: #B64040;
+.errorMsg {
+  color: #d65c5c;
+  font-size: 0.9em;
+  margin-top: 4px;
+  min-height: 20px;
+  display: block;
 }
