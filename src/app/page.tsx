@@ -1,65 +1,139 @@
-import Image from "next/image";
-
+// src/app/page.tsx
+'use client'; // <-- 1. Agregamos use client para poder usar estados
+import { useState } from 'react'; // <-- 2. Importamos useState
+import styles from './page.module.css';
+import LoginModal from './LoginModal/LoginModal';
 export default function Home() {
+  // <-- 4. Creamos el estado para controlar si el modal se ve o no
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className={styles['vista-principal']}>
+      {/* HEADER */}
+      <header className={styles['header-principal']}>
+        <div className={styles['rectangle-parent']}>
+          <div className={styles['logo-blanco-parent']}>
+            <img className={styles['logo-blanco']} alt="Logo Sazón Patrimonial" src="/images/logo_sp_blanco.png" />
+            <div className={styles['catlogo-de-restaurantes']}>Restaurantes San Cristóbal</div>
+          </div>
+          <nav className={styles['acciones-usuario']}>
+            <button className={styles['registro-usuario-parent']} type="button">
+              <img className={styles.registro} alt="Registrarse" src="/images/agregar-usuario.png" />
+              <span className={styles.registrarse}>Registrarse</span>
+            </button>
+            
+            {/* <-- 5. Le agregamos el evento onClick al botón de Iniciar sesión */}
+            <button 
+              className={styles['log-in-parent']} 
+              type="button"
+              onClick={() => setIsLoginModalOpen(true)}
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              <img className={styles.registro} alt="Iniciar sesión" src="/images/usuario.png" />
+              <span className={styles['iniciar-sesin']}>Iniciar sesión</span>
+            </button>
+          </nav>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </header>
+
+      {/* MAIN CONTENT */}
+      <main>
+        <section className={styles['calles-con-encanto-scaled-parent']}>
+          <img className={styles['calles-con-encanto-scaled-icon']} alt="" src="/images/fondo_inicio.png" />
+          <div className={styles['contenido-superpuesto']}>
+            <div className={styles['descubre-la-magia']}>
+              Descubre la Magia Culinaria de <br />San Cristóbal
+            </div>
+            <div className={styles['explora-los-mejores']}>
+              Explora los mejores sabores de esta tierra
+            </div>
+            <div className={styles['barra-busqueda']}>
+              <img className={styles['busqueda-icono']} alt="" src="/images/buscar.png" />
+              <input type="text" placeholder="Buscar restaurantes" />
+              <button className={styles.buscar}>Buscar</button>
+            </div>
+          </div>
+          
+          {/* FILTROS */}
+          <div className={`${styles['barra-filtros-horizontal']} ${styles['filtros-abajo']}`}>
+            <div className={styles['filtro-item']}>
+              <img src="/images/menu.png" alt="Tipo de comida" className={styles['icono-filtro']} />
+              <select className={styles['filtro-select']} id="filtroTipoComida" defaultValue="">
+                <option value="" disabled>Tipo de comida</option>
+                <option value="Comida Rápida">Comida Rápida</option>
+                <option value="Gourmet">Gourmet</option>
+                <option value="Vegetariano">Vegetariano</option>
+                <option value="Económico">Económico</option>
+              </select>
+            </div>
+
+            <div className={styles['filtro-item']}>
+              <img src="/images/restaurante.png" alt="Ambiente" className={styles['icono-filtro']} />
+              <select className={styles['filtro-select']} id="filtroAmbiente" defaultValue="">
+                <option value="" disabled>Ambiente</option>
+                <option value="Familiar">Familiar</option>
+                <option value="Pet Friendly">Pet Friendly</option>
+                <option value="Terraza">Terraza</option>
+              </select>
+            </div>
+
+            <div className={styles['filtro-item']}>
+              <img src="/images/coctel.png" alt="Servicios" className={styles['icono-filtro']} />
+              <select className={styles['filtro-select']} id="filtroServicios" defaultValue="">
+                <option value="" disabled>Servicios</option>
+                <option value="Delivery">Delivery</option>
+                <option value="WiFi Gratuito">WiFi Gratuito</option>
+                <option value="Estacionamiento">Estacionamiento</option>
+              </select>
+            </div>
+
+            <button className={styles['btn-filtrar']} id="btnLimpiarFiltros">
+              <img src="/images/borrar.png" className={styles['icono-boton']} alt="Borrar" /> Limpiar Filtros
+            </button>
+          </div>
+        </section>
+
+        <div className={styles['contenido-principal']}>
+          <section className={styles['line-parent']}>
+              {/* Aquí se renderizarán las tarjetas de los restaurantes más adelante */}
+          </section>
         </div>
       </main>
+
+      {/* FOOTER */}
+      <footer className={styles['rectangle-container']}>
+        <div className={styles['footer-contactos-redes']}>
+            <div className={styles.contctanos}>Contáctanos</div>
+            <div className={styles['contactos-grid']}>
+                <div className={styles['gmail-1-1-parent']}>
+                    <img className={styles['llamada-telefonica-2-icon']} alt="Correo" src="/images/gmail_logo.png" />
+                    <div className={styles.sazonpatrimonialgmailcom}>sazonpatrimonial@gmail.com</div>
+                </div>
+                <div className={styles['llamada-telefonica-2-parent']}>
+                    <img className={styles['llamada-telefonica-2-icon']} alt="Teléfono" src="/images/call_logo.png" />
+                    <div className={styles.sazonpatrimonialgmailcom}>+52 961 652 2093</div>
+                </div>
+                <div className={styles['logotipo-de-instagram-2-parent']}>
+                    <img className={styles['llamada-telefonica-2-icon']} alt="Instagram" src="/images/insta_logo.png" />
+                    <div className={styles.sazonpatrimonialgmailcom}>@sazonpatrimonial</div>
+                </div>
+                <div className={styles['facebook-1-1-parent']}>
+                    <img className={styles['llamada-telefonica-2-icon']} alt="Facebook" src="/images/face_logo.png" />
+                    <div className={styles.sazonpatrimonialgmailcom}>@sazonpatrimonial</div>
+                </div>
+            </div>
+        </div>
+        <div className={styles['footer-logos']}>
+            <img className={styles['logo-blanco-2']} alt="Logo Sazón Patrimonial" src="/images/logo_sp_blanco.png" />
+            <img className={styles['logo-equipo']} alt="Logo Devbox" src="/images/devbox_logo.png" />
+            <img className={styles['logo-universidad']} alt="Logo UP" src="/images/logo_uni.png" />
+        </div>
+      </footer>
+
+      {/* <-- 6. Agregamos el componente del Modal justo antes de cerrar el div principal */}
+      <LoginModal 
+        isOpen={isLoginModalOpen} 
+        onClose={() => setIsLoginModalOpen(false)} 
+      />
     </div>
   );
 }

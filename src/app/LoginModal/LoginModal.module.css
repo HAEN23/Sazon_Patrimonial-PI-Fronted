@@ -1,0 +1,125 @@
+/* src/components/LoginModal/LoginModal.module.css */
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.overlayShow {
+  opacity: 1;
+  visibility: visible;
+}
+
+.choose {
+  position: relative;
+  width: 400px;
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 4px;
+  font-family: 'Rubik', sans-serif;
+  color: #912F2F;
+  box-shadow: 7px 7px 5px #6A1E1E;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  transform: scale(0.8) translateY(-30px);
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+  opacity: 0;
+}
+
+.overlayShow .choose {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+.closeButton {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #912F2F;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.8);
+  transition: all 0.2s ease;
+}
+
+.closeButton:hover {
+  background: rgba(255, 255, 255, 1);
+  color: #B64040;
+}
+
+.logo {
+  display: block;
+  margin: 0 auto;
+}
+
+.titulo {
+  text-align: center;
+  font-size: 2.2rem;
+  margin: 0 0 20px 0;
+}
+
+.button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 280px;
+  padding: 14px 0px;
+  background: linear-gradient(90deg, #912F2F 60%, #6A1E1E 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-family: 'Rubik', sans-serif;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(182, 64, 64, 0.08);
+}
+
+.button:hover {
+  background: linear-gradient(90deg, #6A1E1E 60%, #912F2F 100%);
+  transform: translateY(-2px) scale(1.03);
+}
+
+.button img {
+  width: 24px;
+  height: 24px;
+}
+
+.registerLink {
+  color: #912F2F;
+  text-decoration: underline;
+  font-size: 0.9rem;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  transition: color 0.2s ease;
+}
+
+.registerLink:hover {
+  color: #B64040;
+}
