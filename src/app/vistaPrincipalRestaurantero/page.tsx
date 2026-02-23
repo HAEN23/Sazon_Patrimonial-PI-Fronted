@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import styles from "./VistaPrincipalRestaurantero.module.css";
+import styles from "./VistaRestaurantero.module.css";
 import { useState } from "react";
 
 export default function VistaPrincipalRestaurantero() {

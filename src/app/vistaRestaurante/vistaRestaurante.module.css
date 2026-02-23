@@ -1,125 +1,319 @@
 .vistaPrincipal {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  font-family: Arial, Helvetica, sans-serif;
+  width: 100%;
+  overflow-x: hidden;
+  font-family: 'Montserrat', sans-serif;
+  background-color: #fff;
+  color: #6b1e1e; /* Color principal oscuro en todas las letras */
 }
 
-/* HEADER */
-
+/* ================= HEADER ================= */
 .headerPrincipal {
-  background-color: #8b0000;
-  color: white;
-  padding: 15px 40px;
+  width: 100%;
+  background: #6b1e1e; 
+  color: #fff;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  padding: 0 40px;
 }
 
 .logoContainer {
   display: flex;
   align-items: center;
-  gap: 15px;
-  font-weight: bold;
+  gap: 16px;
+  font-size: 1.1rem;
+  line-height: 1.2;
 }
 
-/* MAIN */
+/* ================= CONTENEDOR PRINCIPAL ================= */
+.mainContent {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 40px;
+}
 
-.restauranteContainer {
-  padding: 40px;
+/* ================= TÍTULO Y BACK ================= */
+.headerTitle {
+  display: flex;
+  align-items: center;
+  position: relative;
+  margin-bottom: 20px;
+  border-bottom: 3px solid #6b1e1e;
+  padding-bottom: 10px;
 }
 
 .btnBack {
   background: none;
   border: none;
   cursor: pointer;
-  margin-bottom: 20px;
+  position: absolute;
+  left: 0;
+  display: flex;
+  align-items: center;
 }
 
 .restauranteNombre {
-  font-size: 28px;
-  margin-bottom: 10px;
+  flex: 1;
+  text-align: center;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #6b1e1e;
+  margin: 0;
 }
 
-.divider {
-  margin: 20px 0;
-}
-
-/* GALERÍA */
-
+/* ================= GALERÍA ================= */
 .galeria {
   display: flex;
-  gap: 20px;
-  margin-bottom: 30px;
+  gap: 15px;
+  margin-bottom: 40px;
+  height: 380px;
 }
 
 .galeriaPrincipal {
   position: relative;
-  width: 60%;
-  height: 350px;
+  flex: 2;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.galeriaSecundaria {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  flex: 1;
+}
+
+.imagenSecundaria {
+  position: relative;
+  flex: 1;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .imageCover {
   object-fit: cover;
 }
 
-.galeriaSecundaria {
-  width: 40%;
+/* ================= INFO GRID (3 COLUMNAS) ================= */
+.infoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr 1.5fr;
+  gap: 50px;
+  color: #6b1e1e; /* Fuerzo color principal aquí también por seguridad */
+}
+
+.infoSection h3 {
+  color: #6b1e1e;
+  font-size: 1.3rem;
+  margin-bottom: 15px;
+  font-weight: 700;
+}
+
+/* Columna 1: Horarios */
+.horariosBox p {
+  margin: 0 0 12px 0;
+  line-height: 1.4;
+  font-size: 1.1rem;
+}
+
+.horariosBox strong {
+  color: #6b1e1e;
+  font-weight: 700;
+}
+
+.ubicacionBox {
+  margin-top: 30px;
+}
+
+/* Columna 2: Contactos y Acciones */
+.contactList {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 30px 0;
+}
+
+.contactList li {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  font-size: 1.1rem;
 }
 
-/* INFO */
-
-.infoFlex {
+.actionRow {
   display: flex;
-  gap: 20px;
-  margin-bottom: 30px;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 35px;
 }
-
-.infoBox {
-  flex: 1;
-  min-width: 200px;
-  padding: 20px;
-  background: #f5f5f5;
-  border-radius: 10px;
-}
-
-/* BOTÓN MENÚ */
 
 .btnMenu {
   display: flex;
   align-items: center;
   gap: 10px;
-  background-color: #8b0000;
-  color: white;
+  background: #6b1e1e;
+  color: #fff;
   border: none;
-  padding: 10px 25px;
-  border-radius: 20px;
+  border-radius: 8px;
+  padding: 12px 28px;
+  font-size: 1.1rem;
+  font-weight: 600;
   cursor: pointer;
+  box-shadow: 2px 4px 10px rgba(0,0,0,0.1);
+  transition: opacity 0.2s ease;
 }
 
 .btnMenu:hover {
-  background-color: #a30000;
+  opacity: 0.85;
 }
 
-/* FOOTER */
+.btnFav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: none;
+  border: none;
+  color: #6b1e1e;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: transform 0.2s ease;
+}
 
-.footer {
-  margin-top: auto;
-  background-color: #8b0000;
+.btnFav:active {
+  transform: scale(0.9);
+}
+
+.btnFav svg {
+  margin-bottom: 4px;
+}
+
+/* ================= ETIQUETAS (Columna 3) ================= */
+.tagsWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 35px;
+  align-items: flex-start;
+}
+
+.tagRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+/* Contenedor fijo para que los íconos se alineen perfectamente */
+.iconContainer {
+  width: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.tagPill {
+  display: inline-block;
+  background: #a44848; /* Color rojo claro de la imagen */
   color: white;
-  padding: 30px;
+  padding: 6px 18px;
+  border-radius: 20px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
-/* MODAL */
+.tagDark {
+  background: #6b1e1e; /* Mismo color principal obscuro */
+}
 
+/* Funcionalidad extra para el botón de encuesta */
+.tagButton {
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.1s ease;
+}
+
+.tagButton:hover {
+  opacity: 0.9;
+}
+
+.tagButton:active {
+  transform: scale(0.95);
+}
+
+/* Fotos Usuarios */
+.fotosUsuariosRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.fotoMini {
+  position: relative;
+  width: 65px;
+  height: 65px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #ddd;
+}
+
+.btnSubirFoto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: #6b1e1e;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ================= FOOTER ================= */
+.footer {
+  width: 100%;
+  background: #6b1e1e;
+  color: #fff;
+  padding: 40px;
+  margin-top: 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.footerCol {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footerCol h4 {
+  margin: 0 0 5px 0;
+  font-size: 1.2rem;
+}
+
+.footerCol p {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+.footerLogos {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+}
+
+/* ================= MODAL ================= */
 .modalOverlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.6);
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.7);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -127,19 +321,19 @@
 }
 
 .modalContent {
-  background: white;
+  background: #fff;
   padding: 30px;
-  border-radius: 10px;
-  width: 500px;
+  border-radius: 15px;
   position: relative;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
 }
 
 .closeModal {
   position: absolute;
-  top: 10px;
-  right: 15px;
-  border: none;
-  background: none;
-  font-size: 22px;
-  cursor: pointer;
+  top: 15px; right: 15px;
+  border: none; background: none;
+  font-size: 1.5rem; cursor: pointer;
+  color: #6b1e1e;
 }

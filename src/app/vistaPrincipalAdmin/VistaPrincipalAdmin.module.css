@@ -1,149 +1,241 @@
 .vistaPrincipal {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  font-family: Arial, Helvetica, sans-serif;
+  width: 100%;
+  overflow-x: hidden;
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* Reset encapsulado */
+.vistaPrincipal *,
+.vistaPrincipal *::before,
+.vistaPrincipal *::after {
+  box-sizing: border-box;
 }
 
 /* ================= HEADER ================= */
 
 .headerPrincipal {
-  background-color: #8b0000;
-  color: white;
-  padding: 15px 40px;
+  position: fixed;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+  background: #6b1e1e;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 
 .headerContainer {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  height: 100px;
+  padding: 0 40px;
 }
 
 .logoContainer {
   display: flex;
   align-items: center;
-  gap: 15px;
-  font-weight: bold;
-  font-size: 18px;
+  gap: 10px;
+  font-size: 1.6rem;
+  color: #fff;
 }
 
 .logoutButton {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: transparent;
+  background: #6A1E1E;
   border: none;
-  color: white;
+  border-radius: 50px;
+  color: #fff;
+  padding: 12px 22px;
+  font-size: 1rem;
   cursor: pointer;
-  font-size: 14px;
-  transition: opacity 0.3s ease;
+  transition: background 0.2s;
 }
 
 .logoutButton:hover {
-  opacity: 0.7;
+  background: #912f2f;
 }
 
 /* ================= PANEL ADMIN ================= */
 
 .adminPanel {
   display: flex;
-  flex: 1;
+  min-height: 70vh;
+  margin-top: 100px;
 }
 
 /* ================= SIDEBAR ================= */
 
 .sidebar {
-  width: 220px;
-  background-color: #f4f4f4;
-  padding: 20px 0;
+  background: #6b1e1e;
+  width: 60px;
+  min-width: 60px;
+  max-width: 180px;
+  padding: 30px 0 32px 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  border-right: 1px solid #ddd;
+  align-items: stretch;
+  gap: 18px;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.04);
+  position: sticky;
+  top: 100px;
+  transition: width 0.6s cubic-bezier(.4,0,.2,1);
+  z-index: 120;
+}
+
+.sidebar:hover {
+  width: 180px;
+  min-width: 180px;
 }
 
 .sidebarItem {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 20px;
-  background: none;
+  gap: 8px;
+  background: #6A1E1E;
   border: none;
+  border-radius: 50px;
+  color: #fff;
+  padding: 12px 16px;
+  font-size: 1rem;
   cursor: pointer;
-  font-size: 14px;
-  text-align: left;
-  transition: background 0.3s ease;
+  transition: background 0.2s;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.sidebarItem span {
+  opacity: 0;
+  width: 0;
+  margin-left: 0;
+  transition: opacity 0.5s, width 0.5s, margin-left 0.5s;
+  pointer-events: none;
+}
+
+.sidebar:hover .sidebarItem span {
+  opacity: 1;
+  width: auto;
+  margin-left: 8px;
+  pointer-events: auto;
 }
 
 .sidebarItem:hover {
-  background-color: #e0e0e0;
+  background: #912f2f;
 }
 
 /* ================= CONTENIDO ================= */
 
 .contenido {
   flex: 1;
-  padding: 40px;
-  background-color: #f9f9f9;
+  background: #fff;
+  padding: 24px 48px 40px 48px;
+  border-top-right-radius: 18px;
+  border-bottom-right-radius: 18px;
+  min-height: 600px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 
 .contenido h2 {
-  margin-bottom: 20px;
+  color: #6b1e1e;
+  font-size: 2rem;
+  margin-bottom: 28px;
+  font-weight: 600;
+  letter-spacing: 1px;
 }
 
 /* ================= TABLA ================= */
 
 .tablaAdmin {
   width: 100%;
-  border-collapse: collapse;
-  background-color: white;
-  border-radius: 10px;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #fff;
+  border-radius: 12px;
   overflow: hidden;
+  box-shadow: 0 2px 8px rgba(145, 30, 30, 0.08);
+  margin-bottom: 32px;
+}
+
+.tablaAdmin thead {
+  background: #6b1e1e;
+}
+
+.tablaAdmin th,
+.tablaAdmin td {
+  padding: 14px 18px;
+  text-align: center;
+  font-size: 1rem;
 }
 
 .tablaAdmin th {
-  background-color: #8b0000;
-  color: white;
-  padding: 12px;
-  text-align: left;
-  font-size: 14px;
+  color: #fff;
+  font-weight: 700;
+  border-bottom: 2px solid #e0bcbc;
+}
+
+.tablaAdmin tbody tr {
+  border-bottom: 1px solid #f1dada;
+  transition: background 0.2s;
+}
+
+.tablaAdmin tbody tr:nth-child(even) {
+  background: #f8eaea;
+}
+
+.tablaAdmin tbody tr:hover {
+  background: #f3d6d6;
 }
 
 .tablaAdmin td {
-  padding: 12px;
-  border-bottom: 1px solid #eee;
-  font-size: 14px;
+  color: #6b1e1e;
+  font-weight: 500;
+  vertical-align: middle;
 }
 
-.tablaAdmin tr:hover {
-  background-color: #f5f5f5;
+/* Botones dentro de tabla */
+
+.tablaAdmin button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-right: 6px;
+  padding: 4px;
+  transition: transform 0.1s;
+}
+
+.tablaAdmin button:hover {
+  transform: scale(1.15);
+}
+
+.tablaAdmin button img {
+  width: 22px;
+  height: 22px;
 }
 
 /* ================= FOOTER ================= */
 
 .footer {
-  background-color: #8b0000;
-  color: white;
-  padding: 30px 40px;
+  width: 100%;
+  background: #912f2f;
+  color: #fff;
   display: flex;
   justify-content: space-between;
+  padding: 32px 40px;
   flex-wrap: wrap;
-}
-
-.footerContactos {
-  max-width: 300px;
+  gap: 32px;
 }
 
 .footerContactos h4 {
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .footerContactos p {
-  margin: 5px 0;
+  margin-bottom: 6px;
 }
 
 .footerLogos {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 18px;
 }

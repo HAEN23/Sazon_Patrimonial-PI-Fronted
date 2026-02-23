@@ -32,7 +32,6 @@ export default function SolicitudPage() {
 
       <main>
         <div className={styles.registroContainer}>
-          {/* BOTÓN BACK */}
           <button
             className={styles.btnBack}
             onClick={() => window.history.back()}
@@ -45,7 +44,6 @@ export default function SolicitudPage() {
             />
           </button>
 
-          {/* FORMULARIO */}
           <section className={styles.formSection}>
             <form onSubmit={handleSubmit}>
               <h4>Solicitud de validación</h4>
@@ -55,7 +53,7 @@ export default function SolicitudPage() {
 
               <label>Restaurante</label>
               <input className={styles.controls} type="text" />
-              
+
               <label>Número de celular</label>
               <input className={styles.controls} type="tel" />
 
@@ -71,7 +69,6 @@ export default function SolicitudPage() {
               <label>Horarios</label>
               <input className={styles.controls} type="text" />
 
-              {/* IMÁGENES */}
               <label>Imágenes (JPG o PNG)</label>
               <div className={styles.imagenesGroup}>
                 <label className={styles.inputFile}>
@@ -90,7 +87,6 @@ export default function SolicitudPage() {
                 </label>
               </div>
 
-              {/* PDF */}
               <label>Archivos (PDF)</label>
               <div className={styles.imagenesGroup}>
                 <label className={styles.inputFile}>
@@ -110,7 +106,6 @@ export default function SolicitudPage() {
             </form>
           </section>
 
-          {/* IMAGEN LATERAL */}
           <section className={styles.imageSection}>
             <Image
               src="/registro.jpeg"
@@ -123,7 +118,6 @@ export default function SolicitudPage() {
         </div>
       </main>
 
-      {/* FOOTER */}
       <footer className={styles.footer}>
         <div className={styles.footerContactos}>
           <h4>Contáctanos</h4>
@@ -139,7 +133,6 @@ export default function SolicitudPage() {
         </div>
       </footer>
 
-      {/* MODAL */}
       {modalOpen && (
         <div className={styles.modal}>
           <div className={styles.modalContenido}>

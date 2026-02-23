@@ -1,116 +1,291 @@
 .vistaPrincipal {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+  font-family: 'Montserrat', sans-serif;
 }
 
-/* HEADER */
+/* RESET encapsulado */
+.vistaPrincipal *,
+.vistaPrincipal *::before,
+.vistaPrincipal *::after {
+  box-sizing: border-box;
+}
+
+/* ================= HEADER ================= */
+
 .headerPrincipal {
-  background: #8a0000;
-  color: white;
-  padding: 20px;
+  position: fixed;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+  background: #6b1e1e;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 
 .headerContent {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  height: 100px;
+  padding: 0 40px;
+}
+
+.logoSection {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.6rem;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
 }
 
 .logoutBtn {
   display: flex;
   align-items: center;
-  gap: 5px;
-  background: white;
+  gap: 8px;
+  background: #6A1E1E;
   border: none;
-  padding: 5px 10px;
+  border-radius: 50px;
+  color: #fff;
+  padding: 12px 22px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.logoutBtn:hover {
+  background: #912f2f;
+}
+
+/* ================= MAIN ================= */
+
+.main {
+  max-width: 90%;
+  margin: 140px auto 40px auto;
+  background: #fff;
+  border-radius: 18px;
+  padding: 32px 36px 36px 36px;
+  position: relative;
+}
+
+.btnBack {
+  background: none;
+  border: none;
+  position: absolute;
+  top: 24px;
+  left: 24px;
   cursor: pointer;
 }
 
-/* MAIN */
-.main {
-  padding: 40px;
+.main h1 {
+  text-align: center;
+  font-size: 3rem;
+  font-weight: 700;
+  color: #912f2f;
+  margin-bottom: 8px;
 }
 
+.main hr {
+  border: none;
+  border-top: 4px solid #912f2f;
+  width: 80%;
+  margin: 0 auto 24px auto;
+}
+
+/* ================= SECCIONES ================= */
+
 .section {
-  margin-bottom: 30px;
+  border: 2px solid #912f2f;
+  border-radius: 10px;
+  padding: 20px 24px;
+  margin: 0 auto 40px;
+  width: 80%;
+  color: #912f2f;
 }
 
 .sectionFlex {
-  display: flex;
-  gap: 40px;
-  margin-bottom: 30px;
+  border: 2px solid #912f2f;
+  border-radius: 10px;
+  padding: 20px 24px;
+  margin: 0 auto 40px;
+  width: 80%;
+  color: #912f2f;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
 }
+
+.section h3,
+.section h4,
+.sectionFlex h4 {
+  font-weight: 600;
+}
+
+/* ================= GALERÍA ================= */
 
 .galeria {
   display: flex;
-  gap: 20px;
+  gap: 16px;
+  margin-top: 12px;
 }
 
 .imagenSlot {
-  cursor: pointer;
-}
-
-.imagenPlaceholder {
-  width: 120px;
-  height: 120px;
-  background: #eee;
+  border: 1.5px dashed #912f2f;
+  border-radius: 4px;
+  width: 40%;
+  height: 200px;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: #fdfdfd;
+  cursor: pointer;
+  transition: background 0.3s;
 }
 
+.imagenSlot:hover {
+  background: #f9eaea;
+}
+
+.imagenPlaceholder {
+  color: #912f2f;
+  font-weight: 500;
+}
+
+/* ================= INPUTS ================= */
+
 .input {
-  display: block;
+  border: 1px solid #912f2f;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 0.95rem;
+  color: #912f2f;
+  width: 100%;
+  height: 40px;
   margin-bottom: 10px;
-  padding: 8px;
-  width: 250px;
+}
+
+.input::placeholder {
+  color: #912f2f;
 }
 
 .select {
-  display: block;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #912f2f;
+  border-radius: 20px;
+  font-size: 1rem;
+  color: #912f2f;
+  background: #fff;
   margin-bottom: 10px;
-  padding: 8px;
+  cursor: pointer;
 }
 
-.btnAplicar {
-  background: #b10000;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  cursor: pointer;
+/* ================= FILE BUTTON ================= */
+
+.fileBtn {
   display: flex;
+  justify-content: center;
   align-items: center;
   gap: 8px;
+  background: #fff;
+  color: #912F2F;
+  border: 1px solid #912F2F;
+  border-radius: 6px;
+  width: 100%;
+  padding: 6px 12px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  height: 40px;
 }
 
-/* FOOTER */
+.fileBtn:hover {
+  background: #f9eaea;
+}
+
+/* ================= BOTÓN APLICAR ================= */
+
+.btnAplicar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 30%;
+  background: linear-gradient(90deg, #912F2F 60%, #6A1E1E 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 28px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin: 0 auto;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.btnAplicar:hover {
+  background: linear-gradient(90deg, #6A1E1E 60%, #912F2F 100%);
+  transform: translateY(-2px) scale(1.03);
+}
+
+/* ================= FOOTER ================= */
+
 .footer {
-  background: #222;
-  color: white;
-  padding: 30px;
-  margin-top: auto;
+  width: 100%;
+  background: #912f2f;
+  color: #fff;
   display: flex;
   justify-content: space-between;
+  padding: 32px 40px;
+  flex-wrap: wrap;
+  gap: 32px;
 }
 
 .footerLogos {
   display: flex;
-  gap: 20px;
+  align-items: center;
+  gap: 18px;
 }
 
-/* MODALES */
+/* ================= MODAL ================= */
+
 .modalOverlay {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background: rgba(0,0,0,0.5);
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 9999;
 }
 
 .modalContent {
-  background: white;
+  background-color: #fff;
   padding: 30px;
-  border-radius: 8px;
+  border-radius: 12px;
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+  border: 2px solid #912F2F;
+  position: relative;
+  color: #912F2F;
 }
+
+.modalContent button {
+  position: absolute;
+  top: 10px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #912F2F;
+}
+

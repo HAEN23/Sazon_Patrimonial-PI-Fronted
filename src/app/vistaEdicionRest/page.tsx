@@ -13,7 +13,6 @@ export default function EdicionRestaurante() {
 
   const handleLogout = () => {
     console.log("Cerrar sesión");
-    // Aquí luego puedes limpiar tokens
   };
 
   const handleAplicarCambios = () => {
@@ -22,15 +21,14 @@ export default function EdicionRestaurante() {
 
   return (
     <div className={styles.vistaPrincipal}>
-      {/* HEADER */}
       <header className={styles.headerPrincipal}>
         <div className={styles.headerContent}>
           <div className={styles.logoSection}>
             <Image
               src="/logo_sp_blanco.png"
               alt="Logo"
-              width={100}
-              height={100}
+              width={80}
+              height={80}
             />
             <span>Restaurantes San Cristóbal</span>
           </div>
@@ -51,7 +49,6 @@ export default function EdicionRestaurante() {
         </div>
       </header>
 
-      {/* MAIN */}
       <main className={styles.main}>
         <button
           className={styles.btnBack}
@@ -63,18 +60,13 @@ export default function EdicionRestaurante() {
         <h1>Bienvenido</h1>
         <hr />
 
-        {/* GALERÍA */}
         <section className={styles.section}>
           <h3>Galería de Imágenes</h3>
 
           <div className={styles.galeria}>
             {[1, 2, 3].map((num) => (
               <label key={num} className={styles.imagenSlot}>
-                <input
-                  type="file"
-                  hidden
-                  accept="image/png, image/jpeg"
-                />
+                <input type="file" hidden accept="image/png, image/jpeg" />
                 <div className={styles.imagenPlaceholder}>
                   Subir Imagen {num}
                 </div>
@@ -83,7 +75,6 @@ export default function EdicionRestaurante() {
           </div>
         </section>
 
-        {/* MENÚ + UBICACIÓN + HORARIOS */}
         <section className={styles.sectionFlex}>
           <div>
             <h4>Menú en PDF</h4>
@@ -112,7 +103,6 @@ export default function EdicionRestaurante() {
           </div>
         </section>
 
-        {/* CONTACTOS + ETIQUETAS */}
         <section className={styles.sectionFlex}>
           <div>
             <h4>Contactos</h4>
@@ -162,7 +152,6 @@ export default function EdicionRestaurante() {
         </button>
       </main>
 
-      {/* FOOTER */}
       <footer className={styles.footer}>
         <div>
           <h4>Contáctanos</h4>
@@ -177,19 +166,6 @@ export default function EdicionRestaurante() {
         </div>
       </footer>
 
-      {/* MODAL MEMBRESÍA */}
-      {modalMembresia && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modalContent}>
-            <button onClick={() => setModalMembresia(false)}>
-              &times;
-            </button>
-            <p>Información de membresía</p>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL AVISO */}
       {modalAviso && (
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>
