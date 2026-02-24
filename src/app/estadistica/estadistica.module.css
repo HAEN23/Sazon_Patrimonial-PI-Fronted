@@ -1,0 +1,101 @@
+.vista-principal { width: 100%; min-height: 100vh; background-color: #f5f5f5; }
+
+.header-principal {
+  position: fixed; top: 0; z-index: 1000; width: 100%;
+  background: #6b1e1e; color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.rectangle-parent {
+  display: flex; align-items: center; justify-content: flex-start;
+  height: 100px; padding-left: 40px; padding-right: 40px; gap: 32px;
+}
+
+.logo-blanco-parent { display: flex; align-items: center; gap: 10px; }
+.logo-blanco { height: 80px; width: auto; }
+.catlogo-de-restaurantes { font-size: 1.6rem; font-weight: 400; color: #fff; font-family: 'Montserrat', sans-serif; max-width: 200px; }
+
+.acciones-usuario { margin-left: auto; display: flex; gap: 18px; }
+.log-out-parent {
+  display: flex; align-items: center; gap: 8px; background: #8a2727;
+  border: none; border-radius: 8px; color: #fff; padding: 10px 18px;
+  font-size: 1rem; font-family: 'Montserrat', sans-serif; cursor: pointer; transition: background 0.2s;
+}
+.log-out-parent:hover { background: #521616; }
+.log-out-icon { height: 22px; width: 22px; }
+
+.icono-restaurantero { display: flex; align-items: center; }
+.icono-restaurantero img { height: 48px; width: 48px; border-radius: 50%; border: 2px solid white; }
+
+.restaurante-estadisticas-container {
+  max-width: 90%; margin: 140px auto 40px auto; background: #fff;
+  border-radius: 18px; padding: 32px 36px 36px 36px;
+  font-family: 'Montserrat', sans-serif; position: relative;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.btn-back {
+  background: none; border: none; position: absolute;
+  top: 24px; left: 24px; cursor: pointer; padding: 0; transition: transform 0.2s;
+}
+.btn-back:hover { transform: scale(1.1); }
+.icon-32 { width: 32px; height: 32px; }
+
+.restaurante-title {
+  text-align: center; font-size: 2.5rem; font-weight: 700;
+  color: #6b1e1e; margin: 0 0 8px 0;
+}
+
+.restaurante-divider {
+  border: none; border-top: 3px solid #6b1e1e; width: 80%;
+  margin: 0 auto 30px auto; border-radius: 2px;
+}
+
+.estadisticas-grid {
+  display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; margin-top: 20px;
+}
+
+.tarjeta {
+  border: 2px solid #6b1e1e; border-radius: 12px; padding: 24px; width: 320px;
+  font-family: 'Montserrat', sans-serif; text-align: center; color: #6b1e1e;
+  background: #fff; display: flex; flex-direction: column; align-items: center;
+}
+
+.icono-tarjeta { width: 50px; margin-bottom: 12px; }
+.tarjeta h3 { font-size: 1.1rem; margin-bottom: 20px; font-weight: bold; }
+
+.efecto-brillante { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+.efecto-brillante:hover { transform: translateY(-5px); box-shadow: 0 8px 16px rgba(107, 30, 30, 0.2); }
+
+/* Contenidos específicos de tarjetas */
+.descargas-info { width: 100%; text-align: left; margin-bottom: 20px; font-size: 1.1rem; }
+.descargas-info p { display: flex; justify-content: space-between; margin: 8px 0; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+.numero-fuerte { font-weight: bold; font-size: 1.2rem; }
+
+.aumento-container { display: flex; align-items: center; justify-content: center; gap: 15px; margin-top: auto; }
+.icono-aumento { width: 60px; height: auto; }
+.porcentaje-subida { font-size: 2rem; font-weight: bold; color: #6b1e1e; }
+
+.leyenda-origen { display: flex; justify-content: space-around; width: 100%; margin-bottom: 15px; }
+.locales { color: #6b1e1e; font-weight: bold; }
+.extranjeros { color: #e07878; font-weight: bold; }
+.grafico-pastel { width: 180px; height: 180px; margin: 0 auto; }
+
+.barras-aspectos { width: 100%; height: 160px; margin-bottom: 15px; }
+.leyenda-aspectos { text-align: left; width: 100%; font-size: 0.9rem; font-weight: bold; }
+.leyenda-aspectos p { margin: 4px 0; }
+.color-ambiente { color: #6b1e1e; font-size: 1.2rem; margin-right: 5px; }
+.color-comida { color: #c06060; font-size: 1.2rem; margin-right: 5px; }
+.color-higiene { color: #efcfcf; font-size: 1.2rem; margin-right: 5px; }
+
+/* Footer */
+.rectangle-container {
+  width: 100%; background: #6b1e1e; color: #fff; display: flex; flex-wrap: wrap;
+  align-items: flex-start; justify-content: space-between; padding: 32px 40px 20px 40px; gap: 32px;
+}
+.contctanos { font-size: 1.2rem; font-weight: 600; margin-bottom: 16px; width: 100%; }
+.contactos-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px 40px; }
+.contacto-item { display: flex; align-items: center; gap: 10px; font-size: 1rem; }
+.llamada-telefonica-2-icon { width: 26px; height: 26px; }
+.sazonpatrimonialgmailcom { font-size: 1rem; color: #fff; }
+.footer-logos { display: flex; align-items: center; gap: 18px; margin-left: auto; }
+.logo-blanco-2, .logo-equipo, .logo-universidad { height: 80px; width: auto; object-fit: contain; }
