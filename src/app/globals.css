@@ -1,5 +1,18 @@
 @import "tailwindcss";
 
+/* Reset básico */
+html, body {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+*, *::before, *::after {
+  box-sizing: inherit;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;

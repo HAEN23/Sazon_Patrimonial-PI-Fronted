@@ -1,0 +1,468 @@
+/* src/app/page.module.css */
+
+.vista-principal {
+    width: 100%;
+}
+
+.header-principal {
+    position: fixed;
+    top: 0;
+    z-index: 1000;
+    width: 100%;
+    background: #6b1e1e;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.rectangle-parent {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 100px;
+    padding-left: 40px;
+    padding-right: 40px;
+    gap: 32px;
+}
+
+.logo-blanco-parent {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo-blanco {
+    height: 80px;
+    width: auto;
+}
+
+.catlogo-de-restaurantes {
+    font-size: 1.6rem;
+    font-weight: 400;
+    color: #fff;
+    font-family: 'Montserrat', sans-serif;
+    max-width: 200px;
+}
+
+.acciones-usuario {
+    display: flex;
+    gap: 18px;
+    margin-left: auto;
+}
+
+.registro-usuario-parent,
+.log-in-parent {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #6A1E1E;
+    border: none;
+    border-radius: 50px;
+    color: #fff;
+    padding: 12px 22px;
+    font-size: 1rem;
+    font-family: 'Montserrat', sans-serif;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.registro-usuario-parent:hover,
+.log-in-parent:hover {
+    background: #912f2f;
+}
+
+.registro-usuario-parent img,
+.log-in-parent img {
+    height: 22px;
+    width: 22px;
+}
+
+.calles-con-encanto-scaled-parent {
+    position: relative;
+    width: 100%;
+    height: 700px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: #000000;
+}
+
+.calles-con-encanto-scaled-icon {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+    opacity: 0.7;
+}
+
+.contenido-superpuesto {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.descubre-la-magia {
+    font-size: 2.8rem;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 1px 1px 8px #000;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.explora-los-mejores {
+    font-size: 1.2rem;
+    font-family: 'Montserrat', sans-serif;
+    color: #fff;
+    text-shadow: 1px 1px 8px #000;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.barra-busqueda {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border-radius: 25px;
+    padding: 8px 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    width: 680px;
+    max-width: 90%;
+    margin: 0 auto;
+}
+
+.barra-busqueda input::placeholder {
+    color: #912F2F;
+    opacity: 0.8;
+}
+
+.busqueda-icono {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+}
+
+.barra-busqueda input[type="text"] {
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    flex: 1;
+    background: transparent;
+    padding: 8px 0;
+    color: #912F2F;
+}
+
+.barra-busqueda .buscar {
+    background: linear-gradient(90deg, #912F2F 60%, #6A1E1E 100%);
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 22px;
+    font-size: 1rem;
+    margin-left: 10px;
+    cursor: pointer;
+    transition: background 0.8s;
+}
+
+.barra-busqueda .buscar:hover {
+    background: linear-gradient(90deg, #6A1E1E 60%, #912F2F 100%);
+}
+
+.barra-filtros-horizontal {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border-radius: 30px;
+    width: 90%;
+    max-width: 950px;
+}
+
+.filtro-item {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border: 1px solid #912f2f;
+    border-radius: 30px;
+    padding: 6px 14px;
+    gap: 8px;
+    min-width: 170px;
+}
+
+.icono-filtro {
+    width: 20px;
+    height: 20px;
+    opacity: 0.85;
+}
+
+.filtro-select {
+    border: none;
+    outline: none;
+    background: transparent;
+    color: #912f2f;
+    font-family: 'Rubik', sans-serif;
+    font-size: 0.95rem;
+    width: 100%;
+    cursor: pointer;
+}
+
+.btn-filtrar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(90deg, #912F2F 60%, #6A1E1E 100%);
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    padding: 10px 24px;
+    font-size: 1rem;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.3s;
+}
+
+.btn-filtrar:hover {
+    transform: scale(1.03);
+    box-shadow: 0 6px 18px rgba(145, 47, 47, 0.2);
+}
+
+.icono-boton {
+    width: 18px;
+    height: 18px;
+}
+
+.filtros-abajo {
+    position: absolute;
+    bottom: 120px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+}
+
+.line-parent {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32px;
+    width: 100%;
+    justify-content: center;
+}
+
+.contenido-principal {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 32px 40px;
+    width: 100%;
+    margin: 0;
+    box-sizing: border-box;
+    gap: 40px;
+}
+
+/* --- ESTILOS PARA LAS TARJETAS (Listas para usarse) --- */
+.restaurante-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #fff;
+    border-radius: 4px;
+    padding: 4px;
+    cursor: pointer;
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+    width: 300px;
+}
+
+.restaurante-card:hover,
+.restaurante-card:focus {
+    box-shadow: 0 6px 18px rgba(4, 4, 4, 0.166);
+    border-color: #912f2f;
+    transform: translateY(-4px) scale(1.03);
+}
+
+.restaurante-img {
+    width: 100%;
+    height: 200px;
+    border-radius: 4px;
+    object-fit: cover;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    margin-bottom: 8px;
+}
+
+.restaurante-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    justify-content: center;
+    width: 100%;
+}
+
+.restaurante-nombre {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 0;
+    color: #912f2f;
+    font-family: 'Rubik', sans-serif;
+}
+
+.restaurante-tipos,
+.mensaje-sin-restaurantes,
+.mensaje-sin-resultados,
+.mensaje-error {
+    text-align: center;
+    padding: 40px 20px;
+    margin: 20px auto;
+    border-radius: 12px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 500;
+    max-width: 500px;
+}
+
+.mensaje-sin-restaurantes,
+.mensaje-sin-resultados {
+    color: #6A1E1E;
+}
+
+.mensaje-error {
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    color: #721c24;
+    border: 2px solid #f5c6cb;
+}
+
+/* --- FOOTER --- */
+.rectangle-container {
+    width: 100%;
+    background: #912f2f;
+    color: #fff;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 32px 40px 20px 40px;
+    box-sizing: border-box;
+    gap: 32px;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.contctanos {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+    grid-column: 1 / -1;
+}
+
+.contactos-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px 40px;
+}
+
+.gmail-1-1-parent,
+.llamada-telefonica-2-parent,
+.logotipo-de-instagram-2-parent,
+.facebook-1-1-parent {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1rem;
+}
+
+.llamada-telefonica-2-icon {
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
+}
+
+.sazonpatrimonialgmailcom {
+    font-size: 1rem;
+    color: #fff;
+}
+
+.footer-logos {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.logo-blanco-2,
+.logo-equipo,
+.logo-universidad {
+    height: 120px;
+    width: auto;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+/* --- MODALES GENÉRICOS (Opcional por si tienes otros modales sin migrar aún) --- */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay.show {
+    opacity: 1;
+}
+
+.modal-content {
+    position: relative;
+    background: transparent;
+    max-width: 90%;
+    max-height: 95vh;
+    overflow: visible;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    transform: scale(0.7) translateY(-20px);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    opacity: 0;
+}
+
+.modal-overlay.show .modal-content {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+}
+
+.close-modal {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #912F2F;
+    z-index: 10000;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.close-modal:hover {
+    background: rgba(255, 255, 255, 1);
+    color: #B64040;
+}

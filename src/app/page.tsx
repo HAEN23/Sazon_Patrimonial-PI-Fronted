@@ -1,65 +1,120 @@
-import Image from "next/image";
+'use client'; 
+import { useState } from 'react';
+import styles from './page.module.css';
+import LoginModal from './LoginModal/LoginModal';
+import LoginAdmin from './LoginAdmin/LoginAdmin';
+import LoginRest from './LoginRest/LoginRest';
+import LoginUser from './LoginUser/LoginUser';
 
 export default function Home() {
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+  const [isRestModalOpen, setIsRestModalOpen] = useState(false);
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+
+  const handleOpenAdmin = () => {
+    setIsLoginModalOpen(false);
+    setIsAdminModalOpen(true);
+  };
+
+  const handleOpenRest = () => {
+    setIsLoginModalOpen(false);
+    setIsRestModalOpen(true);
+  };
+
+  const handleOpenUser = () => {
+    setIsLoginModalOpen(false);
+    setIsUserModalOpen(true);
+  };
+
+  const handleBackToLogin = () => {
+    setIsAdminModalOpen(false);
+    setIsRestModalOpen(false);
+    setIsUserModalOpen(false);
+    setIsLoginModalOpen(true);
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className={styles['vista-principal']}>
+
+      {/* HEADER */}
+      <header className={styles['header-principal']}>
+        <div className={styles['rectangle-parent']}>
+          <div className={styles['logo-blanco-parent']}>
+            <img className={styles['logo-blanco']} alt="Logo Sazón Patrimonial" src="/images/logo_sp_blanco.png" />
+            <div className={styles['catlogo-de-restaurantes']}>Restaurantes San Cristóbal</div>
+          </div>
+          <nav className={styles['acciones-usuario']}>
+            <button className={styles['registro-usuario-parent']} type="button">
+              <img className={styles.registro} alt="Registrarse" src="/images/agregar-usuario.png" />
+              <span className={styles.registrarse}>Registrarse</span>
+            </button>
+
+            <button 
+              className={styles['log-in-parent']} 
+              type="button"
+              onClick={() => setIsLoginModalOpen(true)}
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              <img className={styles.registro} alt="Iniciar sesión" src="/images/usuario.png" />
+              <span className={styles['iniciar-sesin']}>Iniciar sesión</span>
+            </button>
+          </nav>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+      </header>
+
+      {/* MAIN */}
+      <main>
+        <section className={styles['calles-con-encanto-scaled-parent']}>
+          <img className={styles['calles-con-encanto-scaled-icon']} alt="" src="/images/fondo_inicio.png" />
+          <div className={styles['contenido-superpuesto']}>
+            <div className={styles['descubre-la-magia']}>
+              Descubre la Magia Culinaria de <br />San Cristóbal
+            </div>
+            <div className={styles['explora-los-mejores']}>
+              Explora los mejores sabores de esta tierra
+            </div>
+            <div className={styles['barra-busqueda']}>
+              <img className={styles['busqueda-icono']} alt="" src="/images/buscar.png" />
+              <input type="text" placeholder="Buscar restaurantes" />
+              <button className={styles.buscar}>Buscar</button>
+            </div>
+          </div>
+        </section>
       </main>
+
+      {/* FOOTER */}
+      <footer className={styles['rectangle-container']}>
+        <div className={styles['footer-contactos-redes']}>
+          <div className={styles.contctanos}>Contáctanos</div>
+        </div>
+      </footer>
+
+      {/* MODALES */}
+      <LoginModal 
+        isOpen={isLoginModalOpen} 
+        onClose={() => setIsLoginModalOpen(false)} 
+        onOpenAdmin={handleOpenAdmin} 
+        onOpenRest={handleOpenRest}
+        onOpenUser={handleOpenUser}
+      />
+
+      <LoginAdmin 
+        isOpen={isAdminModalOpen} 
+        onClose={() => setIsAdminModalOpen(false)} 
+        onBack={handleBackToLogin} 
+      />
+
+      <LoginRest 
+        isOpen={isRestModalOpen} 
+        onClose={() => setIsRestModalOpen(false)} 
+        onBack={handleBackToLogin} 
+      />
+
+      <LoginUser 
+        isOpen={isUserModalOpen} 
+        onClose={() => setIsUserModalOpen(false)} 
+        onBack={handleBackToLogin} 
+      />
     </div>
   );
 }
