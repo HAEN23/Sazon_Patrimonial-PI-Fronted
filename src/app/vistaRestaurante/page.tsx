@@ -174,7 +174,7 @@ export default function VistaRestaurante() {
                 </div>
                 <button 
                 className={`${styles.tagPill} ${styles.tagDark} ${styles.tagButton}`} 
-                onClick={() => router.push("/EncuestaNodal")}
+                onClick={() => router.push("/EncuestaModal")}
                 >
                 Encuesta
               </button>

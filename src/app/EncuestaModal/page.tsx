@@ -3,51 +3,46 @@
 import React, { useState } from 'react';
 import styles from './EncuestaModal.module.css';
 
-interface EncuestaModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-export default function EncuestaModal({ isOpen, onClose }: EncuestaModalProps) {
+export default function Page() {
   const [atraccion, setAtraccion] = useState('');
   const [origen, setOrigen] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Aquí puedes agregar tu validación antes de enviar
-    if(!atraccion || !origen) {
-        alert("Por favor selecciona todas las opciones");
-        return;
+
+    if (!atraccion || !origen) {
+      alert("Por favor selecciona todas las opciones");
+      return;
     }
 
     console.log("Encuesta enviada:", { atraccion, origen });
-    
-    // Limpiamos el formulario y cerramos el modal
+
+    // Aquí después puedes conectar la API
+
     setAtraccion('');
     setOrigen('');
-    onClose();
   };
 
   return (
-    <div className={`${styles.overlay} ${isOpen ? styles.overlayShow : ''}`}>
-      <section className={styles.form}>
-        {/* Botón para cerrar la encuesta */}
-        <button className={styles.closeButton} onClick={onClose} aria-label="Cerrar modal">
-          &times;
-        </button>
+    <div style={{ minHeight: "100vh", backgroundColor: "#ffffff", padding: "40px 20px" }}>
+      <div style={{ maxWidth: "500px", margin: "0 auto" }}>
+        
+        <img 
+          src="/images/logo_sp_rojo.png" 
+          className={styles.logo} 
+          width="100" 
+          alt="Logo Sazón Patrimonial" 
+          style={{ display: "block", margin: "0 auto 20px" }}
+        />
 
-        <img src="/images/logo_sp_rojo.png" className={styles.logo} width="100" alt="Logo Sazón Patrimonial" />
-        
-        {/* En tu HTML decía h2, pero en tu CSS lo estilizaste como h4, usaremos h2 con tu estilo */}
-        <h2 className={styles.titulo}>¿Qué te atrajo del restaurante?</h2>
-        
-        <form id="encuestaForm" className={styles.formContainer} onSubmit={handleSubmit}>
+        <h2 className={styles.titulo} style={{ textAlign: "center" }}>
+          ¿Qué te atrajo del restaurante?
+        </h2>
+
+        <form className={styles.formContainer} onSubmit={handleSubmit}>
           
-          <div className={styles['select-container']}>
-            <select 
-              id="atraccion" 
-              name="atraccion" 
+          <div className={styles['select-container']} style={{ marginBottom: "20px" }}>
+            <select
               className={styles['selec-filtro']}
               value={atraccion}
               onChange={(e) => setAtraccion(e.target.value)}
@@ -59,15 +54,14 @@ export default function EncuestaModal({ isOpen, onClose }: EncuestaModalProps) {
               <option value="horario">El horario</option>
               <option value="vista">La vista</option>
             </select>
-            <span className={styles['error-message']} id="error-atraccion"></span>
           </div>
 
-          <h2 className={styles.titulo}>¿De dónde nos visitas?</h2>
-          
-          <div className={styles['select-container']}>
-            <select 
-              id="origen" 
-              name="origen" 
+          <h2 className={styles.titulo} style={{ textAlign: "center" }}>
+            ¿De dónde nos visitas?
+          </h2>
+
+          <div className={styles['select-container']} style={{ marginBottom: "20px" }}>
+            <select
               className={styles['selec-filtro']}
               value={origen}
               onChange={(e) => setOrigen(e.target.value)}
@@ -76,12 +70,18 @@ export default function EncuestaModal({ isOpen, onClose }: EncuestaModalProps) {
               <option value="nacional">Nacional</option>
               <option value="extranjero">Extranjero</option>
             </select>
-            <span className={styles['error-message']} id="error-origen"></span>
           </div>
 
-          <button type="submit" className={styles.button}>Enviar</button>
+          <button 
+            type="submit" 
+            className={styles.button}
+            style={{ width: "100%" }}
+          >
+            Enviar
+          </button>
+
         </form>
-      </section>
+      </div>
     </div>
   );
 }

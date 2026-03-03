@@ -154,12 +154,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* CONTENIDO PRINCIPAL */}
-        <div className={styles['contenido-principal']}>
-          <section className={styles['line-parent']}>
-            {/* Aquí después irán las cards */}
-          </section>
-        </div>
       </main>
 
       {/* FOOTER */}
