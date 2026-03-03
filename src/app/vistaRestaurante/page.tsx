@@ -7,6 +7,24 @@ import styles from "./vistaRestaurante.module.css";
 
 export default function VistaRestaurante() {
   const router = useRouter();
+
+const [fotos, setFotos] = useState<string[]>([
+  "/images/fondo_inicio.png",
+  "/images/fondo_inicio.png",
+  "/images/fondo_inicio.png",
+  "/images/fondo_inicio.png",
+]);
+
+const handleSubirFoto = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const files = event.target.files;
+  if (!files) return;
+
+  const nuevasFotos = Array.from(files).map((file) =>
+    URL.createObjectURL(file)
+  );
+
+  setFotos((prev) => [...prev, ...nuevasFotos]);
+};
   
   // Estados para los modales y favoritos
   const [modalMenuOpen, setModalMenuOpen] = useState(false);
@@ -184,16 +202,40 @@ export default function VistaRestaurante() {
 
             <h3>Fotos de Usuarios</h3>
             <div className={styles.fotosUsuariosRow}>
-              {[1, 2, 3, 4].map((item) => (
-                <div key={item} className={styles.fotoMini}>
-                  <Image src="/images/fondo_inicio.png" alt="Usuario" fill className={styles.imageCover} />
-                </div>
-              ))}
-              <button className={styles.btnSubirFoto}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6b1e1e" strokeWidth="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                Subir Foto
-              </button>
-            </div>
+            {fotos.map((foto, index) => (
+              <div key={index} className={styles.fotoMini}>
+                <Image
+                  src={foto}
+                  alt="Usuario"
+                  fill
+                  className={styles.imageCover}
+                  unoptimized
+                />
+              </div>
+            ))}
+
+            <label className={styles.btnSubirFoto}>
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#6b1e1e"
+                strokeWidth="2"
+              >
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                <circle cx="12" cy="13" r="4" />
+              </svg>
+              Subir Foto
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                hidden
+                onChange={handleSubirFoto}
+              />
+            </label>
+          </div>
           </div>
 
         </div>
@@ -254,19 +296,6 @@ export default function VistaRestaurante() {
             <div style={{ padding: "20px", color: "#6b1e1e" }}>
               <h2>Menú</h2>
               <p>Contenido del menú aquí...</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL ENCUESTA */}
-      {modalEncuestaOpen && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modalContent}>
-            <button className={styles.closeModal} onClick={cerrarModalEncuesta}>&times;</button>
-            <div style={{ padding: "20px", color: "#6b1e1e" }}>
-              <h2>Encuesta de Satisfacción</h2>
-              <p>¡Ayúdanos a mejorar! Aquí irá tu formulario de encuesta dinámica.</p>
             </div>
           </div>
         </div>

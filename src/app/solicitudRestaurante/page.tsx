@@ -146,7 +146,7 @@ export default function SolicitudPage() {
               ¡Su solicitud ha sido enviada con éxito!
               <br />
               La información será validada muy pronto.
-              <br /> :)
+              <br />
             </p>
           </div>
         </div>
