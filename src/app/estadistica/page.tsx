@@ -3,11 +3,9 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './estadistica.module.css';
-// Importaciones para las gráficas
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from 'chart.js';
 import { Pie, Bar } from 'react-chartjs-2';
 
-// Registramos los elementos de Chart.js
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
 export default function Estadisticas() {
@@ -45,8 +43,28 @@ export default function Estadisticas() {
     scales: { y: { beginAtZero: true, max: 100 } }
   };
 
+  // 🔥 NUEVA ESTADÍSTICA DE LIKES
+  const dataLikes = {
+    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May'],
+    datasets: [
+      {
+        label: 'Likes',
+        data: [120, 190, 300, 250, 410],
+        backgroundColor: '#6b1e1e',
+        borderRadius: 4,
+      },
+    ],
+  };
+
+  const optionsLikes = {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: { y: { beginAtZero: true } }
+  };
+
   return (
     <div className={styles['vista-principal']}>
+
       {/* HEADER */}
       <header className={styles['header-principal']}>
         <div className={styles['rectangle-parent']}>
@@ -92,7 +110,7 @@ export default function Estadisticas() {
               </div>
             </div>
 
-            {/* Tarjeta 2: Origen (Pastel) */}
+            {/* Tarjeta 2: Origen */}
             <div className={`${styles.tarjeta} ${styles['efecto-brillante']}`}>
               <img src="/images/visitas.png" alt="Origen" className={styles['icono-tarjeta']} />
               <h3>INTERÉS POR ORIGEN</h3>
@@ -105,7 +123,7 @@ export default function Estadisticas() {
               </div>
             </div>
 
-            {/* Tarjeta 3: Aspectos (Barras) */}
+            {/* Tarjeta 3: Aspectos */}
             <div className={`${styles.tarjeta} ${styles['efecto-brillante']}`}>
               <img src="/images/aspectos.png" alt="Aspectos" className={styles['icono-tarjeta']} />
               <h3>ASPECTOS DESTACADOS</h3>
@@ -116,6 +134,26 @@ export default function Estadisticas() {
                 <p><span className={styles['color-ambiente']}>■</span> Ambiente 95%</p>
                 <p><span className={styles['color-comida']}>■</span> Comida 75%</p>
                 <p><span className={styles['color-higiene']}>■</span> Higiene 50%</p>
+              </div>
+            </div>
+
+            {/* 🔥 Tarjeta 4: Likes */}
+            <div className={`${styles.tarjeta} ${styles['efecto-brillante']}`}>
+              <img src="/images/like.png" alt="Likes" className={styles['icono-tarjeta']} />
+              <h3>LIKES RECIBIDOS</h3>
+
+              <div className={styles['descargas-info']}>
+                <p>Esta semana <span className={styles['numero-fuerte']}>132</span></p>
+                <p>Total acumulados <span className={styles['numero-fuerte']}>2,845</span></p>
+              </div>
+
+              <div className={styles['aumento-container']}>
+                <img src="/images/aumento.png" className={styles['icono-aumento']} alt="Aumento" />
+                <span className={styles['porcentaje-subida']}>+22%</span>
+              </div>
+
+              <div className={styles['barras-aspectos']}>
+                <Bar data={dataLikes} options={optionsLikes} />
               </div>
             </div>
 
