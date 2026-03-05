@@ -1,11 +1,11 @@
 "use client";
 
-import Image from "next/image";
-import styles from "./vistaRestaurantero.module.css";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import styles from "../page.module.css"; // reutilizamos el CSS del index
 
 export default function VistaPrincipalRestaurantero() {
+
   const router = useRouter();
 
   const [busqueda, setBusqueda] = useState("");
@@ -14,115 +14,103 @@ export default function VistaPrincipalRestaurantero() {
   const [tipo, setTipo] = useState("");
   const [ubicacion, setUbicacion] = useState("");
 
-  // BUSCAR RESTAURANTE
   const handleBuscar = () => {
     console.log("Buscando:", busqueda);
-    // Aquí después conectarás con tu API
   };
 
-  // FILTRAR RESTAURANTES
   const handleFiltrar = () => {
-    const filtros = {
+    console.log({
       precio,
       horario,
       tipo,
-      ubicacion,
-    };
-
-    console.log("Filtros aplicados:", filtros);
-    // Aquí después conectarás con tu API
+      ubicacion
+    });
   };
 
-  // IR A MI RESTAURANTE
   const irMiRestaurante = () => {
-    router.push("/vistaResturante"); // puedes cambiar esta ruta luego
+    router.push("/vistaEdicionRest");
   };
 
-  // CERRAR SESIÓN
   const cerrarSesion = () => {
-    console.log("Cerrando sesión...");
-    router.push("/"); // regresa al index
+    localStorage.removeItem("userRole");
+    router.push("/");
   };
 
   return (
-    <div className={styles.vistaPrincipal}>
+    <div className={styles["vista-principal"]}>
+
       {/* HEADER */}
-      <header className={styles.headerPrincipal}>
-        <div className={styles.headerContainer}>
-          <div className={styles.logoContainer}>
-            <Image
+      <header className={styles["header-principal"]}>
+        <div className={styles["rectangle-parent"]}>
+
+          <div className={styles["logo-blanco-parent"]}>
+            <img
+              className={styles["logo-blanco"]}
               src="/images/logo_sp_blanco.png"
-              alt="Logo Sazón Patrimonial"
-              width={120}
-              height={50}
+              alt="Logo"
             />
-            <div>Restaurantes San Cristóbal</div>
+
+            <div className={styles["catlogo-de-restaurantes"]}>
+              Restaurantes San Cristóbal
+            </div>
           </div>
 
-          <nav className={styles.accionesUsuario}>
+          <nav className={styles["acciones-usuario"]}>
+
             <button
-              className={styles.botonHeader}
+              className={styles["registro-usuario-parent"]}
               onClick={irMiRestaurante}
             >
-              <Image
+              <img
                 src="/images/miRestaurante.png"
                 alt="Mi restaurante"
-                width={20}
-                height={20}
               />
               <span>Mi restaurante</span>
             </button>
 
             <button
-              className={styles.botonHeader}
+              className={styles["log-in-parent"]}
               onClick={cerrarSesion}
             >
-              <Image
+              <img
                 src="/images/logout.png"
                 alt="Cerrar sesión"
-                width={20}
-                height={20}
               />
               <span>Cerrar sesión</span>
             </button>
-          </nav>
 
-          <div>
-            <Image
-              src="/images/restaurantero.png"
-              alt="Icono restaurantero"
-              width={40}
-              height={40}
-            />
-          </div>
+          </nav>
         </div>
       </header>
 
       {/* HERO */}
       <main>
-        <section className={styles.heroSection}>
-          <Image
+        <section className={styles["calles-con-encanto-scaled-parent"]}>
+
+          <img
+            className={styles["calles-con-encanto-scaled-icon"]}
             src="/images/fondo_inicio.png"
-            alt="Fondo principal"
-            fill
-            className={styles.heroImage}
+            alt=""
           />
 
-          <div className={styles.heroContenido}>
-            <h1>
+          <div className={styles["contenido-superpuesto"]}>
+
+            <div className={styles["descubre-la-magia"]}>
               Descubre la Magia Culinaria de <br />
               San Cristóbal
-            </h1>
+            </div>
 
-            <p>Explora los mejores sabores de esta tierra</p>
+            <div className={styles["explora-los-mejores"]}>
+              Explora los mejores sabores de esta tierra
+            </div>
 
-            {/* Barra búsqueda */}
-            <div className={styles.barraBusqueda}>
-              <Image
+            {/* BUSQUEDA */}
+            <div className={styles["barra-busqueda"]}>
+
+              <img
+                className={styles["busqueda-icono"]}
                 src="/images/buscar.png"
-                alt="Buscar"
-                width={20}
-                height={20}
+                alt=""
               />
 
               <input
@@ -132,91 +120,123 @@ export default function VistaPrincipalRestaurantero() {
                 onChange={(e) => setBusqueda(e.target.value)}
               />
 
-              <button onClick={handleBuscar}>Buscar</button>
+              <button
+                className={styles["buscar"]}
+                onClick={handleBuscar}
+              >
+                Buscar
+              </button>
+
             </div>
           </div>
 
           {/* FILTROS */}
-          <div className={styles.barraFiltros}>
-            <select onChange={(e) => setPrecio(e.target.value)}>
-              <option value="">Precio</option>
-              <option value="bajo">Bajo</option>
-              <option value="medio">Medio</option>
-              <option value="alto">Alto</option>
-            </select>
+          <div className={`${styles["barra-filtros-horizontal"]} ${styles["filtros-abajo"]}`}>
 
-            <select onChange={(e) => setHorario(e.target.value)}>
-              <option value="">Horario</option>
-              <option value="manana">Mañana</option>
-              <option value="tarde">Tarde</option>
-              <option value="noche">Noche</option>
-            </select>
+            <div className={styles["filtro-item"]}>
+            <img src="/images/menu.png" className={styles['icono-filtro']} />
+              <select
+                className={styles["filtro-select"]}
+                onChange={(e) => setPrecio(e.target.value)}
+              >
+                <option value="">Precio</option>
+                <option value="bajo">Bajo</option>
+                <option value="medio">Medio</option>
+                <option value="alto">Alto</option>
+              </select>
+            </div>
 
-            <select onChange={(e) => setTipo(e.target.value)}>
-              <option value="">Tipo de comida</option>
-              <option value="mexicana">Mexicana</option>
-              <option value="cafe">Café</option>
-              <option value="internacional">Internacional</option>
-            </select>
+            <div className={styles["filtro-item"]}>
+            <img src="/images/menu.png" className={styles['icono-filtro']} />
+              <select
+                className={styles["filtro-select"]}
+                onChange={(e) => setHorario(e.target.value)}
+              >
+                <option value="">Horario</option>
+                <option value="manana">Mañana</option>
+                <option value="tarde">Tarde</option>
+                <option value="noche">Noche</option>
+              </select>
+            </div>
 
-            <select onChange={(e) => setUbicacion(e.target.value)}>
-              <option value="">Ubicación</option>
-              <option value="centro">Centro</option>
-              <option value="norte">Norte</option>
-              <option value="sur">Sur</option>
-            </select>
+            <div className={styles["filtro-item"]}>
+            <img src="/images/menu.png" className={styles['icono-filtro']} />
+              <select
+                className={styles["filtro-select"]}
+                onChange={(e) => setTipo(e.target.value)}
+              >
+                <option value="">Tipo de comida</option>
+                <option value="mexicana">Mexicana</option>
+                <option value="cafe">Café</option>
+                <option value="internacional">Internacional</option>
+              </select>
+            </div>
+
+            <div className={styles["filtro-item"]}>
+            <img src="/images/menu.png" className={styles['icono-filtro']} />
+              <select
+                className={styles["filtro-select"]}
+                onChange={(e) => setUbicacion(e.target.value)}
+              >
+                <option value="">Ubicación</option>
+                <option value="centro">Centro</option>
+                <option value="norte">Norte</option>
+                <option value="sur">Sur</option>
+              </select>
+            </div>
 
             <button
-              className={styles.btnFiltrar}
+              className={styles["btn-filtrar"]}
               onClick={handleFiltrar}
             >
-              <Image
-                src="/images/buscar_blanco.png"
-                alt="Filtrar"
-                width={20}
-                height={20}
-              />
-              Filtrar
+              Limpiar filtros
             </button>
-          </div>
-        </section>
 
-        {/* CONTENIDO PRINCIPAL */}
-        <div className={styles.contenidoPrincipal}>
-          {/* Aquí después cargarás las cards dinámicas */}
-        </div>
+          </div>
+
+        </section>
       </main>
 
       {/* FOOTER */}
-      <footer className={styles.footer}>
-        <div>
-          <h4>Contáctanos</h4>
-          <p>sazonpatrimonial@gmail.com</p>
-          <p>+52 961 652 2093</p>
-          <p>@sazonpatrimonial</p>
-        </div>
+      <footer className={styles['rectangle-container']}>
+        <div className={styles['footer-contactos-redes']}>
 
-        <div className={styles.footerLogos}>
-          <Image
-            src="/images/logo_sp_blanco.png"
-            alt="Logo SP"
-            width={100}
-            height={40}
-          />
-          <Image
-            src="/images/devbox_logo.png"
-            alt="Logo Devbox"
-            width={80}
-            height={40}
-          />
-          <Image
-            src="/images/logo_uni.png"
-            alt="Logo UP"
-            width={80}
-            height={40}
-          />
+          <div className={styles['contctanos']}>Contáctanos</div>
+
+          <div className={styles['contactos-grid']}>
+
+            <div className={styles['gmail-1-1-parent']}>
+              <img className={styles['llamada-telefonica-2-icon']} src="/images/gmail_logo.png" />
+              <div className={styles['sazonpatrimonialgmailcom']}>
+                sazonpatrimonial@gmail.com
+              </div>
+            </div>
+
+            <div className={styles['llamada-telefonica-2-parent']}>
+              <img className={styles['llamada-telefonica-2-icon']} src="/images/call_logo.png" />
+              <div className={styles['sazonpatrimonialgmailcom']}>
+                +52 961 652 2093
+              </div>
+            </div>
+
+            <div className={styles['logotipo-de-instagram-2-parent']}>
+              <img className={styles['llamada-telefonica-2-icon']} src="/images/insta_logo.png" />
+              <div className={styles['sazonpatrimonialgmailcom']}>
+                @sazonpatrimonial
+              </div>
+            </div>
+
+            <div className={styles['facebook-1-1-parent']}>
+              <img className={styles['llamada-telefonica-2-icon']} src="/images/face_logo.png" />
+              <div className={styles['sazonpatrimonialgmailcom']}>
+                @sazonpatrimonial
+              </div>
+            </div>
+
+          </div>
         </div>
       </footer>
+
     </div>
   );
 }

@@ -129,15 +129,16 @@
 /* ================= GALERÍA ================= */
 
 .galeria {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
   margin-top: 12px;
 }
 
 .imagenSlot {
   border: 1.5px dashed #912f2f;
-  border-radius: 4px;
-  width: 40%;
+  border-radius: 6px;
+  width: 100%;
   height: 200px;
   display: flex;
   align-items: center;
