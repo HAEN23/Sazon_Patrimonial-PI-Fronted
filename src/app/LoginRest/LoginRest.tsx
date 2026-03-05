@@ -3,24 +3,37 @@
 
 import React from 'react';
 import styles from './LoginRest.module.css';
+import { useRouter } from "next/navigation";
 
 interface LoginRestProps {
   isOpen: boolean;
   onClose: () => void;
-  onBack: () => void; // Para regresar al modal de selección de rol
+  onBack: () => void;
 }
 
 export default function LoginRest({ isOpen, onClose, onBack }: LoginRestProps) {
+
+  const router = useRouter();
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
     console.log("Iniciando sesión como Restaurantero...");
-    // Aquí irá tu lógica de validación
+
+    // guardar rol
+    localStorage.setItem("userRole", "restaurantero");
+
+    // cerrar modal
+    onClose();
+
+    // redirigir
+    router.push("/vistaPrincipalRestaurantero");
   };
 
   return (
     <div className={`${styles.overlay} ${isOpen ? styles.overlayShow : ''}`}>
       <section className={styles.modalBox}>
-        {/* Botón para regresar al modal anterior */}
+
         <button className={styles.backButton} onClick={onBack} aria-label="Regresar">
           &#8592;
         </button>
@@ -29,8 +42,10 @@ export default function LoginRest({ isOpen, onClose, onBack }: LoginRestProps) {
           &times;
         </button>
 
-        <form className={styles.viewContainer} id="loginForm" onSubmit={handleSubmit}>
+        <form className={styles.viewContainer} onSubmit={handleSubmit}>
+
           <img src="/images/logo_sp_rojo.png" className={styles.logo} width="100" alt="Logo Sazón Patrimonial" />
+
           <h4 className={styles.titulo}>Iniciar sesión</h4>
           
           <div className={styles.inputGroup}>
@@ -42,7 +57,7 @@ export default function LoginRest({ isOpen, onClose, onBack }: LoginRestProps) {
               id="correo" 
               placeholder="Ingrese su correo" 
             />
-            <span className={styles.errorMsg} id="error-correo"></span>
+            <span className={styles.errorMsg}></span>
           </div>
 
           <div className={styles.inputGroup}>
@@ -54,12 +69,13 @@ export default function LoginRest({ isOpen, onClose, onBack }: LoginRestProps) {
               id="contrasena" 
               placeholder="Ingrese su contraseña" 
             />
-            <span className={styles.errorMsg} id="error-contrasena"></span>
+            <span className={styles.errorMsg}></span>
           </div>
 
           <button className={styles.submitButton} type="submit">
             Iniciar sesión
           </button>
+
         </form>
       </section>
     </div>
