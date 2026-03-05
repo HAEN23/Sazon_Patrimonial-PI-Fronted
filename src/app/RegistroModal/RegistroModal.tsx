@@ -24,6 +24,8 @@ export default function RegistroModal({
     confirmar: "",
   });
 
+  const router = useRouter();
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
@@ -33,10 +35,54 @@ export default function RegistroModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
     console.log("Datos de registro:", formData);
+
+    // VALIDAR CONTRASEÑAS
+    if (formData.contrasena !== formData.confirmar) {
+      alert("Las contraseñas no coinciden");
+      return;
+    }
+
+    // OBTENER USUARIOS EXISTENTES
+    const usuariosGuardados = JSON.parse(localStorage.getItem("usuarios") || "[]");
+
+    // VALIDAR CORREO DUPLICADO
+    const correoExiste = usuariosGuardados.find(
+      (user: any) => user.correo === formData.correo
+    );
+
+    if (correoExiste) {
+      alert("Este correo ya está registrado");
+      return;
+    }
+
+    // CREAR NUEVO USUARIO
+    const nuevoUsuario = {
+      nombre: formData.nombre,
+      correo: formData.correo,
+      contrasena: formData.contrasena,
+      tipo: "usuario"
+    };
+
+    // GUARDAR USUARIO
+    usuariosGuardados.push(nuevoUsuario);
+    localStorage.setItem("usuarios", JSON.stringify(usuariosGuardados));
+
+    alert("Registro exitoso");
+
+    // LIMPIAR FORMULARIO
+    setFormData({
+      nombre: "",
+      correo: "",
+      contrasena: "",
+      confirmar: "",
+    });
+
+    // CERRAR MODAL
+    onClose();
   };
-  const router = useRouter();
-  
+
   return (
     <div className={`${styles.overlay} ${isOpen ? styles.overlayShow : ''}`}>
       <section className={styles.modalBox}>

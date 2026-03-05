@@ -465,4 +465,27 @@
 .close-modal:hover {
     background: rgba(255, 255, 255, 1);
     color: #B64040;
+
+.contenedor-restaurantes{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+gap:20px;
+padding:40px;
+}
+
+.card-restaurante{
+background:white;
+border-radius:10px;
+padding:15px;
+box-shadow:0 4px 10px rgba(0,0,0,0.1);
+text-align:center;
+}
+
+.imagen-restaurante{
+width:100%;
+height:180px;
+object-fit:cover;
+border-radius:8px;
+}
+
 }
