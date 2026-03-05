@@ -3,6 +3,7 @@
 
 import React from 'react';
 import styles from './LoginUser.module.css';
+import { useRouter } from "next/navigation";
 
 interface LoginUserProps {
   isOpen: boolean;
@@ -16,6 +17,7 @@ export default function LoginUser({ isOpen, onClose, onBack }: LoginUserProps) {
     console.log("Iniciando sesión como Usuario...");
     // Aquí irá tu lógica de validación para usuarios normales
   };
+  const router = useRouter();
 
   return (
     <div className={`${styles.overlay} ${isOpen ? styles.overlayShow : ''}`}>

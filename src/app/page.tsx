@@ -6,19 +6,21 @@ import LoginModal from './LoginModal/LoginModal';
 import LoginAdmin from './LoginAdmin/LoginAdmin';
 import LoginRest from './LoginRest/LoginRest';
 import LoginUser from './LoginUser/LoginUser';
+import RegistroModal from './RegistroModal/RegistroModal';
 
 export default function Home() {
-  const router = useRouter();
 
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [isRestModalOpen, setIsRestModalOpen] = useState(false);
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+  const [isRegistroOpen, setIsRegistroOpen] = useState(false);
 
   const handleBackToLogin = () => {
     setIsAdminModalOpen(false);
     setIsRestModalOpen(false);
     setIsUserModalOpen(false);
+    setIsRegistroOpen(false);
     setIsLoginModalOpen(true);
   };
 
@@ -41,11 +43,10 @@ export default function Home() {
 
           <nav className={styles['acciones-usuario']}>
 
-            {/* BOTÓN REGISTRARSE REDIRIGE A /registro */}
             <button
               className={styles['registro-usuario-parent']}
               type="button"
-              onClick={() => router.push('/registro')}
+              onClick={() => setIsRegistroOpen(true)}
             >
               <img
                 className={styles['registro']}
@@ -195,14 +196,29 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* MODALES */}
-      <LoginModal
-        isOpen={isLoginModalOpen}
-        onClose={() => setIsLoginModalOpen(false)}
-        onOpenAdmin={() => setIsAdminModalOpen(true)}
-        onOpenRest={() => setIsRestModalOpen(true)}
-        onOpenUser={() => setIsUserModalOpen(true)}
-      />
+    {/* MODALES */}
+  
+    <LoginModal
+      isOpen={isLoginModalOpen}
+      onClose={() => setIsLoginModalOpen(false)}
+      onOpenAdmin={() => {
+        setIsLoginModalOpen(false);
+        setIsAdminModalOpen(true);
+      }}
+      onOpenRest={() => {
+        setIsLoginModalOpen(false);
+        setIsRestModalOpen(true);
+      }}
+      onOpenUser={() => {
+        setIsLoginModalOpen(false);
+        setIsUserModalOpen(true);
+      }}
+      onOpenRegistro={() => {
+        setIsLoginModalOpen(false);
+        setIsRegistroOpen(true);
+      }}
+    />
+    
 
       <LoginAdmin
         isOpen={isAdminModalOpen}
@@ -220,6 +236,24 @@ export default function Home() {
         isOpen={isUserModalOpen}
         onClose={() => setIsUserModalOpen(false)}
         onBack={handleBackToLogin}
+      />
+
+      <LoginAdmin
+        isOpen={isAdminModalOpen}
+        onClose={() => setIsAdminModalOpen(false)}
+        onBack={() => {
+          setIsAdminModalOpen(false);
+          setIsLoginModalOpen(true);
+        }}
+      />
+
+      <RegistroModal
+        isOpen={isRegistroOpen}
+        onClose={() => setIsRegistroOpen(false)}
+        onBack={() => {
+          setIsRegistroOpen(false);
+          setIsLoginModalOpen(true);
+        }}
       />
 
     </div>
