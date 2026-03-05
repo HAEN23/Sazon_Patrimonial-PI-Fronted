@@ -3,7 +3,6 @@
 
 import React from 'react';
 import styles from './LoginModal.module.css';
-import { useRouter } from 'next/navigation';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -11,10 +10,10 @@ interface LoginModalProps {
   onOpenAdmin: () => void;
   onOpenRest: () => void;
   onOpenUser: () => void;
+  onOpenRegistro: () => void;
 }
 
-export default function LoginModal({ isOpen, onClose, onOpenAdmin, onOpenRest, onOpenUser }: LoginModalProps) {
-  const router = useRouter();
+export default function LoginModal({ isOpen, onClose, onOpenAdmin, onOpenRest, onOpenUser, onOpenRegistro }: LoginModalProps) {
   return (
     <div className={`${styles.overlay} ${isOpen ? styles.overlayShow : ''}`}>
       <section className={styles.modalBox}>
@@ -41,9 +40,11 @@ export default function LoginModal({ isOpen, onClose, onOpenAdmin, onOpenRest, o
             Usuario
           </button>
           
-          <button className={styles['registro-usuario-parent']}
-              type="button"
-              onClick={() => router.push('/registro')}>
+          <button
+            className={styles['registro-usuario-parent']}
+            type="button"
+            onClick={onOpenRegistro}
+            >
             Registrarse
           </button>
         </div>

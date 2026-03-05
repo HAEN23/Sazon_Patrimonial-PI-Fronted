@@ -3,34 +3,49 @@
 
 import React from 'react';
 import styles from './LoginAdmin.module.css';
+import { useRouter } from "next/navigation";
 
 interface LoginAdminProps {
   isOpen: boolean;
   onClose: () => void;
-  onBack: () => void; // Para regresar al modal de selección de rol
+  onBack: () => void;
 }
 
 export default function LoginAdmin({ isOpen, onClose, onBack }: LoginAdminProps) {
+
+  const router = useRouter();
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
     console.log("Iniciando sesión como admin...");
-    // Aquí irá tu lógica de validación
+
+    // guardar rol
+    localStorage.setItem("userRole", "admin");
+
+    // cerrar modal
+    onClose();
+
+    // redirigir
+    router.push("/vistaPrincipalAdmin");
   };
 
   return (
     <div className={`${styles.overlay} ${isOpen ? styles.overlayShow : ''}`}>
       <section className={styles.modalBox}>
-        {/* Botón para regresar al modal anterior */}
+
         <button className={styles.backButton} onClick={onBack} aria-label="Regresar">
-          &#8592; {/* Flecha hacia la izquierda */}
+          &#8592;
         </button>
 
         <button className={styles.closeButton} onClick={onClose} aria-label="Cerrar modal">
           &times;
         </button>
 
-        <form className={styles.viewContainer} id="loginForm" onSubmit={handleSubmit}>
+        <form className={styles.viewContainer} onSubmit={handleSubmit}>
+
           <img src="/images/logo_sp_rojo.png" className={styles.logo} width="100" alt="Logo Sazón Patrimonial" />
+
           <h4 className={styles.titulo}>Iniciar sesión</h4>
           
           <div className={styles.inputGroup}>
@@ -42,7 +57,7 @@ export default function LoginAdmin({ isOpen, onClose, onBack }: LoginAdminProps)
               id="correo" 
               placeholder="Ingrese su correo" 
             />
-            <span className={styles.errorMsg} id="error-correo"></span>
+            <span className={styles.errorMsg}></span>
           </div>
 
           <div className={styles.inputGroup}>
@@ -54,12 +69,13 @@ export default function LoginAdmin({ isOpen, onClose, onBack }: LoginAdminProps)
               id="contrasena" 
               placeholder="Ingrese su contraseña" 
             />
-            <span className={styles.errorMsg} id="error-contrasena"></span>
+            <span className={styles.errorMsg}></span>
           </div>
 
           <button className={styles.submitButton} type="submit">
             Iniciar sesión
           </button>
+
         </form>
       </section>
     </div>
