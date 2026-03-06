@@ -4,6 +4,7 @@ import Image from "next/image";
 import styles from "./VistaPrincipalAdmin.module.css";
 import { useState, useEffect } from "react";
 
+// 1. Interfaz
 interface Solicitud {
   id_solicitud: number;
   restaurante: string;
@@ -12,8 +13,10 @@ interface Solicitud {
   telefono: string;
   direccion: string;
   horario: string;
-  img_url?: string;
-  pdf_url?: string;
+  img_url?: string; 
+  foto_2?: string;  
+  foto_3?: string;  
+  pdf_url?: string; 
 }
 
 export default function VistaPrincipalAdmin() {
@@ -91,6 +94,15 @@ export default function VistaPrincipalAdmin() {
     }
   };
 
+  // --- NUEVA FUNCIÓN PARA EVITAR EL ERROR 404 EN EL ADMIN ---
+  const handleVerArchivo = (url: string, e: React.MouseEvent<HTMLAnchorElement>) => {
+    // Si la URL es la simulada que guardamos en las pruebas, bloqueamos que abra la pestaña 404
+    if (url === "url-simulada-pdf.pdf" || url.includes("simulada")) {
+      e.preventDefault(); // Evita que el navegador intente abrir el link
+      alert("Este es un archivo de prueba (simulado). El usuario no ha subido un archivo real todavía.");
+    }
+  };
+
   return (
     <div className={styles.vistaPrincipal}>
       <header className={styles.headerPrincipal}>
@@ -147,18 +159,36 @@ export default function VistaPrincipalAdmin() {
                           <td>{sol.propietario}</td>
                           <td>{sol.correo}</td>
                           <td>{sol.telefono || '-'}</td>
-                          <td>{sol.direccion || '-'}</td>
+                          <td>
+                             {sol.direccion ? (
+                               <a href={sol.direccion} target="_blank" rel="noopener noreferrer" style={{color: '#912F2F', textDecoration: 'underline'}}>Ver Mapa</a>
+                             ) : '-'}
+                          </td>
                           <td>{sol.horario}</td>
                           
+                          {/* COLUMNA DE IMÁGENES */}
                           <td style={{textAlign: 'center'}}>
-                            {sol.img_url ? (
-                              <a href={sol.img_url} target="_blank" className={styles.btnVerArchivo}>📷 Ver</a>
-                            ) : <span className={styles.vacio}>-</span>}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', alignItems: 'center' }}>
+                                {sol.img_url ? (
+                                  <a href={sol.img_url} target="_blank" rel="noopener noreferrer" className={styles.btnVerArchivo} onClick={(e) => handleVerArchivo(sol.img_url!, e)}>📷 Img 1</a>
+                                ) : null}
+                                
+                                {sol.foto_2 ? (
+                                  <a href={sol.foto_2} target="_blank" rel="noopener noreferrer" className={styles.btnVerArchivo} onClick={(e) => handleVerArchivo(sol.foto_2!, e)}>📷 Img 2</a>
+                                ) : null}
+
+                                {sol.foto_3 ? (
+                                  <a href={sol.foto_3} target="_blank" rel="noopener noreferrer" className={styles.btnVerArchivo} onClick={(e) => handleVerArchivo(sol.foto_3!, e)}>📷 Img 3</a>
+                                ) : null}
+
+                                {!sol.img_url && !sol.foto_2 && !sol.foto_3 && <span className={styles.vacio}>-</span>}
+                            </div>
                           </td>
 
+                          {/* COLUMNA DE PDF */}
                           <td style={{textAlign: 'center'}}>
                             {sol.pdf_url ? (
-                              <a href={sol.pdf_url} target="_blank" className={styles.btnVerArchivo}>📄 PDF</a>
+                              <a href={sol.pdf_url} target="_blank" rel="noopener noreferrer" className={styles.btnVerArchivo} onClick={(e) => handleVerArchivo(sol.pdf_url!, e)}>📄 Ver Menú</a>
                             ) : <span className={styles.vacio}>-</span>}
                           </td>
 

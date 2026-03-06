@@ -11,7 +11,7 @@ export default function EdicionRestaurante() {
   // 1. ESTADO DEL FORMULARIO
   const [formData, setFormData] = useState({
     nombre: "",
-    direccion: "", // <--- Aquí guardaremos el Link de Google Maps
+    direccion: "",
     horario: "",
     telefono: "",
     facebook: "",
@@ -45,7 +45,7 @@ export default function EdicionRestaurante() {
 
           setFormData({
             nombre: info.nombre_propuesto_restaurante || "",
-            direccion: info.direccion || "", // Recuperamos el link guardado
+            direccion: info.direccion || "",
             horario: info.horario_atencion || "",
             telefono: info.telefono || "",
             facebook: info.facebook || "",
@@ -55,12 +55,13 @@ export default function EdicionRestaurante() {
             etiqueta3: etiquetasArr[2] || "",
           });
 
-          // RECUPERAR LAS 3 IMÁGENES
+          // Carga las 3 imágenes desde la BD
           setImagenes([
-            info.foto_portada || null,
-            info.foto_2 || null,
+            info.foto_portada || null, 
+            info.foto_2 || null, 
             info.foto_3 || null
           ]);
+          
           if (info.menu_pdf) setMenuPDF(info.menu_pdf);
 
           if (info.estado === 'Rechazado') {
@@ -90,12 +91,9 @@ export default function EdicionRestaurante() {
         const body = {
             ...formData,
             etiquetas: etiquetasUnidas,
-            
-            // ENVIAMOS EL ARRAY DE IMÁGENES DESGLOSADO
             foto_portada: imagenes[0] || "", 
-            foto_2: imagenes[1] || "",
-            foto_3: imagenes[2] || "",
-            
+            foto_2: imagenes[1] || "", 
+            foto_3: imagenes[2] || "", 
             menu_pdf: typeof menuPDF === 'string' ? menuPDF : "url-simulada-pdf.pdf" 
         };
 
@@ -114,7 +112,6 @@ export default function EdicionRestaurante() {
             setMensajeRechazo(null);
             setModalAviso(true);
         } else {
-            // Muestra el error exacto que viene del servidor
             alert("Error al guardar: " + (data.error || "Error desconocido"));
         }
 
@@ -142,6 +139,33 @@ export default function EdicionRestaurante() {
     const file = e.target.files?.[0];
     if (!file) return;
     setMenuPDF(file);
+  };
+
+  // --- FUNCIÓN PARA VER ARCHIVOS ---
+  const verArchivo = (archivo: string | File | null, e: React.MouseEvent) => {
+    e.preventDefault(); 
+    e.stopPropagation();
+    
+    if (!archivo) return;
+
+    if (typeof archivo === "string") {
+      // Si detectamos que es nuestro enlace falso de prueba
+      if (archivo === "url-simulada-pdf.pdf" || archivo.includes("simulada")) {
+        alert("Este es un PDF simulado. Selecciona un archivo PDF real desde tu computadora para poder previsualizarlo.");
+        return;
+      }
+      
+      // Si es un enlace real de internet (Cloudinary, S3, etc.)
+      if (archivo.startsWith("http")) {
+        window.open(archivo, "_blank");
+      } else {
+        alert("El archivo guardado no tiene una URL válida para mostrarse.");
+      }
+    } else {
+      // Si es un archivo real que el usuario acaba de elegir de su PC
+      const url = URL.createObjectURL(archivo);
+      window.open(url, "_blank"); 
+    }
   };
 
   return (
@@ -181,10 +205,40 @@ export default function EdicionRestaurante() {
           <h3>Galería de Imágenes</h3>
           <div className={styles.galeria}>
             {[0,1,2].map((num) => (
-              <label key={num} className={styles.imagenSlot}>
+              <label key={num} className={styles.imagenSlot} style={{ position: 'relative' }}>
                 <input type="file" hidden accept="image/png, image/jpeg" onChange={(e)=>handleImagenChange(e,num)} />
                 {imagenes[num] ? (
-                  <Image src={imagenes[num]!} alt="preview" width={200} height={150} className={styles.previewImagen} />
+                  <>
+                    <Image 
+                        src={imagenes[num]!} 
+                        alt={`Subir Imagen ${num + 1}`} 
+                        width={200} 
+                        height={150} 
+                        className={styles.previewImagen} 
+                    />
+                    <button 
+                        onClick={(e) => verArchivo(imagenes[num], e)}
+                        style={{
+                            position: 'absolute',
+                            top: '8px',
+                            right: '8px',
+                            backgroundColor: 'rgba(106, 30, 30, 0.85)',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '50%',
+                            width: '32px',
+                            height: '32px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '1rem'
+                        }}
+                        title={`Ver Imagen ${num + 1}`}
+                    >
+                        👁️
+                    </button>
+                  </>
                 ) : (
                   <div className={styles.imagenPlaceholder}>Subir Imagen {num + 1}</div>
                 )}
@@ -202,25 +256,51 @@ export default function EdicionRestaurante() {
             {/* 1. PDF */}
             <div style={{ width: '100%' }}>
               <h4>Menú en PDF</h4>
-              <label 
-                className={styles.fileBtn} 
-                style={{
-                  width: '100%', 
-                  boxSizing: 'border-box', 
-                  height: '45px', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  padding: '0 15px',
-                  overflow: 'hidden'
-                }}
-              >
-                <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%', textAlign: 'left' }}>
-                  {menuPDF 
-                    ? (typeof menuPDF === 'string' ? "📄 Menú Guardado" : `📄 ${menuPDF.name}`) 
-                    : "Seleccionar archivo PDF"}
-                </span>
-                <input type="file" hidden accept="application/pdf" onChange={handlePDFChange} />
-              </label>
+              <div style={{ display: 'flex', gap: '10px', width: '100%' }}>
+                <label 
+                  className={styles.fileBtn} 
+                  style={{
+                    flex: 1, 
+                    boxSizing: 'border-box', 
+                    height: '45px', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    padding: '0 15px',
+                    overflow: 'hidden'
+                  }}
+                >
+                  <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%', textAlign: 'left' }}>
+                    {menuPDF 
+                      ? (typeof menuPDF === 'string' ? "📄 Menú Guardado" : `📄 ${menuPDF.name}`) 
+                      : "Seleccionar archivo PDF"}
+                  </span>
+                  <input type="file" hidden accept="application/pdf" onChange={handlePDFChange} />
+                </label>
+
+                {/* BOTÓN PARA VER PDF */}
+                {menuPDF && (
+                  <button 
+                    onClick={(e) => verArchivo(menuPDF, e)}
+                    style={{
+                      backgroundColor: '#912F2F',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      width: '45px',
+                      height: '45px',
+                      cursor: 'pointer',
+                      fontSize: '1.2rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'background 0.2s'
+                    }}
+                    title="Ver PDF"
+                  >
+                    👁️
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* 2. HORARIOS */}
@@ -359,7 +439,6 @@ export default function EdicionRestaurante() {
       </main>
 
       <footer className={styles.footer}>
-        {/* ... Footer igual ... */}
         <div>
           <h4>Contáctanos</h4>
           <p>sazonpatrimonial@gmail.com</p>

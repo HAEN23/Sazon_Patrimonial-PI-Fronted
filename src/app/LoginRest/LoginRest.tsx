@@ -36,7 +36,7 @@ export default function LoginRest({ isOpen, onClose, onBack, onLoginSuccess }: L
     setLoading(true);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api'}/auth/login`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api'}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -44,18 +44,38 @@ export default function LoginRest({ isOpen, onClose, onBack, onLoginSuccess }: L
         body: JSON.stringify(formData),
       });
 
-      const data = await response.json();
+      // 1. PRIMERO leemos la respuesta como texto para que no explote si es un HTML (Error 404)
+      const textResponse = await response.text();
 
+      // 2. SI HAY UN ERROR EN LA RESPUESTA (Ej. 404 No Encontrado o 500 Error de Servidor)
       if (!response.ok) {
-        throw new Error(data.error || "Credenciales inválidas");
+          let errorMsg = `Error del servidor: ${response.status}`;
+          try {
+              // Intentamos ver si de casualidad sí nos mandó un JSON con el error
+              const errData = JSON.parse(textResponse);
+              // Ahora leerá "message" (Credenciales inválidas) o "error"
+              errorMsg = errData.message || errData.error || errorMsg;
+          } catch {
+              // Si no es JSON (es el HTML del 404)
+              if (response.status === 404) {
+                 errorMsg = "Error 404: Ruta de login no encontrada en el backend. Revisa la URL.";
+              } else {
+                 errorMsg = "El servidor devolvió un error inesperado (formato incorrecto).";
+              }
+          }
+          throw new Error(errorMsg);
       }
 
-      // Guardar sesión
-      if (data.data?.token) {
-        localStorage.setItem("token", data.data.token);
-        localStorage.setItem("user", JSON.stringify(data.data.user));
+      // 3. Si todo salió bien y es status 200, convertimos a JSON
+      const data = JSON.parse(textResponse);
+
+      // Guardar sesión (CORREGIDO: leemos data.token directo, no data.data.token)
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
         
-        const rol = data.data.user.rol; // 1=Admin, 2=Rest, 3=User
+        // CORREGIDO: El backend envía "role" en vez de "rol"
+        const rol = data.user.role; // 1=Admin, 2=Rest, 3=User
 
         console.log("LOGIN EXITOSO - ROL DETECTADO:", rol); // Debug
 
@@ -64,7 +84,6 @@ export default function LoginRest({ isOpen, onClose, onBack, onLoginSuccess }: L
         // 3. REDIRECCIÓN FORZADA (Infalible)
         if (rol === 1) {
             localStorage.setItem("userRole", "admin");
-            // Usamos window.location.href en lugar de router.push
             window.location.href = "/vistaPrincipalAdmin"; 
         } else if (rol === 2) {
             localStorage.setItem("userRole", "restaurantero");
@@ -72,15 +91,16 @@ export default function LoginRest({ isOpen, onClose, onBack, onLoginSuccess }: L
         } else {
             localStorage.setItem("userRole", "usuario");
             if (onLoginSuccess) onLoginSuccess();
-            // Para usuarios normales a veces solo queremos cerrar el modal,
-            // o recargar el home:
             // window.location.href = "/";
         }
+      } else {
+          throw new Error("Respuesta inválida del servidor: No se recibió token.");
       }
 
     } catch (err: any) {
       console.error("Error de login:", err);
-      setError(err.message);
+      // Esto mostrará el mensaje en letras rojas debajo de los inputs en lugar de romper la app
+      setError(err.message); 
     } finally {
       setLoading(false);
     }
