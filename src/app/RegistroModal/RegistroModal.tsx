@@ -3,18 +3,19 @@
 import { useState } from "react";
 import Image from "next/image";
 import styles from "./RegistroModal.module.css";
-import { useRouter } from "next/navigation";
 
 interface RegistroModalProps {
   isOpen: boolean;
   onClose: () => void;
   onBack: () => void;
+  onLoginSuccess: () => void;
 }
 
 export default function RegistroModal({
   isOpen,
   onClose,
-  onBack
+  onBack,
+  onLoginSuccess
 }: RegistroModalProps) {
 
   const [formData, setFormData] = useState({
@@ -24,8 +25,6 @@ export default function RegistroModal({
     confirmar: "",
     tipo: "usuario"
   });
-
-  const router = useRouter();
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -39,18 +38,13 @@ export default function RegistroModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log("Datos de registro:", formData);
-
-    // VALIDAR CONTRASEÑAS
     if (formData.contrasena !== formData.confirmar) {
       alert("Las contraseñas no coinciden");
       return;
     }
 
-    // OBTENER USUARIOS EXISTENTES
     const usuariosGuardados = JSON.parse(localStorage.getItem("usuarios") || "[]");
 
-    // VALIDAR CORREO DUPLICADO
     const correoExiste = usuariosGuardados.find(
       (user: any) => user.correo === formData.correo
     );
@@ -60,7 +54,6 @@ export default function RegistroModal({
       return;
     }
 
-    // CREAR NUEVO USUARIO
     const nuevoUsuario = {
       nombre: formData.nombre,
       correo: formData.correo,
@@ -68,13 +61,14 @@ export default function RegistroModal({
       tipo: formData.tipo
     };
 
-    // GUARDAR USUARIO
     usuariosGuardados.push(nuevoUsuario);
     localStorage.setItem("usuarios", JSON.stringify(usuariosGuardados));
 
+    // guardar sesión activa
+    localStorage.setItem("sesionActiva", formData.tipo);
+
     alert("Registro exitoso");
 
-    // LIMPIAR FORMULARIO
     setFormData({
       nombre: "",
       correo: "",
@@ -83,7 +77,10 @@ export default function RegistroModal({
       tipo: "usuario"
     });
 
-    // CERRAR MODAL
+    // avisar al index
+    onLoginSuccess();
+
+    // cerrar modal
     onClose();
   };
 
@@ -91,20 +88,16 @@ export default function RegistroModal({
     <div className={`${styles.overlay} ${isOpen ? styles.overlayShow : ''}`}>
       <section className={styles.modalBox}>
 
-        {/* Botón regresar */}
         <button
           className={styles.backButton}
           onClick={onBack}
-          aria-label="Regresar"
         >
           &#8592;
         </button>
 
-        {/* Botón cerrar */}
         <button
           className={styles.closeButton}
           onClick={onClose}
-          aria-label="Cerrar modal"
         >
           &times;
         </button>
@@ -113,7 +106,7 @@ export default function RegistroModal({
 
           <Image
             src="/images/logo_sp_rojo.png"
-            alt="Logo Sazón Patrimonial"
+            alt="Logo"
             width={100}
             height={100}
             className={styles.logo}
@@ -121,9 +114,8 @@ export default function RegistroModal({
 
           <h4 className={styles.titulo}>Registro de usuario</h4>
 
-          {/* Nombre */}
           <div className={styles.inputGroup}>
-            <label className={styles.label}>Nombre de usuario:</label>
+            <label className={styles.label}>Nombre:</label>
             <input
               className={styles.controls}
               type="text"
@@ -135,9 +127,8 @@ export default function RegistroModal({
             />
           </div>
 
-          {/* Correo */}
           <div className={styles.inputGroup}>
-            <label className={styles.label}>Correo electrónico:</label>
+            <label className={styles.label}>Correo:</label>
             <input
               className={styles.controls}
               type="email"
@@ -149,7 +140,6 @@ export default function RegistroModal({
             />
           </div>
 
-          {/* NUEVO CAMPO ROL */}
           <div className={styles.inputGroup}>
             <label className={styles.label}>Tipo de cuenta:</label>
             <select
@@ -157,14 +147,12 @@ export default function RegistroModal({
               name="tipo"
               value={formData.tipo}
               onChange={handleChange}
-              required
             >
               <option value="usuario">Usuario</option>
               <option value="restaurantero">Restaurantero</option>
             </select>
           </div>
 
-          {/* Contraseña */}
           <div className={styles.inputGroup}>
             <label className={styles.label}>Contraseña:</label>
             <input
@@ -178,7 +166,6 @@ export default function RegistroModal({
             />
           </div>
 
-          {/* Confirmar contraseña */}
           <div className={styles.inputGroup}>
             <label className={styles.label}>Confirmar contraseña:</label>
             <input
@@ -192,10 +179,7 @@ export default function RegistroModal({
             />
           </div>
 
-          <button
-            type="submit"
-            className={styles.submitButton}
-          >
+          <button className={styles.submitButton} type="submit">
             Registrarse
           </button>
 
