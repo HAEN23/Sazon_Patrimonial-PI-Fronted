@@ -84,26 +84,59 @@ export default function EdicionRestaurante() {
   const handleAplicarCambios = async () => {
     try {
         const token = localStorage.getItem("token");
+        
+        // 1. Creamos un objeto FormData en lugar de un JSON simple
+        const formDataToSend = new FormData();
+
+        // 2. Agregamos los campos de texto
+        formDataToSend.append("nombre", formData.nombre);
+        formDataToSend.append("direccion", formData.direccion);
+        formDataToSend.append("horario", formData.horario);
+        formDataToSend.append("telefono", formData.telefono);
+        formDataToSend.append("facebook", formData.facebook);
+        formDataToSend.append("instagram", formData.instagram);
+        
         const etiquetasUnidas = [formData.etiqueta1, formData.etiqueta2, formData.etiqueta3]
             .filter(e => e !== "")
             .join(",");
+        formDataToSend.append("etiquetas", etiquetasUnidas);
 
-        const body = {
-            ...formData,
-            etiquetas: etiquetasUnidas,
-            foto_portada: imagenes[0] || "", 
-            foto_2: imagenes[1] || "", 
-            foto_3: imagenes[2] || "", 
-            menu_pdf: typeof menuPDF === 'string' ? menuPDF : "url-simulada-pdf.pdf" 
-        };
+        // 3. Agregamos los archivos (solo si son objetos de tipo File)
+        // Imagen 1 (foto_portada)
+        if (imagenes[0] && typeof imagenes[0] !== "string") {
+            // Nota: El backend esperará el nombre 'foto_portada'
+            const response = await fetch(imagenes[0]);
+            const blob = await response.blob();
+            formDataToSend.append("foto_portada", blob, "portada.jpg");
+        }
 
+        // Imagen 2
+        if (imagenes[1] && typeof imagenes[1] !== "string") {
+            const response = await fetch(imagenes[1]);
+            const blob = await response.blob();
+            formDataToSend.append("foto_2", blob, "foto2.jpg");
+        }
+
+        // Imagen 3
+        if (imagenes[2] && typeof imagenes[2] !== "string") {
+            const response = await fetch(imagenes[2]);
+            const blob = await response.blob();
+            formDataToSend.append("foto_3", blob, "foto3.jpg");
+        }
+
+        // PDF del Menú
+        if (menuPDF && typeof menuPDF !== "string") {
+            formDataToSend.append("menu_pdf", menuPDF);
+        }
+
+        // 4. Realizamos la petición (IMPORTANTE: No poner 'Content-Type' manualmente)
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api'}/mi-restaurante`, {
             method: 'PUT',
             headers: { 
-                'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}` 
+                // No incluyas 'Content-Type': 'application/json' aquí
             },
-            body: JSON.stringify(body)
+            body: formDataToSend
         });
 
         const data = await res.json();
