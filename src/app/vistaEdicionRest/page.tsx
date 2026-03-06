@@ -191,14 +191,16 @@ export default function EdicionRestaurante() {
             {[0,1,2].map((num) => (
               <label key={num} className={styles.imagenSlot} style={{ position: 'relative' }}>
                 <input type="file" hidden accept="image/png, image/jpeg" onChange={(e)=>handleImagenChange(e,num)} />
-                {imagenes[num] ? (
+                {imagenes[num] && imagenes[num] !== '' ? (
                   <>
-                    <Image 
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img 
                         src={imagenes[num]!} 
                         alt={`Subir Imagen ${num + 1}`} 
                         width={200} 
                         height={150} 
-                        className={styles.previewImagen} 
+                        className={styles.previewImagen}
+                        style={{ objectFit: 'cover' }}
                     />
                     <button 
                         onClick={(e) => verArchivo(imagenes[num], e)}
