@@ -11,6 +11,12 @@ export default function EdicionRestaurante() {
 
   const [modalAviso, setModalAviso] = useState(false);
 
+  // PREVIEW IMAGENES
+  const [imagenes, setImagenes] = useState<(string | null)[]>([null, null, null]);
+
+  // PREVIEW PDF
+  const [menuPDF, setMenuPDF] = useState<File | null>(null);
+
   const handleLogout = () => {
     localStorage.removeItem("userRole");
     router.push("/");
@@ -18,6 +24,31 @@ export default function EdicionRestaurante() {
 
   const handleAplicarCambios = () => {
     setModalAviso(true);
+  };
+
+  // CARGAR IMAGEN
+  const handleImagenChange = (e: React.ChangeEvent<HTMLInputElement>, index:number) => {
+
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    const url = URL.createObjectURL(file);
+
+    const nuevasImagenes = [...imagenes];
+    nuevasImagenes[index] = url;
+
+    setImagenes(nuevasImagenes);
+  };
+
+  // CARGAR PDF
+  const handlePDFChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    setMenuPDF(file);
   };
 
   return (
@@ -93,7 +124,7 @@ export default function EdicionRestaurante() {
 
           <div className={styles.galeria}>
 
-            {[1, 2, 3].map((num) => (
+            {[0,1,2].map((num) => (
 
               <label key={num} className={styles.imagenSlot}>
 
@@ -101,11 +132,26 @@ export default function EdicionRestaurante() {
                   type="file"
                   hidden
                   accept="image/png, image/jpeg"
+                  onChange={(e)=>handleImagenChange(e,num)}
                 />
 
-                <div className={styles.imagenPlaceholder}>
-                  Subir Imagen {num}
-                </div>
+                {imagenes[num] ? (
+
+                  <Image
+                    src={imagenes[num]!}
+                    alt="preview"
+                    width={200}
+                    height={150}
+                    className={styles.previewImagen}
+                  />
+
+                ) : (
+
+                  <div className={styles.imagenPlaceholder}>
+                    Subir Imagen {num + 1}
+                  </div>
+
+                )}
 
               </label>
 
@@ -129,9 +175,16 @@ export default function EdicionRestaurante() {
                 type="file"
                 hidden
                 accept="application/pdf"
+                onChange={handlePDFChange}
               />
 
             </label>
+
+            {menuPDF && (
+              <p className={styles.pdfPreview}>
+                📄 {menuPDF.name}
+              </p>
+            )}
 
           </div>
 
@@ -192,17 +245,25 @@ export default function EdicionRestaurante() {
 
             <h4>Etiquetas</h4>
 
-            {[1, 2, 3].map((i) => (
-
+            {[1,2,3].map((i)=>(
               <select key={i} className={styles.select}>
 
                 <option value="">Seleccionar</option>
-                <option>Etiqueta 1</option>
-                <option>Etiqueta 2</option>
-                <option>Etiqueta 3</option>
+
+                <option value="Delivery">Delivery</option>
+                <option value="WiFi Gratuito">WiFi Gratuito</option>
+                <option value="Estacionamiento">Estacionamiento</option>
+
+                <option value="Familiar">Familiar</option>
+                <option value="Pet Friendly">Pet Friendly</option>
+                <option value="Terraza">Terraza</option>
+
+                <option value="Comida Rápida">Comida Rápida</option>
+                <option value="Gourmet">Gourmet</option>
+                <option value="Vegetariano">Vegetariano</option>
+                <option value="Económico">Económico</option>
 
               </select>
-
             ))}
 
           </div>

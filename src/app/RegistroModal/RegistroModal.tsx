@@ -22,11 +22,14 @@ export default function RegistroModal({
     correo: "",
     contrasena: "",
     confirmar: "",
+    tipo: "usuario"
   });
 
   const router = useRouter();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -62,7 +65,7 @@ export default function RegistroModal({
       nombre: formData.nombre,
       correo: formData.correo,
       contrasena: formData.contrasena,
-      tipo: "usuario"
+      tipo: formData.tipo
     };
 
     // GUARDAR USUARIO
@@ -77,6 +80,7 @@ export default function RegistroModal({
       correo: "",
       contrasena: "",
       confirmar: "",
+      tipo: "usuario"
     });
 
     // CERRAR MODAL
@@ -143,6 +147,21 @@ export default function RegistroModal({
               onChange={handleChange}
               required
             />
+          </div>
+
+          {/* NUEVO CAMPO ROL */}
+          <div className={styles.inputGroup}>
+            <label className={styles.label}>Tipo de cuenta:</label>
+            <select
+              className={styles.controls}
+              name="tipo"
+              value={formData.tipo}
+              onChange={handleChange}
+              required
+            >
+              <option value="usuario">Usuario</option>
+              <option value="restaurantero">Restaurantero</option>
+            </select>
           </div>
 
           {/* Contraseña */}

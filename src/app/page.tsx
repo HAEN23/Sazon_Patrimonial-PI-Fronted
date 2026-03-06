@@ -285,6 +285,7 @@ export default function Home() {
         
       </main>
 
+      {/* FOOTER */}
       <footer className={styles['rectangle-container']}>
         <div className={styles['footer-contactos-redes']}>
 
@@ -303,6 +304,20 @@ export default function Home() {
               <img className={styles['llamada-telefonica-2-icon']} src="/images/call_logo.png" />
               <div className={styles['sazonpatrimonialgmailcom']}>
                 +52 961 652 2093
+              </div>
+            </div>
+
+            <div className={styles['logotipo-de-instagram-2-parent']}>
+              <img className={styles['llamada-telefonica-2-icon']} src="/images/insta_logo.png" />
+              <div className={styles['sazonpatrimonialgmailcom']}>
+                @sazonpatrimonial
+              </div>
+            </div>
+
+            <div className={styles['facebook-1-1-parent']}>
+              <img className={styles['llamada-telefonica-2-icon']} src="/images/face_logo.png" />
+              <div className={styles['sazonpatrimonialgmailcom']}>
+                @sazonpatrimonial
               </div>
             </div>
 

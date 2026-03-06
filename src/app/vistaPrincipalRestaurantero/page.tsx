@@ -9,23 +9,57 @@ export default function VistaPrincipalRestaurantero() {
   const router = useRouter();
 
   const [busqueda, setBusqueda] = useState("");
-  const [precio, setPrecio] = useState("");
-  const [horario, setHorario] = useState("");
-  const [tipo, setTipo] = useState("");
-  const [ubicacion, setUbicacion] = useState("");
+  const [tipoComida, setTipoComida] = useState("");
+  const [ambiente, setAmbiente] = useState("");
+  const [servicio, setServicio] = useState("");
 
-  const handleBuscar = () => {
-    console.log("Buscando:", busqueda);
-  };
+  const restaurantes = [
+    {
+      nombre: "Taquería El Fogón",
+      tipo: "Comida Rápida",
+      ambiente: "Familiar",
+      servicio: "Delivery",
+      imagen: "/images/rest1.jpg"
+    },
+    {
+      nombre: "La Terraza Gourmet",
+      tipo: "Gourmet",
+      ambiente: "Terraza",
+      servicio: "WiFi Gratuito",
+      imagen: "/images/rest2.jpg"
+    },
+    {
+      nombre: "Veggie Chiapas",
+      tipo: "Vegetariano",
+      ambiente: "Pet Friendly",
+      servicio: "WiFi Gratuito",
+      imagen: "/images/rest3.jpg"
+    },
+    {
+      nombre: "Comedor Doña Lupita",
+      tipo: "Económico",
+      ambiente: "Familiar",
+      servicio: "Estacionamiento",
+      imagen: "/images/rest4.jpg"
+    }
+  ];
 
-  const handleFiltrar = () => {
-    console.log({
-      precio,
-      horario,
-      tipo,
-      ubicacion
-    });
-  };
+  const restaurantesFiltrados = restaurantes.filter((rest) => {
+
+    const coincideBusqueda =
+      rest.nombre.toLowerCase().includes(busqueda.toLowerCase());
+
+    const coincideTipo =
+      tipoComida === "" || rest.tipo === tipoComida;
+
+    const coincideAmbiente =
+      ambiente === "" || rest.ambiente === ambiente;
+
+    const coincideServicio =
+      servicio === "" || rest.servicio === servicio;
+
+    return coincideBusqueda && coincideTipo && coincideAmbiente && coincideServicio;
+  });
 
   const irMiRestaurante = () => {
     router.push("/vistaEdicionRest");
@@ -120,10 +154,7 @@ export default function VistaPrincipalRestaurantero() {
                 onChange={(e) => setBusqueda(e.target.value)}
               />
 
-              <button
-                className={styles["buscar"]}
-                onClick={handleBuscar}
-              >
+              <button className={styles['buscar']}>
                 Buscar
               </button>
 
@@ -131,70 +162,98 @@ export default function VistaPrincipalRestaurantero() {
           </div>
 
           {/* FILTROS */}
-          <div className={`${styles["barra-filtros-horizontal"]} ${styles["filtros-abajo"]}`}>
 
-            <div className={styles["filtro-item"]}>
-            <img src="/images/menu.png" className={styles['icono-filtro']} />
-              <select
-                className={styles["filtro-select"]}
-                onChange={(e) => setPrecio(e.target.value)}
-              >
-                <option value="">Precio</option>
-                <option value="bajo">Bajo</option>
-                <option value="medio">Medio</option>
-                <option value="alto">Alto</option>
-              </select>
-            </div>
+          <div className={`${styles['barra-filtros-horizontal']} ${styles['filtros-abajo']}`}>
 
-            <div className={styles["filtro-item"]}>
-            <img src="/images/menu.png" className={styles['icono-filtro']} />
-              <select
-                className={styles["filtro-select"]}
-                onChange={(e) => setHorario(e.target.value)}
-              >
-                <option value="">Horario</option>
-                <option value="manana">Mañana</option>
-                <option value="tarde">Tarde</option>
-                <option value="noche">Noche</option>
-              </select>
-            </div>
+            <div className={styles['filtro-item']}>
+              <img src="/images/menu.png" className={styles['icono-filtro']} />
 
-            <div className={styles["filtro-item"]}>
-            <img src="/images/menu.png" className={styles['icono-filtro']} />
               <select
-                className={styles["filtro-select"]}
-                onChange={(e) => setTipo(e.target.value)}
+                className={styles['filtro-select']}
+                value={tipoComida}
+                onChange={(e) => setTipoComida(e.target.value)}
               >
                 <option value="">Tipo de comida</option>
-                <option value="mexicana">Mexicana</option>
-                <option value="cafe">Café</option>
-                <option value="internacional">Internacional</option>
+                <option value="Comida Rápida">Comida Rápida</option>
+                <option value="Gourmet">Gourmet</option>
+                <option value="Vegetariano">Vegetariano</option>
+                <option value="Económico">Económico</option>
               </select>
             </div>
 
-            <div className={styles["filtro-item"]}>
-            <img src="/images/menu.png" className={styles['icono-filtro']} />
+            <div className={styles['filtro-item']}>
+              <img src="/images/restaurante.png" className={styles['icono-filtro']} />
+
               <select
-                className={styles["filtro-select"]}
-                onChange={(e) => setUbicacion(e.target.value)}
+                className={styles['filtro-select']}
+                value={ambiente}
+                onChange={(e) => setAmbiente(e.target.value)}
               >
-                <option value="">Ubicación</option>
-                <option value="centro">Centro</option>
-                <option value="norte">Norte</option>
-                <option value="sur">Sur</option>
+                <option value="">Ambiente</option>
+                <option value="Familiar">Familiar</option>
+                <option value="Pet Friendly">Pet Friendly</option>
+                <option value="Terraza">Terraza</option>
+              </select>
+            </div>
+
+            <div className={styles['filtro-item']}>
+              <img src="/images/coctel.png" className={styles['icono-filtro']} />
+
+              <select
+                className={styles['filtro-select']}
+                value={servicio}
+                onChange={(e) => setServicio(e.target.value)}
+              >
+                <option value="">Servicios</option>
+                <option value="Delivery">Delivery</option>
+                <option value="WiFi Gratuito">WiFi Gratuito</option>
+                <option value="Estacionamiento">Estacionamiento</option>
               </select>
             </div>
 
             <button
-              className={styles["btn-filtrar"]}
-              onClick={handleFiltrar}
+              className={styles['btn-filtrar']}
+              onClick={() => {
+                setBusqueda("");
+                setTipoComida("");
+                setAmbiente("");
+                setServicio("");
+              }}
             >
-              Limpiar filtros
+              <img src="/images/borrar.png" className={styles['icono-boton']} />
+              Limpiar Filtros
             </button>
 
           </div>
 
         </section>
+
+        <div className={styles['contenedor-restaurantes']}>
+
+            {restaurantesFiltrados.length === 0 && (
+              <p>No se encontraron restaurantes</p>
+            )}
+
+            {restaurantesFiltrados.map((rest, index) => (
+
+              <div key={index} className={styles['card-restaurante']}>
+
+                <img
+                  src={rest.imagen}
+                  alt={rest.nombre}
+                  className={styles['imagen-restaurante']}
+                />
+
+                <h3>{rest.nombre}</h3>
+                <p>{rest.tipo}</p>
+                <p>{rest.ambiente}</p>
+                <p>{rest.servicio}</p>
+
+              </div>
+
+            ))}
+
+          </div>
       </main>
 
       {/* FOOTER */}
