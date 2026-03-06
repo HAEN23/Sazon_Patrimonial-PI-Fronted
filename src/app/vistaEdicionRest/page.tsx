@@ -84,59 +84,26 @@ export default function EdicionRestaurante() {
   const handleAplicarCambios = async () => {
     try {
         const token = localStorage.getItem("token");
-        
-        // 1. Creamos un objeto FormData en lugar de un JSON simple
-        const formDataToSend = new FormData();
-
-        // 2. Agregamos los campos de texto
-        formDataToSend.append("nombre", formData.nombre);
-        formDataToSend.append("direccion", formData.direccion);
-        formDataToSend.append("horario", formData.horario);
-        formDataToSend.append("telefono", formData.telefono);
-        formDataToSend.append("facebook", formData.facebook);
-        formDataToSend.append("instagram", formData.instagram);
-        
         const etiquetasUnidas = [formData.etiqueta1, formData.etiqueta2, formData.etiqueta3]
             .filter(e => e !== "")
             .join(",");
-        formDataToSend.append("etiquetas", etiquetasUnidas);
 
-        // 3. Agregamos los archivos (solo si son objetos de tipo File)
-        // Imagen 1 (foto_portada)
-        if (imagenes[0] && typeof imagenes[0] !== "string") {
-            // Nota: El backend esperará el nombre 'foto_portada'
-            const response = await fetch(imagenes[0]);
-            const blob = await response.blob();
-            formDataToSend.append("foto_portada", blob, "portada.jpg");
-        }
+        const body = {
+            ...formData,
+            etiquetas: etiquetasUnidas,
+            foto_portada: imagenes[0] || "", 
+            foto_2: imagenes[1] || "", 
+            foto_3: imagenes[2] || "", 
+            menu_pdf: typeof menuPDF === 'string' ? menuPDF : "url-simulada-pdf.pdf" 
+        };
 
-        // Imagen 2
-        if (imagenes[1] && typeof imagenes[1] !== "string") {
-            const response = await fetch(imagenes[1]);
-            const blob = await response.blob();
-            formDataToSend.append("foto_2", blob, "foto2.jpg");
-        }
-
-        // Imagen 3
-        if (imagenes[2] && typeof imagenes[2] !== "string") {
-            const response = await fetch(imagenes[2]);
-            const blob = await response.blob();
-            formDataToSend.append("foto_3", blob, "foto3.jpg");
-        }
-
-        // PDF del Menú
-        if (menuPDF && typeof menuPDF !== "string") {
-            formDataToSend.append("menu_pdf", menuPDF);
-        }
-
-        // 4. Realizamos la petición (IMPORTANTE: No poner 'Content-Type' manualmente)
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api'}/mi-restaurante`, {
             method: 'PUT',
             headers: { 
+                'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}` 
-                // No incluyas 'Content-Type': 'application/json' aquí
             },
-            body: formDataToSend
+            body: JSON.stringify(body)
         });
 
         const data = await res.json();
@@ -181,24 +148,8 @@ export default function EdicionRestaurante() {
     
     if (!archivo) return;
 
-    if (typeof archivo === "string") {
-      // Si detectamos que es nuestro enlace falso de prueba
-      if (archivo === "url-simulada-pdf.pdf" || archivo.includes("simulada")) {
-        alert("Este es un PDF simulado. Selecciona un archivo PDF real desde tu computadora para poder previsualizarlo.");
-        return;
-      }
-      
-      // Si es un enlace real de internet (Cloudinary, S3, etc.)
-      if (archivo.startsWith("http")) {
-        window.open(archivo, "_blank");
-      } else {
-        alert("El archivo guardado no tiene una URL válida para mostrarse.");
-      }
-    } else {
-      // Si es un archivo real que el usuario acaba de elegir de su PC
-      const url = URL.createObjectURL(archivo);
-      window.open(url, "_blank"); 
-    }
+    const url = typeof archivo === "string" ? archivo : URL.createObjectURL(archivo);
+    window.open(url, "_blank"); 
   };
 
   return (
