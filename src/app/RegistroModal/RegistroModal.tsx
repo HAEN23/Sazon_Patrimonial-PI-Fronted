@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation"; // 1. Importar useRouter
 import styles from "./RegistroModal.module.css";
 
 interface RegistroModalProps {
@@ -17,6 +18,8 @@ export default function RegistroModal({
   onBack,
   onLoginSuccess
 }: RegistroModalProps) {
+
+  const router = useRouter(); // 2. Inicializar router
 
   const [formData, setFormData] = useState({
     nombre: "",
@@ -69,6 +72,7 @@ export default function RegistroModal({
 
     alert("Registro exitoso");
 
+    // Limpiar formulario
     setFormData({
       nombre: "",
       correo: "",
@@ -77,15 +81,20 @@ export default function RegistroModal({
       tipo: "usuario"
     });
 
-    // avisar al index
-    onLoginSuccess();
-
-    // cerrar modal
-    onClose();
+    // 3. LÓGICA DE REDIRECCIÓN SEGÚN EL ROL
+    if (formData.tipo === "restaurantero") {
+      onClose(); // Cerramos el modal
+      router.push("/vistaPrincipalRestaurantero"); // Redirigimos al panel del restaurante
+    } else {
+      // Si es un usuario normal, solo avisamos al index y cerramos el modal
+      onLoginSuccess();
+      onClose();
+    }
   };
 
   return (
     <div className={`${styles.overlay} ${isOpen ? styles.overlayShow : ''}`}>
+      {/* ... (Todo el resto de tu código del return se queda exactamente igual) ... */}
       <section className={styles.modalBox}>
 
         <button
