@@ -1,4 +1,3 @@
-// src/app/LoginModal/LoginModal.tsx
 'use client';
 
 import React from 'react';
@@ -25,10 +24,14 @@ export default function LoginModal({ isOpen, onClose, onOpenAdmin, onOpenRest, o
           <img src="/images/logo_sp_rojo.png" className={styles.logo} width="100" alt="Logo Sazón Patrimonial" />
           <h4 className={styles.titulo}>Ingresar como</h4>
           
+          {/* OPCIÓN 1: Botón de Administrador oculto para el público */}
+          {/* Descomentar solo para acceso local o de desarrollo */}
+          {/* 
           <button className={styles.roleButton} type="button" onClick={onOpenAdmin}>
             <img src="/images/admin_logo.png" alt="Administrador" />
             Administrador
           </button>
+          */}
           
           <button className={styles.roleButton} type="button" onClick={onOpenRest}>
             <img src="/images/rest_logo.png" alt="Restaurantero" />

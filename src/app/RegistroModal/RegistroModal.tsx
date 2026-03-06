@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation"; // 1. Importar useRouter
+import { useRouter } from "next/navigation";
 import styles from "./RegistroModal.module.css";
 
 interface RegistroModalProps {
@@ -19,14 +19,16 @@ export default function RegistroModal({
   onLoginSuccess
 }: RegistroModalProps) {
 
-  const router = useRouter(); // 2. Inicializar router
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const [formData, setFormData] = useState({
     nombre: "",
     correo: "",
     contrasena: "",
     confirmar: "",
-    tipo: "usuario"
+    tipo: "usuario" // Valores: 'usuario' | 'restaurantero'
   });
 
   const handleChange = (
@@ -38,81 +40,92 @@ export default function RegistroModal({
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
 
+    // 1. Validar contraseñas
     if (formData.contrasena !== formData.confirmar) {
       alert("Las contraseñas no coinciden");
       return;
     }
 
-    const usuariosGuardados = JSON.parse(localStorage.getItem("usuarios") || "[]");
+    setLoading(true);
 
-    const correoExiste = usuariosGuardados.find(
-      (user: any) => user.correo === formData.correo
-    );
+    try {
+      // 2. Determinar el ID del Rol
+      const rolId = formData.tipo === "restaurantero" ? 2 : 3;
 
-    if (correoExiste) {
-      alert("Este correo ya está registrado");
-      return;
-    }
+      // 3. Petición REAL al Backend
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api'}/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          nombre: formData.nombre,
+          correo: formData.correo,
+          contrasena: formData.contrasena,
+          id_rol: rolId, 
+        }),
+      });
 
-    const nuevoUsuario = {
-      nombre: formData.nombre,
-      correo: formData.correo,
-      contrasena: formData.contrasena,
-      tipo: formData.tipo
-    };
+      const data = await response.json();
 
-    usuariosGuardados.push(nuevoUsuario);
-    localStorage.setItem("usuarios", JSON.stringify(usuariosGuardados));
+      if (!response.ok) {
+        throw new Error(data.error || "Error al registrarse");
+      }
 
-    // guardar sesión activa
-    localStorage.setItem("sesionActiva", formData.tipo);
+      // 4. Si todo salió bien
+      alert("Registro exitoso en la base de datos");
+      
+      if (data.data?.token) {
+        localStorage.setItem("token", data.data.token);
+        localStorage.setItem("user", JSON.stringify(data.data.user));
+      }
 
-    alert("Registro exitoso");
+      // Limpiar formulario
+      setFormData({
+        nombre: "",
+        correo: "",
+        contrasena: "",
+        confirmar: "",
+        tipo: "usuario"
+      });
 
-    // Limpiar formulario
-    setFormData({
-      nombre: "",
-      correo: "",
-      contrasena: "",
-      confirmar: "",
-      tipo: "usuario"
-    });
+      // 5. Redirección
+      if (formData.tipo === "restaurantero") {
+        onClose();
+        router.push("/vistaPrincipalRestaurantero");
+      } else {
+        onLoginSuccess();
+        onClose();
+      }
 
-    // 3. LÓGICA DE REDIRECCIÓN SEGÚN EL ROL
-    if (formData.tipo === "restaurantero") {
-      onClose(); // Cerramos el modal
-      router.push("/vistaPrincipalRestaurantero"); // Redirigimos al panel del restaurante
-    } else {
-      // Si es un usuario normal, solo avisamos al index y cerramos el modal
-      onLoginSuccess();
-      onClose();
+    } catch (err: any) {
+      console.error("Error de registro:", err);
+      alert(err.message);
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
+  if (!isOpen) return null;
+
   return (
     <div className={`${styles.overlay} ${isOpen ? styles.overlayShow : ''}`}>
-      {/* ... (Todo el resto de tu código del return se queda exactamente igual) ... */}
       <section className={styles.modalBox}>
 
-        <button
-          className={styles.backButton}
-          onClick={onBack}
-        >
+        <button className={styles.backButton} onClick={onBack} type="button">
           &#8592;
         </button>
 
-        <button
-          className={styles.closeButton}
-          onClick={onClose}
-        >
+        <button className={styles.closeButton} onClick={onClose} type="button">
           &times;
         </button>
 
-        <form className={styles.viewContainer} onSubmit={handleSubmit}>
-
+        <div className={styles.viewContainer}>
           <Image
             src="/images/logo_sp_rojo.png"
             alt="Logo"
@@ -123,76 +136,99 @@ export default function RegistroModal({
 
           <h4 className={styles.titulo}>Registro de usuario</h4>
 
-          <div className={styles.inputGroup}>
-            <label className={styles.label}>Nombre:</label>
-            <input
-              className={styles.controls}
-              type="text"
-              name="nombre"
-              placeholder="Ingrese su nombre"
-              value={formData.nombre}
-              onChange={handleChange}
-              required
-            />
-          </div>
+          <form className={styles.formContainer} onSubmit={handleSubmit} style={{width: '100%'}}>
+            
+            <div className={styles.inputGroup}>
+              <label className={styles.label}>Nombre:</label>
+              <input
+                className={styles.controls}
+                type="text"
+                name="nombre"
+                value={formData.nombre}
+                onChange={handleChange}
+                placeholder="Ingrese su nombre"
+                required
+              />
+            </div>
 
-          <div className={styles.inputGroup}>
-            <label className={styles.label}>Correo:</label>
-            <input
-              className={styles.controls}
-              type="email"
-              name="correo"
-              placeholder="Ingrese su correo"
-              value={formData.correo}
-              onChange={handleChange}
-              required
-            />
-          </div>
+            <div className={styles.inputGroup}>
+              <label className={styles.label}>Correo:</label>
+              <input
+                className={styles.controls}
+                type="email"
+                name="correo"
+                value={formData.correo}
+                onChange={handleChange}
+                placeholder="Ingrese su correo"
+                required
+              />
+            </div>
 
-          <div className={styles.inputGroup}>
-            <label className={styles.label}>Tipo de cuenta:</label>
-            <select
-              className={styles.controls}
-              name="tipo"
-              value={formData.tipo}
-              onChange={handleChange}
+            <div className={styles.inputGroup}>
+              <label className={styles.label}>Tipo de cuenta:</label>
+              <select
+                className={styles.controls}
+                name="tipo"
+                value={formData.tipo}
+                onChange={handleChange}
+              >
+                <option value="usuario">Usuario</option>
+                <option value="restaurantero">Restaurantero</option>
+              </select>
+            </div>
+
+            <div className={styles.inputGroup}>
+              <label className={styles.label}>Contraseña:</label>
+              <input
+                className={styles.controls}
+                type="password"
+                name="contrasena"
+                value={formData.contrasena}
+                onChange={handleChange}
+                placeholder="Ingrese su contraseña"
+                required
+                minLength={6}
+              />
+            </div>
+
+            <div className={styles.inputGroup}>
+              <label className={styles.label}>Confirmar contraseña:</label>
+              <input
+                className={styles.controls}
+                type="password"
+                name="confirmar"
+                value={formData.confirmar}
+                onChange={handleChange}
+                placeholder="Confirmar contraseña"
+                required
+                minLength={6}
+              />
+            </div>
+
+            {error && <p style={{color: '#912F2F', textAlign: 'center', marginTop: '10px'}}>{error}</p>}
+
+            {/* Este botón usa una clase diferente en tus capturas, parece ser 'botonRegistrar' o similar */}
+            {/* Si no tienes esa clase específica en tu CSS actual, usa este estilo inline para igualar el color */}
+            <button 
+              className={styles.roleButton} 
+              type="submit" 
+              disabled={loading}
+              style={{
+                marginTop: '20px',
+                backgroundColor: '#742A2A', /* Color marrón oscuro de la imagen */
+                color: 'white',
+                width: '100%',
+                borderRadius: '8px',
+                padding: '12px',
+                border: 'none',
+                cursor: 'pointer',
+                fontWeight: 'bold'
+              }}
             >
-              <option value="usuario">Usuario</option>
-              <option value="restaurantero">Restaurantero</option>
-            </select>
-          </div>
-
-          <div className={styles.inputGroup}>
-            <label className={styles.label}>Contraseña:</label>
-            <input
-              className={styles.controls}
-              type="password"
-              name="contrasena"
-              placeholder="Ingrese su contraseña"
-              value={formData.contrasena}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className={styles.inputGroup}>
-            <label className={styles.label}>Confirmar contraseña:</label>
-            <input
-              className={styles.controls}
-              type="password"
-              name="confirmar"
-              placeholder="Confirmar contraseña"
-              value={formData.confirmar}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <button className={styles.submitButton} type="submit">
-            Registrarse
-          </button>
-
-        </form>
+              {loading ? "Registrando..." : "Registrarse"}
+            </button>
+          </form>
+        </div>
       </section>
     </div>
   );

@@ -1,7 +1,6 @@
-// src/app/LoginAdmin/LoginAdmin.tsx
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import styles from './LoginAdmin.module.css';
 import { useRouter } from "next/navigation";
 
@@ -14,31 +13,76 @@ interface LoginAdminProps {
 export default function LoginAdmin({ isOpen, onClose, onBack }: LoginAdminProps) {
 
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const [formData, setFormData] = useState({
+    correo: "",
+    contrasena: ""
+  });
 
-    console.log("Iniciando sesión como admin...");
-
-    // guardar rol
-    localStorage.setItem("userRole", "admin");
-
-    // cerrar modal
-    onClose();
-
-    // redirigir
-    router.push("/vistaPrincipalAdmin");
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
   };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      // ENVIAR DATOS AL BACKEND (a través de API Route de Next.js)
+      const response = await fetch('/api/auth/login', {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || data.error || "Credenciales incorrectas");
+      }
+
+      // Verificar si realmente es un administrador (rol === 1)
+      if (data.rol !== 1) {
+        throw new Error("Acceso denegado: No tienes permisos de administrador.");
+      }
+
+      // Guardar sesión
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data));
+      localStorage.setItem("userRole", "admin");
+
+      console.log("Redirigiendo a vistaPrincipalAdmin...");
+      
+      onClose();
+      router.push("/vistaPrincipalAdmin");
+
+    } catch (err: any) {
+      console.error("Error login admin:", err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!isOpen) return null;
 
   return (
     <div className={`${styles.overlay} ${isOpen ? styles.overlayShow : ''}`}>
       <section className={styles.modalBox}>
 
-        <button className={styles.backButton} onClick={onBack} aria-label="Regresar">
+        <button className={styles.backButton} onClick={onBack} aria-label="Regresar" type="button">
           &#8592;
         </button>
 
-        <button className={styles.closeButton} onClick={onClose} aria-label="Cerrar modal">
+        <button className={styles.closeButton} onClick={onClose} aria-label="Cerrar modal" type="button">
           &times;
         </button>
 
@@ -55,9 +99,11 @@ export default function LoginAdmin({ isOpen, onClose, onBack }: LoginAdminProps)
               type="email" 
               name="correo" 
               id="correo" 
-              placeholder="Ingrese su correo" 
+              placeholder="Ingrese su correo"
+              value={formData.correo}
+              onChange={handleChange}
+              required
             />
-            <span className={styles.errorMsg}></span>
           </div>
 
           <div className={styles.inputGroup}>
@@ -67,13 +113,17 @@ export default function LoginAdmin({ isOpen, onClose, onBack }: LoginAdminProps)
               type="password" 
               name="contrasena" 
               id="contrasena" 
-              placeholder="Ingrese su contraseña" 
+              placeholder="Ingrese su contraseña"
+              value={formData.contrasena}
+              onChange={handleChange}
+              required
             />
-            <span className={styles.errorMsg}></span>
           </div>
 
-          <button className={styles.submitButton} type="submit">
-            Iniciar sesión
+          {error && <p style={{color: '#912F2F', textAlign: 'center', marginTop: '10px'}}>{error}</p>}
+
+          <button className={styles.submitButton} type="submit" disabled={loading}>
+            {loading ? "Validando..." : "Iniciar sesión"}
           </button>
 
         </form>
