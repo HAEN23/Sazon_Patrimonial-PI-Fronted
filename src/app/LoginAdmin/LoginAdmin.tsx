@@ -34,8 +34,8 @@ export default function LoginAdmin({ isOpen, onClose, onBack }: LoginAdminProps)
     setLoading(true);
 
     try {
-      // ENVIAR DATOS AL BACKEND (a través de API Route de Next.js)
-      const response = await fetch('/api/auth/login', {
+      // INTENTAR CONEXIÓN AL BACKEND (puerto 8080 por defecto para Spring Boot)
+      const response = await fetch('http://localhost:8080/api/auth/login', {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -43,26 +43,33 @@ export default function LoginAdmin({ isOpen, onClose, onBack }: LoginAdminProps)
         body: JSON.stringify(formData),
       });
 
+      // Verificar si la respuesta es JSON
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("El backend no está respondiendo. Verifica que esté corriendo en http://localhost:8080");
+      }
+
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || data.error || "Credenciales incorrectas");
+        throw new Error(data.message || "Credenciales incorrectas");
       }
 
-      // Verificar si realmente es un administrador (rol === 1)
-      if (data.rol !== 1) {
+      // Extraer rol del usuario (puede venir como 'rol', 'role' o 'id_rol')
+      const rolUsuario = data.rol || data.role || data.user?.rol || data.user?.id_rol || data.user?.role;
+
+      if (rolUsuario !== 1) {
         throw new Error("Acceso denegado: No tienes permisos de administrador.");
       }
 
-      // Guardar sesión
       localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data));
+      localStorage.setItem("user", JSON.stringify(data.user));
       localStorage.setItem("userRole", "admin");
 
-      console.log("Redirigiendo a vistaPrincipalAdmin...");
+      alert(`Bienvenido Administrador: ${data.user.nombre}`);
       
       onClose();
-      router.push("/vistaPrincipalAdmin");
+      window.location.href = "/vistaPrincipalAdmin";
 
     } catch (err: any) {
       console.error("Error login admin:", err);

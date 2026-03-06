@@ -1,241 +1,222 @@
+/* --- ESTILOS GENERALES (Mantenidos) --- */
 .vistaPrincipal {
   width: 100%;
-  overflow-x: hidden;
-  font-family: 'Montserrat', sans-serif;
+  min-height: 100vh;
+  font-family: 'Montserrat', sans-serif; /* O la fuente que uses globalmente */
+  background-color: #fff;
 }
-
-/* Reset encapsulado */
-.vistaPrincipal *,
-.vistaPrincipal *::before,
-.vistaPrincipal *::after {
-  box-sizing: border-box;
-}
-
-/* ================= HEADER ================= */
 
 .headerPrincipal {
-  position: fixed;
-  top: 0;
-  z-index: 1000;
-  width: 100%;
-  background: #6b1e1e;
-  color: #fff;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  background-color: #6A1E1E;
+  height: 80px;
+  display: flex;
+  align-items: center;
 }
 
 .headerContainer {
+  width: 100%;
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  height: 100px;
+  align-items: center;
   padding: 0 40px;
+  color: white;
 }
 
 .logoContainer {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 1.6rem;
-  color: #fff;
+  gap: 15px;
+  font-size: 1.2rem;
 }
 
 .logoutButton {
+  background-color: #8B3A3A;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 20px;
+  color: white;
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: #6A1E1E;
-  border: none;
-  border-radius: 50px;
-  color: #fff;
-  padding: 12px 22px;
-  font-size: 1rem;
+  gap: 10px;
   cursor: pointer;
-  transition: background 0.2s;
+  font-family: inherit;
+  transition: background 0.3s;
 }
 
 .logoutButton:hover {
-  background: #912f2f;
+  background-color: #A34A4A;
 }
-
-/* ================= PANEL ADMIN ================= */
 
 .adminPanel {
   display: flex;
-  min-height: 70vh;
-  margin-top: 100px;
+  min-height: calc(100vh - 80px - 100px); /* Ajuste altura header/footer */
 }
 
-/* ================= SIDEBAR ================= */
-
+/* --- SIDEBAR --- */
 .sidebar {
-  background: #6b1e1e;
-  width: 60px;
-  min-width: 60px;
-  max-width: 180px;
-  padding: 30px 0 32px 0;
+  width: 80px;
+  background-color: #6A1E1E;
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  gap: 18px;
-  box-shadow: 2px 0 8px rgba(0,0,0,0.04);
-  position: sticky;
-  top: 100px;
-  transition: width 0.6s cubic-bezier(.4,0,.2,1);
-  z-index: 120;
+  padding-top: 30px;
+  align-items: center;
+  gap: 20px;
+  transition: width 0.3s;
 }
 
 .sidebar:hover {
-  width: 180px;
-  min-width: 180px;
+  width: 200px;
 }
 
 .sidebarItem {
+  background: none;
+  border: none;
+  color: white;
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: #6A1E1E;
-  border: none;
-  border-radius: 50px;
-  color: #fff;
-  padding: 12px 16px;
-  font-size: 1rem;
+  gap: 15px;
+  padding: 10px;
   cursor: pointer;
-  transition: background 0.2s;
+  width: 100%;
+  justify-content: center;
   white-space: nowrap;
   overflow: hidden;
 }
 
+.sidebar:hover .sidebarItem {
+  justify-content: flex-start;
+  padding-left: 20px;
+}
+
+.sidebarItem.active {
+  background-color: #8B3A3A;
+}
+
 .sidebarItem span {
-  opacity: 0;
-  width: 0;
-  margin-left: 0;
-  transition: opacity 0.5s, width 0.5s, margin-left 0.5s;
-  pointer-events: none;
+  display: none;
 }
 
 .sidebar:hover .sidebarItem span {
-  opacity: 1;
-  width: auto;
-  margin-left: 8px;
-  pointer-events: auto;
+  display: block;
 }
 
-.sidebarItem:hover {
-  background: #912f2f;
-}
-
-/* ================= CONTENIDO ================= */
-
+/* --- CONTENIDO --- */
 .contenido {
   flex: 1;
-  background: #fff;
-  padding: 24px 48px 40px 48px;
-  border-top-right-radius: 18px;
-  border-bottom-right-radius: 18px;
-  min-height: 600px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: 40px;
 }
 
-.contenido h2 {
-  color: #6b1e1e;
+.tituloSeccion {
+  color: #6A1E1E;
   font-size: 2rem;
-  margin-bottom: 28px;
-  font-weight: 600;
-  letter-spacing: 1px;
+  margin-bottom: 25px;
+  font-weight: bold;
 }
 
-/* ================= TABLA ================= */
+/* --- TABLA (Estilo Original Rojo) --- */
+.tablaContainer {
+  border-radius: 10px;
+  overflow: hidden; /* Para las esquinas redondeadas */
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
 
 .tablaAdmin {
   width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  background: #fff;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(145, 30, 30, 0.08);
-  margin-bottom: 32px;
+  border-collapse: collapse;
+  background-color: #fff;
 }
 
-.tablaAdmin thead {
-  background: #6b1e1e;
-}
-
-.tablaAdmin th,
-.tablaAdmin td {
-  padding: 14px 18px;
-  text-align: center;
-  font-size: 1rem;
+.tablaAdmin thead tr {
+  background-color: #6A1E1E; /* Rojo oscuro original */
+  color: white;
+  text-align: left;
 }
 
 .tablaAdmin th {
-  color: #fff;
-  font-weight: 700;
-  border-bottom: 2px solid #e0bcbc;
+  padding: 15px 20px;
+  font-weight: 600;
+  font-size: 0.95rem;
 }
 
-.tablaAdmin tbody tr {
-  border-bottom: 1px solid #f1dada;
-  transition: background 0.2s;
+/* Bordes redondeados solo en el encabezado */
+.tablaAdmin th:first-child {
+  border-top-left-radius: 10px;
 }
-
-.tablaAdmin tbody tr:nth-child(even) {
-  background: #f8eaea;
-}
-
-.tablaAdmin tbody tr:hover {
-  background: #f3d6d6;
+.tablaAdmin th:last-child {
+  border-top-right-radius: 10px;
 }
 
 .tablaAdmin td {
-  color: #6b1e1e;
-  font-weight: 500;
+  padding: 12px 20px;
+  border-bottom: 1px solid #eee;
+  color: #333;
+  font-size: 0.9rem;
   vertical-align: middle;
 }
 
-/* Botones dentro de tabla */
-
-.tablaAdmin button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  margin-right: 6px;
-  padding: 4px;
-  transition: transform 0.1s;
+.tablaAdmin tbody tr:last-child td {
+  border-bottom: none;
 }
 
-.tablaAdmin button:hover {
-  transform: scale(1.15);
+/* --- BOTONES DE LA TABLA --- */
+.btnVerArchivo {
+  text-decoration: none;
+  color: #6A1E1E;
+  font-weight: bold;
+  font-size: 0.8rem;
+  border: 1px solid #6A1E1E;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s;
 }
 
-.tablaAdmin button img {
-  width: 22px;
-  height: 22px;
+.btnVerArchivo:hover {
+  background-color: #6A1E1E;
+  color: white;
 }
 
-/* ================= FOOTER ================= */
-
-.footer {
-  width: 100%;
-  background: #912f2f;
-  color: #fff;
+.accionesGrid {
   display: flex;
-  justify-content: space-between;
-  padding: 32px 40px;
-  flex-wrap: wrap;
-  gap: 32px;
+  gap: 10px;
 }
 
-.footerContactos h4 {
-  margin-bottom: 12px;
-}
-
-.footerContactos p {
-  margin-bottom: 6px;
-}
-
-.footerLogos {
+.btnAceptar {
+  background-color: #2e7d32; /* Verde */
+  color: white;
+  border: none;
+  width: 30px; 
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 18px;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+.btnRechazar {
+  background-color: #c62828; /* Rojo */
+  color: white;
+  border: none;
+  width: 30px; 
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+.vacio {
+  color: #ccc;
+}
+
+/* --- FOOTER --- */
+.footer {
+  background-color: #f5f5f5;
+  padding: 20px;
+  text-align: center;
+  color: #666;
+  font-size: 0.9rem;
 }

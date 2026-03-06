@@ -166,12 +166,13 @@
   font-size: 0.95rem;
   color: #912f2f;
   width: 100%;
-  height: 40px;
-  margin-bottom: 10px;
+  height: 45px; /* Unificamos la altura para todos */
+  margin-bottom: 0; /* Lo quitamos porque tu contenedor en TSX ya usa "gap" para separar */
 }
 
 .input::placeholder {
   color: #912f2f;
+  opacity: 0.8; /* Hace que el placeholder se diferencie un poco del texto escrito */
 }
 
 .select {
@@ -190,7 +191,7 @@
 
 .fileBtn {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start; /* Alinea el texto a la izquierda como los inputs */
   align-items: center;
   gap: 8px;
   background: #fff;
@@ -201,13 +202,13 @@
   padding: 6px 12px;
   font-size: 0.95rem;
   cursor: pointer;
-  height: 40px;
+  height: 45px; /* Unificamos la altura con los inputs */
+  margin-bottom: 0;
 }
 
 .fileBtn:hover {
   background: #f9eaea;
 }
-
 /* ================= BOTÓN APLICAR ================= */
 
 .btnAplicar {
@@ -288,5 +289,24 @@
   font-size: 24px;
   cursor: pointer;
   color: #912F2F;
+}
+
+/* ================= ALERTA DE RECHAZO ================= */
+
+.alertaRechazo {
+  background-color: #ffebee; /* Fondo rojo muy claro */
+  color: #c62828;            /* Texto rojo oscuro */
+  border: 1px solid #ef9a9a; /* Borde rojo suave */
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-family: 'Rubik', sans-serif;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
