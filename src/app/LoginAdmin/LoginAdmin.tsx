@@ -34,8 +34,8 @@ export default function LoginAdmin({ isOpen, onClose, onBack }: LoginAdminProps)
     setLoading(true);
 
     try {
-      // INTENTAR CONEXIÓN AL BACKEND (puerto 8080 por defecto para Spring Boot)
-      const response = await fetch('http://localhost:8080/api/auth/login', {
+      // INTENTAR CONEXIÓN AL BACKEND (puerto 3003 para el servidor backend)
+      const response = await fetch('http://localhost:3003/api/auth/login', {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -46,7 +46,7 @@ export default function LoginAdmin({ isOpen, onClose, onBack }: LoginAdminProps)
       // Verificar si la respuesta es JSON
       const contentType = response.headers.get("content-type");
       if (!contentType || !contentType.includes("application/json")) {
-        throw new Error("El backend no está respondiendo. Verifica que esté corriendo en http://localhost:8080");
+        throw new Error("El backend no está respondiendo. Verifica que esté corriendo en http://localhost:3003");
       }
 
       const data = await response.json();

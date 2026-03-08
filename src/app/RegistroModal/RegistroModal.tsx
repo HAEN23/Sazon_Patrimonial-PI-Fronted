@@ -57,7 +57,7 @@ export default function RegistroModal({
       const rolId = formData.tipo === "restaurantero" ? 2 : 3;
 
       // 3. Petición REAL al Backend
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api'}/auth/register`, {
+      const response = await fetch('http://localhost:3003/api/auth/client/register', {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -70,11 +70,26 @@ export default function RegistroModal({
         }),
       });
 
-      const data = await response.json();
+      // Leer respuesta como texto primero para evitar errores de parseo
+      const textResponse = await response.text();
 
       if (!response.ok) {
-        throw new Error(data.error || "Error al registrarse");
+        let errorMsg = `Error del servidor: ${response.status}`;
+        try {
+          const errData = JSON.parse(textResponse);
+          errorMsg = errData.message || errData.error || errorMsg;
+        } catch {
+          if (response.status === 404) {
+            errorMsg = "Error 404: Ruta de registro no encontrada en el backend.";
+          } else {
+            errorMsg = "El servidor devolvió un error inesperado.";
+          }
+        }
+        throw new Error(errorMsg);
       }
+
+      // Si todo salió bien, convertir a JSON
+      const data = JSON.parse(textResponse);
 
       // 4. Si todo salió bien
       alert("Registro exitoso en la base de datos");

@@ -26,8 +26,9 @@ export default function EdicionRestaurante() {
 
   const [imagenes, setImagenes] = useState<(string | null)[]>([null, null, null]);
   const [menuPDF, setMenuPDF] = useState<File | string | null>(null);
+  const [pdfFileName, setPdfFileName] = useState<string | null>(null);
 
-  // 2. CARGAR DATOS
+  // 2. CARGAR DATOS AL INICIAR
   useEffect(() => {
     const cargarDatos = async () => {
       const token = localStorage.getItem("token");
@@ -37,11 +38,23 @@ export default function EdicionRestaurante() {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api'}/mi-restaurante`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        const data = await res.json();
-
+        
+        const textResponse = await res.text();
+        if (!res.ok) {
+          console.error("Error del servidor:", res.status);
+          return;
+        }
+        
+        const data = JSON.parse(textResponse);
         if (data.success && data.data) {
           const info = data.data;
           const etiquetasArr = info.etiquetas ? info.etiquetas.split(',') : ["","",""];
+
+          console.log("📊 Datos cargados del backend:", info);
+          console.log("🖼️ foto_portada:", info.foto_portada);
+          console.log("🖼️ foto_2:", info.foto_2);
+          console.log("🖼️ foto_3:", info.foto_3);
+          console.log("📄 menu_pdf:", info.menu_pdf);
 
           setFormData({
             nombre: info.nombre_propuesto_restaurante || "",
@@ -55,14 +68,20 @@ export default function EdicionRestaurante() {
             etiqueta3: etiquetasArr[2] || "",
           });
 
-          // Carga las 3 imágenes desde la BD
+          // 🔥 CARGAR IMÁGENES PERSISTIDAS DESDE LA BD
           setImagenes([
             info.foto_portada || null, 
             info.foto_2 || null, 
             info.foto_3 || null
           ]);
           
-          if (info.menu_pdf) setMenuPDF(info.menu_pdf);
+          if (info.menu_pdf) {
+            setMenuPDF(info.menu_pdf);
+            // Extraer nombre del archivo de la URL si es posible
+            const urlParts = info.menu_pdf.split('/');
+            const fileName = urlParts[urlParts.length - 1] || 'menu.pdf';
+            setPdfFileName(fileName);
+          }
 
           if (info.estado === 'Rechazado') {
              setMensajeRechazo("Tu solicitud fue rechazada. Por favor revisa los datos y vuelve a enviar.");
@@ -80,44 +99,142 @@ export default function EdicionRestaurante() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // 3. GUARDAR DATOS
+  // 🔥 NUEVA FUNCIÓN: Auto-guardar en el backend
+  const autoGuardarBorrador = async (archivoNuevo?: { campo: string, file: File }) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const etiquetasUnidas = [formData.etiqueta1, formData.etiqueta2, formData.etiqueta3]
+        .filter(e => e !== "")
+        .join(",");
+
+      const formDataToSend = new FormData();
+      
+      // Agregar campos de texto
+      formDataToSend.append("nombre", formData.nombre);
+      formDataToSend.append("direccion", formData.direccion);
+      formDataToSend.append("horario", formData.horario);
+      formDataToSend.append("telefono", formData.telefono);
+      formDataToSend.append("facebook", formData.facebook);
+      formDataToSend.append("instagram", formData.instagram);
+      formDataToSend.append("etiquetas", etiquetasUnidas);
+
+      // Agregar URLs existentes (para que no se pierdan)
+      formDataToSend.append("foto_portada", imagenes[0] || "");
+      formDataToSend.append("foto_2", imagenes[1] || "");
+      formDataToSend.append("foto_3", imagenes[2] || "");
+      formDataToSend.append("menu_pdf", typeof menuPDF === 'string' ? menuPDF : "");
+
+      // 🔥 Si hay un archivo nuevo, agregarlo
+      if (archivoNuevo) {
+        formDataToSend.set(archivoNuevo.campo, archivoNuevo.file);
+      }
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api'}/mi-restaurante/draft`, {
+        method: 'PUT',
+        headers: { 
+          Authorization: `Bearer ${token}` 
+        },
+        body: formDataToSend
+      });
+
+      const textResponse = await res.text();
+      
+      if (!res.ok) {
+        let errorMsg = `Error guardando borrador: ${res.status}`;
+        try {
+          const errData = JSON.parse(textResponse);
+          errorMsg = errData.message || errData.error || errorMsg;
+        } catch {
+          errorMsg = `Error ${res.status}: ${textResponse.substring(0, 100)}`;
+        }
+        console.error(errorMsg);
+        alert(errorMsg);
+        return;
+      }
+
+      const data = JSON.parse(textResponse);
+      
+      if (data.success) {
+        console.log("✅ Borrador guardado automáticamente");
+        
+        // 🔥 RECARGAR DATOS para obtener las URLs actualizadas de Cloudinary
+        const resGet = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api'}/mi-restaurante`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        const textGet = await resGet.text();
+        if (resGet.ok) {
+          const dataGet = JSON.parse(textGet);
+          if (dataGet.success && dataGet.data) {
+            console.log("🔄 Datos recargados después de guardar:", dataGet.data);
+            console.log("🖼️ Nueva foto_portada:", dataGet.data.foto_portada);
+            console.log("🖼️ Nueva foto_2:", dataGet.data.foto_2);
+            console.log("🖼️ Nueva foto_3:", dataGet.data.foto_3);
+            console.log("📄 Nuevo menu_pdf:", dataGet.data.menu_pdf);
+            
+            setImagenes([
+              dataGet.data.foto_portada || null,
+              dataGet.data.foto_2 || null,
+              dataGet.data.foto_3 || null
+            ]);
+            if (dataGet.data.menu_pdf) {
+              setMenuPDF(dataGet.data.menu_pdf);
+              // Mantener el nombre del archivo que el usuario subió
+              if (!pdfFileName) {
+                const urlParts = dataGet.data.menu_pdf.split('/');
+                const fileName = urlParts[urlParts.length - 1] || 'menu.pdf';
+                setPdfFileName(fileName);
+              }
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error en auto-guardado:", error);
+    }
+  };
+
+  // 3. APLICAR CAMBIOS (Enviar a revisión)
   const handleAplicarCambios = async () => {
     try {
-        const token = localStorage.getItem("token");
-        const etiquetasUnidas = [formData.etiqueta1, formData.etiqueta2, formData.etiqueta3]
-            .filter(e => e !== "")
-            .join(",");
-
-        const body = {
-            ...formData,
-            etiquetas: etiquetasUnidas,
-            foto_portada: imagenes[0] || "", 
-            foto_2: imagenes[1] || "", 
-            foto_3: imagenes[2] || "", 
-            menu_pdf: typeof menuPDF === 'string' ? menuPDF : "url-simulada-pdf.pdf" 
-        };
-
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api'}/mi-restaurante`, {
-            method: 'PUT',
-            headers: { 
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}` 
-            },
-            body: JSON.stringify(body)
-        });
-
-        const data = await res.json();
-        
-        if (data.success) {
-            setMensajeRechazo(null);
-            setModalAviso(true);
-        } else {
-            alert("Error al guardar: " + (data.error || "Error desconocido"));
+      const token = localStorage.getItem("token");
+      
+      // 🔥 SOLO cambiar estado a "Pendiente" (los archivos ya están guardados)
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api'}/mi-restaurante/submit`, {
+        method: 'PUT',
+        headers: { 
+          Authorization: `Bearer ${token}` 
         }
+      });
+
+      const textResponse = await res.text();
+      
+      if (!res.ok) {
+        let errorMsg = `Error del servidor: ${res.status}`;
+        try {
+          const errData = JSON.parse(textResponse);
+          errorMsg = errData.message || errData.error || errorMsg;
+        } catch {
+          errorMsg = `Error ${res.status}: ${textResponse.substring(0, 100)}`;
+        }
+        alert(errorMsg);
+        return;
+      }
+
+      const data = JSON.parse(textResponse);
+      
+      if (data.success) {
+        setMensajeRechazo(null);
+        setModalAviso(true);
+      } else {
+        alert("Error al enviar: " + (data.error || "Error desconocido"));
+      }
 
     } catch (error: any) {
-        console.error("Error guardando:", error);
-        alert("Error de conexión: " + error.message);
+      console.error("Error guardando:", error);
+      alert("Error de conexión: " + error.message);
     }
   };
 
@@ -126,30 +243,84 @@ export default function EdicionRestaurante() {
     router.push("/");
   };
   
-  const handleImagenChange = (e: React.ChangeEvent<HTMLInputElement>, index:number) => {
+  // 🔥 MODIFICADO: Subir imagen INMEDIATAMENTE al backend
+  const handleImagenChange = async (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    
+    console.log(`📤 Subiendo imagen ${index + 1}:`, file.name);
+    
+    // Mostrar preview inmediato
     const url = URL.createObjectURL(file);
+    console.log(`🔗 Blob URL temporal creado:`, url);
+    
     const nuevasImagenes = [...imagenes];
     nuevasImagenes[index] = url;
     setImagenes(nuevasImagenes);
+
+    // 🔥 AUTO-GUARDAR en el backend
+    const campoNombre = index === 0 ? 'foto_portada' : index === 1 ? 'foto_2' : 'foto_3';
+    console.log(`💾 Guardando en campo:`, campoNombre);
+    await autoGuardarBorrador({ campo: campoNombre, file });
   };
   
-  const handlePDFChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // 🔥 MODIFICADO: Subir PDF INMEDIATAMENTE al backend
+  const handlePDFChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    
     setMenuPDF(file);
+    setPdfFileName(file.name); // Guardar el nombre del archivo
+    
+    // 🔥 AUTO-GUARDAR en el backend
+    await autoGuardarBorrador({ campo: 'menu_pdf', file });
   };
 
-  // --- FUNCIÓN PARA VER ARCHIVOS ---
-  const verArchivo = (archivo: string | File | null, e: React.MouseEvent) => {
+  // --- FUNCIÓN HELPER PARA OBTENER URL DE ARCHIVO ---
+  const getFileUrl = (archivo: string | File | null): string | null => {
+    console.log("📸 getFileUrl - archivo:", archivo);
+    console.log("📸 getFileUrl - tipo:", typeof archivo);
+    
+    if (!archivo) {
+      console.log("❌ No hay archivo");
+      return null;
+    }
+    
+    let url = typeof archivo === "string" ? archivo : URL.createObjectURL(archivo);
+    
+    // 🔥 Si es un PDF de Cloudinary sin extensión, agregar .pdf
+    if (typeof archivo === "string" && url.includes("cloudinary") && url.includes("/raw/upload/") && !url.endsWith(".pdf")) {
+      url = url + ".pdf";
+      console.log("📄 URL de PDF corregida:", url);
+    }
+    
+    console.log("✅ URL generada:", url);
+    return url;
+  };
+
+  // --- FUNCIÓN PARA VER ARCHIVOS (YA NO SE USA, PERO LA DEJAMOS POR SI ACASO) ---
+  const verArchivo = (archivo: string | File | null, e: React.MouseEvent<HTMLButtonElement>) => {
+    console.log("🔍 verArchivo llamado");
+    console.log("Archivo recibido:", archivo);
+    console.log("Tipo de archivo:", typeof archivo);
+    
     e.preventDefault(); 
     e.stopPropagation();
     
-    if (!archivo) return;
+    if (!archivo) {
+      alert("No hay archivo para mostrar");
+      return;
+    }
 
     const url = typeof archivo === "string" ? archivo : URL.createObjectURL(archivo);
-    window.open(url, "_blank"); 
+    console.log("URL generada:", url);
+    
+    const ventana = window.open(url, "_blank", "noopener,noreferrer");
+    console.log("Ventana abierta:", ventana);
+    
+    if (!ventana) {
+      alert("No se pudo abrir la ventana. Por favor permite ventanas emergentes.");
+    }
   };
 
   return (
@@ -189,46 +360,71 @@ export default function EdicionRestaurante() {
           <h3>Galería de Imágenes</h3>
           <div className={styles.galeria}>
             {[0,1,2].map((num) => (
-              <label key={num} className={styles.imagenSlot} style={{ position: 'relative' }}>
-                <input type="file" hidden accept="image/png, image/jpeg" onChange={(e)=>handleImagenChange(e,num)} />
-                {imagenes[num] && imagenes[num] !== '' ? (
-                  <>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img 
-                        src={imagenes[num]!} 
-                        alt={`Subir Imagen ${num + 1}`} 
-                        width={200} 
-                        height={150} 
-                        className={styles.previewImagen}
-                        style={{ objectFit: 'cover' }}
-                    />
-                    <button 
-                        onClick={(e) => verArchivo(imagenes[num], e)}
-                        style={{
-                            position: 'absolute',
-                            top: '8px',
-                            right: '8px',
-                            backgroundColor: 'rgba(106, 30, 30, 0.85)',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '50%',
-                            width: '32px',
-                            height: '32px',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: '1rem'
-                        }}
-                        title={`Ver Imagen ${num + 1}`}
-                    >
-                        👁️
-                    </button>
-                  </>
-                ) : (
-                  <div className={styles.imagenPlaceholder}>Subir Imagen {num + 1}</div>
+              <div key={num} style={{ position: 'relative', display: 'inline-block' }}>
+                <label 
+                  className={styles.imagenSlot} 
+                  style={{ 
+                    cursor: 'pointer', 
+                    display: 'block',
+                    position: 'relative'
+                  }}
+                >
+                  <input type="file" hidden accept="image/png, image/jpeg" onChange={(e)=>handleImagenChange(e,num)} />
+                  {imagenes[num] && imagenes[num] !== '' ? (
+                    <>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img 
+                          src={imagenes[num]!} 
+                          alt={`Subir Imagen ${num + 1}`} 
+                          width={200} 
+                          height={150} 
+                          className={styles.previewImagen}
+                          style={{ objectFit: 'cover', display: 'block' }}
+                      />
+                    </>
+                  ) : (
+                    <div className={styles.imagenPlaceholder}>Subir Imagen {num + 1}</div>
+                  )}
+                </label>
+                {imagenes[num] && imagenes[num] !== '' && (
+                  <button 
+                      type="button"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log("🖱️ MouseDown en botón de imagen", num + 1);
+                        console.log("🔗 URL a abrir:", imagenes[num]);
+                        const ventana = window.open(imagenes[num]!, '_blank', 'noopener,noreferrer');
+                        console.log("🪟 Ventana abierta:", ventana);
+                        if (!ventana) {
+                          alert("El navegador bloqueó la ventana emergente. Por favor permite ventanas emergentes para este sitio.");
+                        }
+                      }}
+                      style={{
+                          position: 'absolute',
+                          top: '8px',
+                          right: '8px',
+                          backgroundColor: 'rgba(106, 30, 30, 0.95)',
+                          color: 'white',
+                          border: '2px solid white',
+                          borderRadius: '50%',
+                          width: '36px',
+                          height: '36px',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '1.1rem',
+                          zIndex: 1000,
+                          pointerEvents: 'auto',
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+                      }}
+                      title={`Ver Imagen ${num + 1}`}
+                  >
+                      👁️
+                  </button>
                 )}
-              </label>
+              </div>
             ))}
           </div>
         </section>
@@ -257,35 +453,11 @@ export default function EdicionRestaurante() {
                 >
                   <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%', textAlign: 'left' }}>
                     {menuPDF 
-                      ? (typeof menuPDF === 'string' ? "📄 Menú Guardado" : `📄 ${menuPDF.name}`) 
+                      ? `📄 ${pdfFileName || 'menu.pdf'}` 
                       : "Seleccionar archivo PDF"}
                   </span>
                   <input type="file" hidden accept="application/pdf" onChange={handlePDFChange} />
                 </label>
-
-                {/* BOTÓN PARA VER PDF */}
-                {menuPDF && (
-                  <button 
-                    onClick={(e) => verArchivo(menuPDF, e)}
-                    style={{
-                      backgroundColor: '#912F2F',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '6px',
-                      width: '45px',
-                      height: '45px',
-                      cursor: 'pointer',
-                      fontSize: '1.2rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      transition: 'background 0.2s'
-                    }}
-                    title="Ver PDF"
-                  >
-                    👁️
-                  </button>
-                )}
               </div>
             </div>
 
