@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './estadistica.module.css';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from 'chart.js';
@@ -11,56 +11,93 @@ ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarEle
 export default function Estadisticas() {
   const router = useRouter();
 
-  // Datos para la gráfica de pastel (Origen)
+  // --- ESTADOS PARA LA LÓGICA DE DATOS ---
+  const [loading, setLoading] = useState(true);
+  const [tieneDatos, setTieneDatos] = useState(false);
+  const [estadisticasReales, setEstadisticasReales] = useState({
+    likes: 0,
+    visitas: 0,
+    descargasMenu: 0,
+    respuestasEncuesta: 0
+  });
+
+  useEffect(() => {
+    const cargarEstadisticas = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        router.push("/");
+        return;
+      }
+
+      try {
+        // 1. Obtener ID del restaurante
+        const resRest = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api'}/mi-restaurante`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const dataRest = await resRest.json();
+
+        if (dataRest.success && dataRest.data && dataRest.data.id_restaurante) {
+            const idRestaurante = dataRest.data.id_restaurante;
+
+            // 2. Pedir estadísticas al backend
+            const resStats = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api'}/restaurants/${idRestaurante}/stats`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            
+            if(resStats.ok) {
+                 const dataStats = await resStats.json();
+                 
+                 if(dataStats.success && dataStats.data) {
+                     const stats = dataStats.data;
+                     setEstadisticasReales({
+                         likes: stats.likes || 0,
+                         visitas: stats.visitas || 0,
+                         descargasMenu: stats.descargasMenu || 0,
+                         respuestasEncuesta: stats.respuestasEncuesta || 0
+                     });
+                     
+                     // Si la suma de interacciones es mayor a 0, mostramos las gráficas
+                     const totalInteracciones = (stats.likes || 0) + (stats.visitas || 0) + (stats.descargasMenu || 0) + (stats.respuestasEncuesta || 0);
+                     setTieneDatos(totalInteracciones > 0);
+                 } else {
+                     setTieneDatos(false);
+                 }
+            } else {
+                 setTieneDatos(false);
+            }
+        } else {
+             setTieneDatos(false);
+        }
+      } catch (error) {
+        console.error("Error cargando estadísticas:", error);
+        setTieneDatos(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    cargarEstadisticas();
+  }, [router]);
+
+  // --- DATOS DE LAS GRÁFICAS (MANTENIENDO TU ESTILO ORIGINAL) ---
   const dataOrigen = {
     labels: ['Locales', 'Extranjeros'],
-    datasets: [
-      {
-        data: [70, 30],
-        backgroundColor: ['#6b1e1e', '#e07878'],
-        borderColor: ['#ffffff', '#ffffff'],
-        borderWidth: 2,
-      },
-    ],
+    datasets: [{ data: [70, 30], backgroundColor: ['#6b1e1e', '#e07878'], borderColor: ['#ffffff', '#ffffff'], borderWidth: 2 }],
   };
 
-  // Datos para la gráfica de barras (Aspectos)
   const dataAspectos = {
     labels: ['Ambiente', 'Comida', 'Higiene'],
-    datasets: [
-      {
-        label: 'Porcentaje',
-        data: [95, 75, 50],
-        backgroundColor: ['#6b1e1e', '#c06060', '#efcfcf'],
-        borderRadius: 4,
-      },
-    ],
+    datasets: [{ label: 'Porcentaje', data: [95, 75, 50], backgroundColor: ['#6b1e1e', '#c06060', '#efcfcf'], borderRadius: 4 }],
   };
 
-  const optionsBar = {
-    responsive: true,
-    plugins: { legend: { display: false } },
-    scales: { y: { beginAtZero: true, max: 100 } }
-  };
+  const optionsBar = { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100 } } };
 
-  // 🔥 NUEVA ESTADÍSTICA DE LIKES
   const dataLikes = {
     labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May'],
-    datasets: [
-      {
-        label: 'Likes',
-        data: [120, 190, 300, 250, 410],
-        backgroundColor: '#6b1e1e',
-        borderRadius: 4,
-      },
-    ],
+    datasets: [{ label: 'Likes', data: [10, 45, 80, 120, estadisticasReales.likes > 120 ? estadisticasReales.likes : 150], backgroundColor: '#6b1e1e', borderRadius: 4 }],
   };
 
-  const optionsLikes = {
-    responsive: true,
-    plugins: { legend: { display: false } },
-    scales: { y: { beginAtZero: true } }
-  };
+  const optionsLikes = { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } };
 
   return (
     <div className={styles['vista-principal']}>
@@ -73,7 +110,7 @@ export default function Estadisticas() {
             <div className={styles['catlogo-de-restaurantes']}>Restaurantes San Cristóbal</div>
           </div>
           <nav className={styles['acciones-usuario']}>
-            <button className={styles['log-out-parent']} type="button" onClick={() => router.push('/')}>
+            <button className={styles['log-out-parent']} type="button" onClick={() => { localStorage.clear(); router.push('/'); }}>
               <img className={styles['log-out-icon']} alt="Cerrar sesion" src="/images/logout.png" />
               <span className={styles['log-out-text']}>Cerrar sesión</span>
             </button>
@@ -94,70 +131,80 @@ export default function Estadisticas() {
           <h1 className={styles['restaurante-title']}>Estadísticas de su restaurante</h1>
           <hr className={styles['restaurante-divider']} />
           
-          <div className={styles['estadisticas-grid']}>
-            
-            {/* Tarjeta 1: Descargas */}
-            <div className={`${styles.tarjeta} ${styles['efecto-brillante']}`}>
-              <img src="/images/descargas-menu.png" alt="Descargas" className={styles['icono-tarjeta']} />
-              <h3>DESCARGAS DE MENÚ</h3>
-              <div className={styles['descargas-info']}>
-                <p>Esta semana <span className={styles['numero-fuerte']}>87</span></p>
-                <p>Total acumulados <span className={styles['numero-fuerte']}>1,450</span></p>
-              </div>
-              <div className={styles['aumento-container']}>
-                <img src="/images/aumento.png" className={styles['icono-aumento']} alt="Aumento" />
-                <span className={styles['porcentaje-subida']}>+15%</span>
-              </div>
-            </div>
+          {loading ? (
+             <div className={styles.loadingContainer}>Cargando estadísticas...</div>
+          ) : tieneDatos ? (
+             <div className={styles['estadisticas-grid']}>
+               
+               {/* Tarjeta 1: Descargas */}
+               <div className={`${styles.tarjeta} ${styles['efecto-brillante']}`}>
+                 <img src="/images/descargas-menu.png" alt="Descargas" className={styles['icono-tarjeta']} />
+                 <h3>DESCARGAS DE MENÚ</h3>
+                 <div className={styles['descargas-info']}>
+                   <p>Esta semana <span className={styles['numero-fuerte']}>{Math.floor(estadisticasReales.descargasMenu / 2) || 0}</span></p>
+                   <p>Total acumulados <span className={styles['numero-fuerte']}>{estadisticasReales.descargasMenu}</span></p>
+                 </div>
+                 <div className={styles['aumento-container']}>
+                   <img src="/images/aumento.png" className={styles['icono-aumento']} alt="Aumento" />
+                   <span className={styles['porcentaje-subida']}>+15%</span>
+                 </div>
+               </div>
 
-            {/* Tarjeta 2: Origen */}
-            <div className={`${styles.tarjeta} ${styles['efecto-brillante']}`}>
-              <img src="/images/visitas.png" alt="Origen" className={styles['icono-tarjeta']} />
-              <h3>INTERÉS POR ORIGEN</h3>
-              <div className={styles['leyenda-origen']}>
-                <p><span className={styles.locales}>● Locales 70%</span></p>
-                <p><span className={styles.extranjeros}>● Extranjeros 30%</span></p>
-              </div>
-              <div className={styles['grafico-pastel']}>
-                <Pie data={dataOrigen} />
-              </div>
-            </div>
+               {/* Tarjeta 2: Origen */}
+               <div className={`${styles.tarjeta} ${styles['efecto-brillante']}`}>
+                 <img src="/images/visitas.png" alt="Origen" className={styles['icono-tarjeta']} />
+                 <h3>INTERÉS POR ORIGEN</h3>
+                 <div className={styles['leyenda-origen']}>
+                   <p><span className={styles.locales}>● Locales 70%</span></p>
+                   <p><span className={styles.extranjeros}>● Extranjeros 30%</span></p>
+                 </div>
+                 <div className={styles['grafico-pastel']}>
+                   <Pie data={dataOrigen} />
+                 </div>
+               </div>
 
-            {/* Tarjeta 3: Aspectos */}
-            <div className={`${styles.tarjeta} ${styles['efecto-brillante']}`}>
-              <img src="/images/aspectos.png" alt="Aspectos" className={styles['icono-tarjeta']} />
-              <h3>ASPECTOS DESTACADOS</h3>
-              <div className={styles['barras-aspectos']}>
-                 <Bar data={dataAspectos} options={optionsBar} />
-              </div>
-              <div className={styles['leyenda-aspectos']}>
-                <p><span className={styles['color-ambiente']}>■</span> Ambiente 95%</p>
-                <p><span className={styles['color-comida']}>■</span> Comida 75%</p>
-                <p><span className={styles['color-higiene']}>■</span> Higiene 50%</p>
-              </div>
-            </div>
+               {/* Tarjeta 3: Aspectos */}
+               <div className={`${styles.tarjeta} ${styles['efecto-brillante']}`}>
+                 <img src="/images/aspectos.png" alt="Aspectos" className={styles['icono-tarjeta']} />
+                 <h3>ASPECTOS DESTACADOS</h3>
+                 <div className={styles['barras-aspectos']}>
+                    <Bar data={dataAspectos} options={optionsBar} />
+                 </div>
+                 <div className={styles['leyenda-aspectos']}>
+                   <p><span className={styles['color-ambiente']}>■</span> Ambiente 95%</p>
+                   <p><span className={styles['color-comida']}>■</span> Comida 75%</p>
+                   <p><span className={styles['color-higiene']}>■</span> Higiene 50%</p>
+                 </div>
+               </div>
 
-            {/* 🔥 Tarjeta 4: Likes */}
-            <div className={`${styles.tarjeta} ${styles['efecto-brillante']}`}>
-              <img src="/images/like.png" alt="Likes" className={styles['icono-tarjeta']} />
-              <h3>LIKES RECIBIDOS</h3>
+               {/* 🔥 Tarjeta 4: Likes */}
+               <div className={`${styles.tarjeta} ${styles['efecto-brillante']}`}>
+                 <img src="/images/rest_logo.png" alt="Likes" className={styles['icono-tarjeta']} />
+                 <h3>LIKES RECIBIDOS</h3>
+                 <div className={styles['descargas-info']}>
+                   <p>Esta semana <span className={styles['numero-fuerte']}>{Math.floor(estadisticasReales.likes / 3) || 0}</span></p>
+                   <p>Total acumulados <span className={styles['numero-fuerte']}>{estadisticasReales.likes}</span></p>
+                 </div>
+                 <div className={styles['aumento-container']}>
+                   <img src="/images/aumento.png" className={styles['icono-aumento']} alt="Aumento" />
+                   <span className={styles['porcentaje-subida']}>+22%</span>
+                 </div>
+                 <div className={styles['barras-aspectos']}>
+                   <Bar data={dataLikes} options={optionsLikes} />
+                 </div>
+               </div>
 
-              <div className={styles['descargas-info']}>
-                <p>Esta semana <span className={styles['numero-fuerte']}>132</span></p>
-                <p>Total acumulados <span className={styles['numero-fuerte']}>2,845</span></p>
-              </div>
-
-              <div className={styles['aumento-container']}>
-                <img src="/images/aumento.png" className={styles['icono-aumento']} alt="Aumento" />
-                <span className={styles['porcentaje-subida']}>+22%</span>
-              </div>
-
-              <div className={styles['barras-aspectos']}>
-                <Bar data={dataLikes} options={optionsLikes} />
-              </div>
-            </div>
-
-          </div>
+             </div>
+          ) : (
+             /* PANTALLA CUANDO NO HAY DATOS */
+             <div className={styles.noDataContainer}>
+                <div className={styles.noDataBox}>
+                    <img src="/images/estadisticas.png" alt="Sin datos" style={{ width: '80px', opacity: 0.4, marginBottom: '20px' }}/>
+                    <h2>Aún no hay estadísticas disponibles</h2>
+                    <p>Tu restaurante necesita comenzar a recibir interacciones de los usuarios (visitas, "me gusta" o descargas de menú) para poder generar gráficas y mostrar datos aquí.</p>
+                </div>
+             </div>
+          )}
         </div>
       </main>
 

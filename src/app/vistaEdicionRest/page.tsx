@@ -23,8 +23,11 @@ export default function EdicionRestaurante() {
 
   const [modalAviso, setModalAviso] = useState(false);
   const [mensajeRechazo, setMensajeRechazo] = useState<string | null>(null);
+  
+  // NUEVO: Estado para saber si el restaurante ya fue aprobado
+  const [esAprobado, setEsAprobado] = useState(false);
 
-  // NUEVO: Separamos los Archivos reales (Files) de las URLs (Strings para previsualizar)
+  // Separamos los Archivos reales (Files) de las URLs (Strings para previsualizar)
   const [imagenesFiles, setImagenesFiles] = useState<(File | null)[]>([null, null, null]);
   const [imagenesUrls, setImagenesUrls] = useState<(string | null)[]>([null, null, null]);
 
@@ -70,6 +73,12 @@ export default function EdicionRestaurante() {
 
           if (info.estado === 'Rechazado') {
              setMensajeRechazo("Tu solicitud fue rechazada. Por favor revisa los datos y vuelve a enviar.");
+          }
+
+          // ✅ CORRECCIÓN AQUÍ: Verificamos de forma más estricta si está aprobado
+          // Si dice "Aprobado" o si la BD ya le asignó un ID de restaurante real
+          if (info.estado === 'Aprobado' || info.id_restaurante) {
+             setEsAprobado(true);
           }
         }
       } catch (error) {
@@ -127,7 +136,7 @@ export default function EdicionRestaurante() {
         // Usamos FormData para mezclar textos con archivos como lo exige el Backend
         const formDataToSend = new FormData();
         formDataToSend.append('nombre', formData.nombre);
-        formDataToSend.append('direccion', formData.direccion); // ¡Ahora sí se enviará y guardará el link!
+        formDataToSend.append('direccion', formData.direccion); 
         formDataToSend.append('horario', formData.horario);
         formDataToSend.append('telefono', formData.telefono);
         formDataToSend.append('facebook', formData.facebook);
@@ -151,8 +160,6 @@ export default function EdicionRestaurante() {
             method: 'PUT',
             headers: { 
                 Authorization: `Bearer ${token}` 
-                // ⚠️ Al usar FormData, NUNCA debes poner 'Content-Type': 'application/json'
-                // El navegador se encarga automáticamente de poner el multipart/form-data correcto.
             },
             body: formDataToSend
         });
@@ -434,10 +441,27 @@ export default function EdicionRestaurante() {
           </div>
         </section>
 
-        <button onClick={handleAplicarCambios} className={styles.btnAplicar}>
-          <Image src="/images/aplicarCambios.png" alt="cambios" width={20} height={20} />
-          Aplicar Cambios
-        </button>
+        {/* CONTENEDOR DE BOTONES */}
+        <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', marginTop: '20px' }}>
+          
+          <button onClick={handleAplicarCambios} className={styles.btnAplicar}>
+            <Image src="/images/aplicarCambios.png" alt="cambios" width={20} height={20} />
+            Aplicar Cambios
+          </button>
+
+          {/* ESTE BOTÓN SOLO APARECE SI EL RESTAURANTE YA ESTÁ APROBADO */}
+          {esAprobado && (
+            <button 
+              onClick={() => router.push("/estadistica")} 
+              className={styles.btnAplicar}
+              style={{ backgroundColor: '#2b2b2b' }} // Un color diferente para destacarlo
+            >
+              <Image src="/images/estadisticas.png" alt="estadisticas" width={20} height={20} />
+              Estadísticas
+            </button>
+          )}
+
+        </div>
 
       </main>
 
@@ -458,7 +482,7 @@ export default function EdicionRestaurante() {
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>
             <button onClick={() => setModalAviso(false)} className={styles.closeModal}>&times;</button>
-            <p>Datos guardados y enviados a revisión con éxito.</p>
+            <p>Datos guardados con éxito.</p>
           </div>
         </div>
       )}
