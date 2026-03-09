@@ -49,55 +49,36 @@ function RestauranteContenido() {
 
       for (const file of Array.from(files)) {
         const formData = new FormData();
-        formData.append("file", file); 
-        
-        // 🔥 CORRECCIÓN AQUÍ: Se envía como "restaurantId" tal cual lo pide tu backend
-        formData.append("restaurantId", id as string);
+        formData.append('foto', file); // Ajusta el nombre según tu backend
 
-        const res = await fetch(`${apiUrl}/photos`, {
+        const res = await fetch(`${apiUrl}/restaurants/${id}/photos`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`
+            // OJO: Cuando envías archivos (FormData), NO debes poner 'Content-Type'
           },
           body: formData
         });
 
-        // 🛡️ ESCUDO ANTI-CRASHEOS: Leemos primero como texto
-        const textResponse = await res.text();
+        const data = await res.json();
 
-        if (!res.ok) {
-           let errorMsg = `Error HTTP: ${res.status}`;
-           try {
-              const errData = JSON.parse(textResponse);
-              errorMsg = errData.error || errData.message || errorMsg;
-           } catch {
-              errorMsg = "El servidor falló o la ruta no es correcta.";
-           }
-           throw new Error(errorMsg);
-        }
-
-        // Si todo sale bien, lo pasamos a JSON
-        const data = JSON.parse(textResponse);
-        
-        if (data.success) {
-          // Buscamos la URL de la foto en la respuesta (varía según cómo la devuelva tu Prisma)
-          const nuevaUrl = data.data?.url || data.data?.fileUrl || data.url; 
+        if (res.ok) {
+          // Buscamos la URL de la foto en la respuesta
+          const nuevaUrl = data.data?.url || data.data?.fileUrl || data.url;
           
           if (nuevaUrl) {
             setFotos((prev) => [...prev, nuevaUrl]);
-            alert("¡Foto subida con éxito!");
-          } else {
-             // Por si el servidor responde success pero no manda la URL
-             alert("La foto se guardó, pero recarga la página para verla.");
           }
+          alert("¡Foto subida con éxito!");
         } else {
-          throw new Error(data.error || data.message || "Error desconocido al guardar");
+          // 🚨 AQUÍ ATRAPAMOS EL RECHAZO DEL BACKEND
+          alert(data.message || "No se pudo subir la foto.");
         }
       }
-    } catch (error: any) {
-      console.error("Error al subir la foto:", error);
-      // Ahora sí te dirá exactamente QUÉ falló (ej. "No tienes permisos" o "Token expirado")
-      alert(`Error al intentar subir la foto: ${error.message}`);
+    } catch (error) {
+      // Usamos console.log para evitar la pantalla roja
+      console.log("Aviso de conexión al subir foto:", error);
+      alert("Hubo un problema de conexión al intentar subir la foto.");
     } finally {
       setIsUploading(false);
       event.target.value = ''; // Resetea el input para poder subir más fotos
@@ -144,7 +125,7 @@ function RestauranteContenido() {
 
         console.log("Enviando petición check con token:", token ? "Token encontrado" : "NO HAY TOKEN");
 
-        const res = await fetch(`${apiUrl}/favorites/check?restauranteId=${id}`, {
+        const res = await fetch(`${apiUrl}/favorites/check?id_restaurante=${id}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -154,7 +135,6 @@ function RestauranteContenido() {
         
         if (!res.ok) {
            console.error(`Fallo la petición de verificación. Código de estado: ${res.status}`);
-           // Si el estado es 401 o 403, significa que el token es inválido o no se envió correctamente
            return;
         }
 
@@ -162,7 +142,7 @@ function RestauranteContenido() {
         console.log("Respuesta del backend para favoritos:", data);
 
         if (data.success) {
-          setIsFavorite(data.isFavorite); // Esto es lo que pinta el corazón automáticamente
+          setIsFavorite(data.isFavorite);
         }
       } catch (error) {
         console.error("Error verificando estado de favorito:", error);
@@ -187,34 +167,35 @@ function RestauranteContenido() {
       return;
     }
 
-    // Actualización optimista (cambia el color instantáneamente para mejor UX)
-    const nuevoEstado = !isFavorite;
-    setIsFavorite(nuevoEstado);
-
     try {
+      const token = localStorage.getItem('token');
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api';
-      const token = localStorage.getItem("token"); // Extraemos el token
-
+      
+      // Asegúrate de que esta sea la ruta correcta de tu backend
       const res = await fetch(`${apiUrl}/favorites/toggle`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ restauranteId: id })
+        body: JSON.stringify({ id_restaurante: id }) 
       });
 
+      // Leemos lo que nos contestó el backend (sea bueno o malo)
       const data = await res.json();
-      
-      if (!data.success) {
-        // Si el backend falla, revertimos el color del corazón
-        setIsFavorite(!nuevoEstado);
-        console.error("Error del servidor al guardar favorito:", data.error);
+
+      if (res.ok) {
+        // Si todo salió bien, cambiamos el color del corazón
+        setIsFavorite(!isFavorite);
+      } else {
+        // 🚨 AQUÍ ESTÁ LA MAGIA: 
+        // Si el backend nos rechazó (ej. por ser Restaurantero), mostramos el mensaje que programamos en server.ts
+        alert(data.message || "No se pudo completar la acción.");
       }
     } catch (error) {
-      // Si hay error de red, revertimos
-      setIsFavorite(!nuevoEstado);
-      console.error("Error de conexión al guardar favorito:", error);
+      // Cambiamos console.error por console.log para que Next.js NO ponga la pantalla roja
+      console.log("Aviso de conexión:", error);
+      alert("Hubo un problema de conexión con el servidor.");
     }
   };
 
@@ -228,23 +209,30 @@ function RestauranteContenido() {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api';
       const token = localStorage.getItem("token");
 
-      // Le preguntamos al backend si ya respondió
       const res = await fetch(`${apiUrl}/restaurants/${id}/survey/check`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
+      
       const data = await res.json();
 
+      // 🚨 AQUÍ ATRAPAMOS EL RECHAZO DEL BACKEND (Si es restaurantero, caerá aquí)
+      if (!res.ok) {
+        alert(data.message || "No tienes permiso para responder encuestas.");
+        return; // Detenemos la ejecución
+      }
+
       if (data.hasAnswered) {
-        // ✅ REGLA: Si ya respondió, lo bloqueamos
         alert("📝 Ya respondiste la encuesta para este restaurante. ¡Muchas gracias por tu opinión!");
         return; 
       }
 
-      // ✅ CLAVE: Le pasamos el ID del restaurante en la URL para que la encuesta sepa a quién califica
+      // Si todo está bien y es cliente, lo mandamos a la encuesta
       router.push(`/EncuestaModal?restauranteId=${id}`);
 
     } catch (error) {
-      console.error("Error verificando la encuesta:", error);
+      // Usamos console.log para evitar la pantalla roja de Turbopack
+      console.log("Aviso de conexión al verificar encuesta:", error);
+      alert("Hubo un problema de conexión al verificar la encuesta.");
     }
   };
 
@@ -253,6 +241,16 @@ function RestauranteContenido() {
     if (!isLogged) {
       setIsLoginModalOpen(true);
       return;
+    }
+
+    // 🔒 REGLA: Bloquear si es Restaurantero
+    const userStr = localStorage.getItem("user");
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      if (user.id_rol === 2) {
+        alert("Como Restaurantero, tienes una vista de 'Solo Lectura'. No puedes descargar menús.");
+        return;
+      }
     }
 
     // 2. Verificamos si es favorito
@@ -276,16 +274,37 @@ function RestauranteContenido() {
   };
 
   const handleSubirFotoClick = (e: React.MouseEvent) => {
-    // 1. Verificamos sesión
+    // 1. Verificamos si tiene sesión iniciada
     if (!isLogged) {
-      e.preventDefault(); // Bloquea la ventana de archivos del navegador
+      e.preventDefault();
       setIsLoginModalOpen(true);
-      return; // Detiene la ejecución aquí
+      return;
     }
 
-    // 2. NUEVA REGLA: Verificamos si ya le dio a Favoritos
+    // 2. 🔒 PRIMERO verificamos si es Restaurantero para bloquearlo inmediatamente
+    const userStr = localStorage.getItem("user");
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      const esRestaurantero = 
+        user.id_rol === 2 || 
+        user.rol_id === 2 || 
+        user.rol === 2 || 
+        user.tipo === "restaurantero" || 
+        user.rol === "restaurantero" || 
+        user.role === "restaurantero" ||
+        user.tipo === "Restaurantero";
+
+      if (esRestaurantero) {
+        e.preventDefault(); // Evita que se abra la ventana de subir archivos
+        alert("Como Restaurantero, no puedes subir fotos de clientes.");
+        return; // Detenemos todo aquí
+      }
+    }
+
+    // 3. Si llega hasta aquí, significa que es un CLIENTE. 
+    // Ahora sí verificamos si ya le dio "Me gusta"
     if (!isFavorite) {
-      e.preventDefault(); // Bloquea la ventana de archivos
+      e.preventDefault();
       alert("❤️ ¡Para poder subir una foto, primero debes agregar este restaurante a tus Favoritos!");
       return;
     }
