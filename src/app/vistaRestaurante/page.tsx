@@ -28,22 +28,80 @@ function RestauranteContenido() {
   const primeraEtiqueta = etiquetasArray.length > 0 ? etiquetasArray[0] : "General";
   const etiquetasExtra = etiquetasArray.slice(1);
 
-  const [fotos, setFotos] = useState<string[]>([
-    "/images/fondo_inicio.png",
-    "/images/fondo_inicio.png",
-    "/images/fondo_inicio.png",
-    "/images/fondo_inicio.png",
-  ]);
+  // ✅ CAMBIO 1: Arrancamos con 0 fotos
+  const [fotos, setFotos] = useState<string[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
 
-  const handleSubirFoto = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSubirFoto = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-    if (!files) return;
+    if (!files || files.length === 0) return;
 
-    const nuevasFotos = Array.from(files).map((file) =>
-      URL.createObjectURL(file)
-    );
+    const token = localStorage.getItem("token");
+    if (!isLogged || !token) {
+      setIsLoginModalOpen(true);
+      return;
+    }
 
-    setFotos((prev) => [...prev, ...nuevasFotos]);
+    setIsUploading(true);
+
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api';
+
+      for (const file of Array.from(files)) {
+        const formData = new FormData();
+        formData.append("file", file); 
+        
+        // 🔥 CORRECCIÓN AQUÍ: Se envía como "restaurantId" tal cual lo pide tu backend
+        formData.append("restaurantId", id as string);
+
+        const res = await fetch(`${apiUrl}/photos`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: formData
+        });
+
+        // 🛡️ ESCUDO ANTI-CRASHEOS: Leemos primero como texto
+        const textResponse = await res.text();
+
+        if (!res.ok) {
+           let errorMsg = `Error HTTP: ${res.status}`;
+           try {
+              const errData = JSON.parse(textResponse);
+              errorMsg = errData.error || errData.message || errorMsg;
+           } catch {
+              errorMsg = "El servidor falló o la ruta no es correcta.";
+           }
+           throw new Error(errorMsg);
+        }
+
+        // Si todo sale bien, lo pasamos a JSON
+        const data = JSON.parse(textResponse);
+        
+        if (data.success) {
+          // Buscamos la URL de la foto en la respuesta (varía según cómo la devuelva tu Prisma)
+          const nuevaUrl = data.data?.url || data.data?.fileUrl || data.url; 
+          
+          if (nuevaUrl) {
+            setFotos((prev) => [...prev, nuevaUrl]);
+            alert("¡Foto subida con éxito!");
+          } else {
+             // Por si el servidor responde success pero no manda la URL
+             alert("La foto se guardó, pero recarga la página para verla.");
+          }
+        } else {
+          throw new Error(data.error || data.message || "Error desconocido al guardar");
+        }
+      }
+    } catch (error: any) {
+      console.error("Error al subir la foto:", error);
+      // Ahora sí te dirá exactamente QUÉ falló (ej. "No tienes permisos" o "Token expirado")
+      alert(`Error al intentar subir la foto: ${error.message}`);
+    } finally {
+      setIsUploading(false);
+      event.target.value = ''; // Resetea el input para poder subir más fotos
+    }
   };
   
   // ESTADOS DE SESIÓN Y MODALES
@@ -181,14 +239,33 @@ function RestauranteContenido() {
       return;
     }
 
-    // 3. Abrimos el modal (el modal se encargará de mostrar el PDF o el mensaje)
+    // 3. NUEVO: Registrar la "descarga" silenciosamente en el backend
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api';
+      await fetch(`${apiUrl}/restaurants/${id}/menu/click`, {
+        method: 'POST'
+      });
+    } catch (error) {
+      console.error("Error registrando la vista del menú:", error);
+    }
+
+    // 4. Abrimos el modal para mostrar el PDF
     abrirModalMenu();
   };
 
   const handleSubirFotoClick = (e: React.MouseEvent) => {
+    // 1. Verificamos sesión
     if (!isLogged) {
       e.preventDefault(); // Bloquea la ventana de archivos del navegador
       setIsLoginModalOpen(true);
+      return; // Detiene la ejecución aquí
+    }
+
+    // 2. NUEVA REGLA: Verificamos si ya le dio a Favoritos
+    if (!isFavorite) {
+      e.preventDefault(); // Bloquea la ventana de archivos
+      alert("❤️ ¡Para poder subir una foto, primero debes agregar este restaurante a tus Favoritos!");
+      return;
     }
   };
   // ==========================================
@@ -236,6 +313,34 @@ function RestauranteContenido() {
     };
 
     cargarDetalleRestaurante();
+  }, [id]);
+
+  // EFECTO PARA CARGAR LAS FOTOS SUBIDAS POR USUARIOS
+  useEffect(() => {
+    if (!id) return;
+
+    const cargarFotosDeUsuarios = async () => {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api';
+        
+        // Petición al backend a la ruta de fotos por restaurante
+        const res = await fetch(`${apiUrl}/photos/restaurant/${id}`);
+        
+        if (!res.ok) return;
+
+        const data = await res.json();
+        
+        if (data.success && data.data) {
+          // Ajusta data.url o data.ruta_archivo según cómo lo devuelva tu backend
+          const urlsReales = data.data.map((foto: any) => foto.url || foto.fileUrl || foto);
+          setFotos(urlsReales);
+        }
+      } catch (error) {
+        console.error("Error obteniendo las fotos de usuarios:", error);
+      }
+    };
+
+    cargarFotosDeUsuarios();
   }, [id]);
 
   if (loading) {
@@ -463,41 +568,43 @@ function RestauranteContenido() {
 
             <h3>Fotos de Usuarios</h3>
             <div className={styles.fotosUsuariosRow}>
-            {fotos.map((foto, index) => (
-              <div key={index} className={styles.fotoMini}>
-                <Image
-                  src={foto}
-                  alt="Usuario"
-                  fill
-                  className={styles.imageCover}
-                  unoptimized
-                />
-              </div>
-            ))}
+              
+              {/* ✅ CAMBIO 2: Condición para mostrar fotos solo si existen */}
+              {fotos && fotos.length > 0 && fotos.map((foto, index) => (
+                <div key={index} className={styles.fotoMini}>
+                  <Image
+                    src={foto}
+                    alt={`Foto de usuario ${index + 1}`}
+                    fill
+                    className={styles.imageCover}
+                    unoptimized
+                  />
+                </div>
+              ))}
 
-            {/* Botón Subir Foto Protegido */}
-            <label className={styles.btnSubirFoto} onClick={handleSubirFotoClick}>
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#6b1e1e"
-                strokeWidth="2"
-              >
-                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-                <circle cx="12" cy="13" r="4" />
-              </svg>
-              Subir Foto
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                hidden
-                onChange={handleSubirFoto}
-              />
-            </label>
-          </div>
+              {/* Botón Subir Foto Protegido (SIEMPRE VISIBLE) */}
+              <label className={styles.btnSubirFoto} onClick={handleSubirFotoClick}>
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#6b1e1e"
+                  strokeWidth="2"
+                >
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                  <circle cx="12" cy="13" r="4" />
+                </svg>
+                Subir Foto
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  hidden
+                  onChange={handleSubirFoto}
+                />
+              </label>
+            </div>
           </div>
 
         </div>

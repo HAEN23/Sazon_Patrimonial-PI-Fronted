@@ -92,9 +92,28 @@ export default function Estadisticas() {
 
   const optionsBar = { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100 } } };
 
+  // GRÁFICA DE DESCARGAS (Ahora 100% real)
+  const dataDescargas = {
+    labels: ['Total de Vistas/Descargas'],
+    datasets: [{ 
+      label: 'Descargas', 
+      data: [estadisticasReales.descargasMenu], // Se conecta a la variable real
+      backgroundColor: '#e69b35', // Ajusta al color naranja/amarillo que tenías
+      borderRadius: 4 
+    }],
+  };
+
+  const optionsDescargas = { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } };
+
+  // GRÁFICA DE LIKES (Ahora 100% real)
   const dataLikes = {
-    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May'],
-    datasets: [{ label: 'Likes', data: [10, 45, 80, 120, estadisticasReales.likes > 120 ? estadisticasReales.likes : 150], backgroundColor: '#6b1e1e', borderRadius: 4 }],
+    labels: ['Total de Likes'],
+    datasets: [{ 
+      label: 'Likes', 
+      data: [estadisticasReales.likes], // Usamos la variable real que viene de la base de datos
+      backgroundColor: '#6b1e1e', 
+      borderRadius: 4 
+    }],
   };
 
   const optionsLikes = { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } };
@@ -141,12 +160,14 @@ export default function Estadisticas() {
                  <img src="/images/descargas-menu.png" alt="Descargas" className={styles['icono-tarjeta']} />
                  <h3>DESCARGAS DE MENÚ</h3>
                  <div className={styles['descargas-info']}>
-                   <p>Esta semana <span className={styles['numero-fuerte']}>{Math.floor(estadisticasReales.descargasMenu / 2) || 0}</span></p>
-                   <p>Total acumulados <span className={styles['numero-fuerte']}>{estadisticasReales.descargasMenu}</span></p>
+                   <p>Total acumuladas <span className={styles['numero-fuerte']}>{estadisticasReales.descargasMenu}</span></p>
                  </div>
                  <div className={styles['aumento-container']}>
                    <img src="/images/aumento.png" className={styles['icono-aumento']} alt="Aumento" />
-                   <span className={styles['porcentaje-subida']}>+15%</span>
+                   <span className={styles['porcentaje-subida']}>En vivo</span>
+                 </div>
+                 <div className={styles['barras-aspectos']}>
+                   <Bar data={dataDescargas} options={optionsDescargas} />
                  </div>
                </div>
 
@@ -182,12 +203,12 @@ export default function Estadisticas() {
                  <img src="/images/rest_logo.png" alt="Likes" className={styles['icono-tarjeta']} />
                  <h3>LIKES RECIBIDOS</h3>
                  <div className={styles['descargas-info']}>
-                   <p>Esta semana <span className={styles['numero-fuerte']}>{Math.floor(estadisticasReales.likes / 3) || 0}</span></p>
+                   {/* Mostramos el contador real extraído del backend */}
                    <p>Total acumulados <span className={styles['numero-fuerte']}>{estadisticasReales.likes}</span></p>
                  </div>
                  <div className={styles['aumento-container']}>
                    <img src="/images/aumento.png" className={styles['icono-aumento']} alt="Aumento" />
-                   <span className={styles['porcentaje-subida']}>+22%</span>
+                   <span className={styles['porcentaje-subida']}>En vivo</span>
                  </div>
                  <div className={styles['barras-aspectos']}>
                    <Bar data={dataLikes} options={optionsLikes} />

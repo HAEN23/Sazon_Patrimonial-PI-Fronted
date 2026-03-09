@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import styles from './LoginRest.module.css';
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 interface LoginRestProps {
@@ -14,7 +13,6 @@ interface LoginRestProps {
 
 export default function LoginRest({ isOpen, onClose, onBack, onLoginSuccess }: LoginRestProps) {
 
-  // const router = useRouter(); // NO lo usaremos para evitar bugs de SPA
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -36,7 +34,10 @@ export default function LoginRest({ isOpen, onClose, onBack, onLoginSuccess }: L
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3003/api/login', {
+      // 1. Usar variable de entorno para la URL (igual que en LoginUser)
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api';
+
+      const response = await fetch(`${apiUrl}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -44,19 +45,16 @@ export default function LoginRest({ isOpen, onClose, onBack, onLoginSuccess }: L
         body: JSON.stringify(formData),
       });
 
-      // 1. PRIMERO leemos la respuesta como texto para que no explote si es un HTML (Error 404)
+      // Leer la respuesta como texto para que no explote si es un HTML (Error 404)
       const textResponse = await response.text();
 
-      // 2. SI HAY UN ERROR EN LA RESPUESTA (Ej. 404 No Encontrado o 500 Error de Servidor)
+      // Manejar errores de servidor o credenciales incorrectas
       if (!response.ok) {
           let errorMsg = `Error del servidor: ${response.status}`;
           try {
-              // Intentamos ver si de casualidad sí nos mandó un JSON con el error
               const errData = JSON.parse(textResponse);
-              // Ahora leerá "message" (Credenciales inválidas) o "error"
               errorMsg = errData.message || errData.error || errorMsg;
           } catch {
-              // Si no es JSON (es el HTML del 404)
               if (response.status === 404) {
                  errorMsg = "Error 404: Ruta de login no encontrada en el backend. Revisa la URL.";
               } else {
@@ -66,22 +64,23 @@ export default function LoginRest({ isOpen, onClose, onBack, onLoginSuccess }: L
           throw new Error(errorMsg);
       }
 
-      // 3. Si todo salió bien y es status 200, convertimos a JSON
+      // Si todo salió bien, convertimos a JSON
       const data = JSON.parse(textResponse);
 
-      // Guardar sesión (CORREGIDO: leemos data.token directo, no data.data.token)
       if (data.token) {
+        // 2. GUARDAMOS EL TOKEN Y LA SESIÓN
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
         
-        // CORREGIDO: El backend envía "role" en vez de "rol"
-        const rol = data.user.role; // 1=Admin, 2=Rest, 3=User
+        // 🔥 CLAVE: Guardar sesionActiva para que todo el frontend detecte que estás logueado
+        localStorage.setItem("sesionActiva", "usuario");
 
+        const rol = data.user.role; // 1=Admin, 2=Rest, 3=User
         console.log("LOGIN EXITOSO - ROL DETECTADO:", rol); // Debug
 
         onClose();
 
-        // 3. REDIRECCIÓN FORZADA (Infalible)
+        // 3. REDIRECCIÓN FORZADA según el rol
         if (rol === 1) {
             localStorage.setItem("userRole", "admin");
             window.location.href = "/vistaPrincipalAdmin"; 
@@ -99,8 +98,8 @@ export default function LoginRest({ isOpen, onClose, onBack, onLoginSuccess }: L
 
     } catch (err: any) {
       console.error("Error de login:", err);
-      // Esto mostrará el mensaje en letras rojas debajo de los inputs en lugar de romper la app
-      setError(err.message); 
+      // ✅ REEMPLAZAMOS EL ERROR TÉCNICO POR TU MENSAJE PERSONALIZADO
+      setError("Correo no existente, revisa bien sus datos ingresados"); 
     } finally {
       setLoading(false);
     }
@@ -160,7 +159,12 @@ export default function LoginRest({ isOpen, onClose, onBack, onLoginSuccess }: L
               />
             </div>
 
-            {error && <p style={{color: '#912F2F', textAlign: 'center', marginTop: '10px'}}>{error}</p>}
+            {/* Error renderizado */}
+            {error && (
+              <p style={{ color: '#d32f2f', textAlign: 'center', marginTop: '10px', fontSize: '0.9rem', fontWeight: 'bold' }}>
+                {error}
+              </p>
+            )}
 
             <button className={styles.submitButton} type="submit" disabled={loading}>
               {loading ? "Entrando..." : "Iniciar sesión"}

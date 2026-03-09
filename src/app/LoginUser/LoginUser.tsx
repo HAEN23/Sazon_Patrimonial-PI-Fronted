@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import styles from './LoginUser.module.css';
 
 interface LoginUserProps {
@@ -11,18 +11,52 @@ interface LoginUserProps {
 }
 
 export default function LoginUser({ isOpen, onClose, onBack, onLoginSuccess }: LoginUserProps) {
+  // 1. Estados para capturar el correo, la contraseña y posibles errores
+  const [correo, setCorreo] = useState('');
+  const [contrasena, setContrasena] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(''); // Limpiamos errores anteriores
+    setLoading(true);
 
-    // guardar sesión
-    localStorage.setItem("sesionActiva", "usuario");
+    try {
+      // 2. Apuntar al backend real
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api';
+      
+      const res = await fetch(`${apiUrl}/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ correo, contrasena })
+      });
 
-    // avisar al index
-    onLoginSuccess();
+      const data = await res.json();
 
-    // cerrar modal
-    onClose();
+      if (res.ok && data.success) {
+        // 3. ¡ÉXITO! Guardamos la sesión y el Token real en el navegador
+        localStorage.setItem("sesionActiva", "usuario");
+        localStorage.setItem("token", data.token);
+
+        setCorreo('');
+        setContrasena('');
+
+        onLoginSuccess();
+        onClose();
+      } else {
+        // ✅ AQUÍ PONEMOS TU MENSAJE PERSONALIZADO
+        setError("Correo no existente, revisa bien sus datos ingresados");
+      }
+    } catch (err: any) {
+      console.error("Error de login:", err);
+      // ✅ REEMPLAZAMOS EL ERROR TÉCNICO POR TU MENSAJE PERSONALIZADO
+      setError("Correo no existente, revisa bien sus datos ingresados"); 
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -43,9 +77,17 @@ export default function LoginUser({ isOpen, onClose, onBack, onLoginSuccess }: L
             src="/images/logo_sp_rojo.png"
             className={styles.logo}
             width="100"
+            alt="Logo Sazón Patrimonial"
           />
 
           <h4 className={styles.titulo}>Iniciar sesión</h4>
+
+          {/* Mostrar mensaje de error si falla el login */}
+          {error && (
+            <div style={{ color: '#d32f2f', textAlign: 'center', fontSize: '0.9rem', marginBottom: '10px', fontWeight: 'bold' }}>
+              {error}
+            </div>
+          )}
 
           <div className={styles.inputGroup}>
             <label className={styles.label}>Correo electrónico:</label>
@@ -53,6 +95,8 @@ export default function LoginUser({ isOpen, onClose, onBack, onLoginSuccess }: L
               className={styles.controls}
               type="email"
               placeholder="Ingrese su correo"
+              value={correo}
+              onChange={(e) => setCorreo(e.target.value)}
               required
             />
           </div>
@@ -63,6 +107,8 @@ export default function LoginUser({ isOpen, onClose, onBack, onLoginSuccess }: L
               className={styles.controls}
               type="password"
               placeholder="Ingrese su contraseña"
+              value={contrasena}
+              onChange={(e) => setContrasena(e.target.value)}
               required
             />
           </div>

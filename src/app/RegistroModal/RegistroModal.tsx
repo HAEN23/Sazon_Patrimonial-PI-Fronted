@@ -92,7 +92,7 @@ export default function RegistroModal({
       const data = JSON.parse(textResponse);
 
       // 4. Si todo salió bien
-      alert("Registro exitoso en la base de datos");
+      alert("Registro exitoso");
       
       if (data.data?.token) {
         localStorage.setItem("token", data.data.token);
