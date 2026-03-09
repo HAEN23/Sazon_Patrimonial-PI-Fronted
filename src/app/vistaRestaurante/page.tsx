@@ -218,12 +218,34 @@ function RestauranteContenido() {
     }
   };
 
-  const handleEncuestaClick = () => {
+  const handleEncuestaClick = async () => {
     if (!isLogged) {
       setIsLoginModalOpen(true);
       return;
     }
-    router.push("/EncuestaModal");
+
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api';
+      const token = localStorage.getItem("token");
+
+      // Le preguntamos al backend si ya respondió
+      const res = await fetch(`${apiUrl}/restaurants/${id}/survey/check`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+
+      if (data.hasAnswered) {
+        // ✅ REGLA: Si ya respondió, lo bloqueamos
+        alert("📝 Ya respondiste la encuesta para este restaurante. ¡Muchas gracias por tu opinión!");
+        return; 
+      }
+
+      // ✅ CLAVE: Le pasamos el ID del restaurante en la URL para que la encuesta sepa a quién califica
+      router.push(`/EncuestaModal?restauranteId=${id}`);
+
+    } catch (error) {
+      console.error("Error verificando la encuesta:", error);
+    }
   };
 
   const handleVerMenuClick = async () => {

@@ -76,7 +76,16 @@ export default function Estadisticas() {
       }
     };
 
+    // Carga inicial
     cargarEstadisticas();
+
+    // 🔥 ACTUALIZACIÓN AUTOMÁTICA: Refresca las estadísticas cada 5 segundos
+    const intervalo = setInterval(() => {
+      cargarEstadisticas();
+    }, 5000); // 5000 ms = 5 segundos
+
+    // Limpieza: Cuando el componente se desmonte, cancelamos el intervalo
+    return () => clearInterval(intervalo);
   }, [router]);
 
   // --- DATOS DE LAS GRÁFICAS (MANTENIENDO TU ESTILO ORIGINAL) ---
