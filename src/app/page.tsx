@@ -121,7 +121,7 @@ export default function Home() {
         <div className={styles['rectangle-parent']}>
           <div className={styles['logo-blanco-parent']}>
             <img className={styles['logo-blanco']} alt="Logo" src="/images/logo_sp_blanco.png" />
-            <div className={styles['catlogo-de-restaurantes']}>Restaurantes San Cristóbal</div>
+            <div className={styles['catlogo-de-restaurantes']}>Restaurantes Chiapa de Corzo</div>
           </div>
           <nav className={styles['acciones-usuario']}>
             {!isLogged && (
@@ -147,7 +147,7 @@ export default function Home() {
         <section className={styles['calles-con-encanto-scaled-parent']}>
           <img className={styles['calles-con-encanto-scaled-icon']} src="/images/fondo_inicio.png" />
           <div className={styles['contenido-superpuesto']}>
-            <div className={styles['descubre-la-magia']}>Descubre la Magia Culinaria de <br />San Cristóbal</div>
+            <div className={styles['descubre-la-magia']}>Descubre la Magia Culinaria de <br />Chiapa de Corzo</div>
             <div className={styles['explora-los-mejores']}>Explora los mejores sabores de esta tierra</div>
             <div className={styles['barra-busqueda']}>
               <img className={styles['busqueda-icono']} src="/images/buscar.png" />
