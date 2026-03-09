@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link"; // Importamos Link para la navegación
 import styles from "../page.module.css"; 
 
 export default function VistaPrincipalRestaurantero() {
@@ -40,20 +41,17 @@ export default function VistaPrincipalRestaurantero() {
         if (data.success && data.data) {
           const restaurantesReales = data.data.map((rest: any) => {
             
-            let primerEtiqueta = "General";
-            if (rest.tags && Array.isArray(rest.tags) && rest.tags.length > 0) {
-              primerEtiqueta = rest.tags[0]; 
-            } else if (rest.etiquetas) {
-              primerEtiqueta = rest.etiquetas.split(',')[0].trim(); 
-            }
+            // LÓGICA DE ETIQUETAS ACTUALIZADA
+            const etiquetasCompletas = rest.etiquetas || ""; 
+            const etiquetasArr = etiquetasCompletas.split(',').map((e:string) => e.trim()).filter((e:string) => e !== "");
 
             return {
               id: rest.id || rest.id_restaurante,
-              // ✅ CORRECCIÓN CLAVE: Agregamos 'rest.restaurante' a la búsqueda del nombre
               nombre: rest.name || rest.nombre || rest.restaurante || rest.nombre_propuesto_restaurante || "Restaurante sin nombre",
-              tipo: primerEtiqueta,
-              ambiente: rest.address || rest.zona || "General",
-              servicio: rest.schedule || rest.horario_atencion || "En local",
+              etiquetas: etiquetasCompletas, // Para el filtrado interno
+              etiqueta1: etiquetasArr[0] || "General",
+              etiqueta2: etiquetasArr[1] || "",
+              etiqueta3: etiquetasArr[2] || "",
               imagen: rest.foto_portada || "/images/rest1.jpg" 
             };
           });
@@ -71,18 +69,16 @@ export default function VistaPrincipalRestaurantero() {
     cargarRestaurantes();
   }, []);
 
+  // LÓGICA DE FILTRADO POR ETIQUETAS ACTUALIZADA
   const restaurantesFiltrados = restaurantes.filter((rest) => {
-    const coincideBusqueda =
-      rest.nombre ? rest.nombre.toLowerCase().includes(busqueda.toLowerCase()) : true;
+    const coincideBusqueda = rest.nombre ? rest.nombre.toLowerCase().includes(busqueda.toLowerCase()) : true;
+    
+    // Ponemos todas las etiquetas en minúsculas para facilitar la comparación
+    const etiquetasRestaurante = rest.etiquetas ? rest.etiquetas.toLowerCase() : "";
 
-    const coincideTipo =
-      tipoComida === "" || (rest.tipo && rest.tipo.toLowerCase().includes(tipoComida.toLowerCase()));
-
-    const coincideAmbiente =
-      ambiente === "" || (rest.ambiente && rest.ambiente.toLowerCase().includes(ambiente.toLowerCase()));
-
-    const coincideServicio =
-      servicio === "" || (rest.servicio && rest.servicio.toLowerCase().includes(servicio.toLowerCase()));
+    const coincideTipo = tipoComida === "" || etiquetasRestaurante.includes(tipoComida.toLowerCase());
+    const coincideAmbiente = ambiente === "" || etiquetasRestaurante.includes(ambiente.toLowerCase());
+    const coincideServicio = servicio === "" || etiquetasRestaurante.includes(servicio.toLowerCase());
 
     return coincideBusqueda && coincideTipo && coincideAmbiente && coincideServicio;
   });
@@ -167,18 +163,35 @@ export default function VistaPrincipalRestaurantero() {
 
         <div className={styles['contenedor-restaurantes']}>
           {loading ? (
-            <p style={{ textAlign: 'center', width: '100%', padding: '40px', fontSize: '1.2rem' }}>Cargando restaurantes...</p>
+            // Contenedor centrado para "Cargando"
+            <div style={{ gridColumn: '1 / -1', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '40vh', width: '100%' }}>
+              <p style={{ fontSize: '1.5rem', color: 'black', fontWeight: 'bold', textAlign: 'center' }}>
+                Cargando restaurantes...
+              </p>
+            </div>
           ) : restaurantesFiltrados.length === 0 ? (
-            <p style={{ textAlign: 'center', width: '100%', padding: '40px', fontSize: '1.2rem' }}>No se encontraron restaurantes.</p>
+            // Contenedor centrado para "No se encontraron"
+            <div style={{ gridColumn: '1 / -1', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '40vh', width: '100%' }}>
+              <p style={{ fontSize: '1.5rem', color: 'black', fontWeight: 'bold', textAlign: 'center' }}>
+                No se encontraron restaurantes con estos filtros.
+              </p>
+            </div>
           ) : (
             restaurantesFiltrados.map((rest, index) => (
-              <div key={rest.id || index} className={styles['card-restaurante']}>
-                <img src={rest.imagen} alt={rest.nombre} className={styles['imagen-restaurante']} style={{ objectFit: 'cover' }} />
-                <h3>{rest.nombre}</h3>
-                <p>{rest.tipo}</p>
-                <p>{rest.ambiente}</p>
-                <p>{rest.servicio}</p>
-              </div>
+              // TARJETA ACTUALIZADA CON LINK Y ETIQUETAS
+              <Link 
+                key={rest.id || index} 
+                href={`/vistaRestaurante?id=${rest.id}`}
+                style={{ textDecoration: 'none', color: 'inherit' }}
+              >
+                <div className={styles['card-restaurante']} style={{ cursor: 'pointer' }}>
+                  <img src={rest.imagen} alt={rest.nombre} className={styles['imagen-restaurante']} style={{ objectFit: 'cover' }} />
+                  <h3>{rest.nombre}</h3>
+                  <p>• {rest.etiqueta1}</p>
+                  {rest.etiqueta2 && <p>• {rest.etiqueta2}</p>}
+                  {rest.etiqueta3 && <p>• {rest.etiqueta3}</p>}
+                </div>
+              </Link>
             ))
           )}
         </div>
