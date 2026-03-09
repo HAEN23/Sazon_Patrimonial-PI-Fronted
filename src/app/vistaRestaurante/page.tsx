@@ -65,6 +65,55 @@ function RestauranteContenido() {
     if (sesion) setIsLogged(true);
   }, []);
 
+  // EFECTO PARA PERSISTENCIA DE FAVORITOS
+  useEffect(() => {
+    // Si no hay ID de restaurante o el usuario no ha iniciado sesión, no hacemos nada
+    if (!id || !isLogged) return;
+
+    const verificarFavorito = async () => {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api';
+        
+        // 🚨 AQUÍ SUELE ESTAR EL DETALLE 🚨
+        // Revisa cómo guardas tu token en el LoginModal. Si lo guardaste como "token", esto funcionará:
+        const token = localStorage.getItem("token"); 
+
+        /* Nota: Si en tu LoginModal guardaste el token dentro de un objeto JSON llamado "sesionActiva",
+           necesitarías extraerlo así:
+           const sesionObj = JSON.parse(localStorage.getItem("sesionActiva") || "{}");
+           const token = sesionObj.token;
+        */
+
+        console.log("Enviando petición check con token:", token ? "Token encontrado" : "NO HAY TOKEN");
+
+        const res = await fetch(`${apiUrl}/favorites/check?restauranteId=${id}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (!res.ok) {
+           console.error(`Fallo la petición de verificación. Código de estado: ${res.status}`);
+           // Si el estado es 401 o 403, significa que el token es inválido o no se envió correctamente
+           return;
+        }
+
+        const data = await res.json();
+        console.log("Respuesta del backend para favoritos:", data);
+
+        if (data.success) {
+          setIsFavorite(data.isFavorite); // Esto es lo que pinta el corazón automáticamente
+        }
+      } catch (error) {
+        console.error("Error verificando estado de favorito:", error);
+      }
+    };
+
+    verificarFavorito();
+  }, [id, isLogged]);
+
   const abrirModalMenu = () => setModalMenuOpen(true);
   const cerrarModalMenu = () => setModalMenuOpen(false);
 
@@ -74,12 +123,41 @@ function RestauranteContenido() {
   // ==========================================
   // FUNCIONES PARA PROTEGER LOS CLICS
   // ==========================================
-  const handleFavoritoClick = () => {
+  const handleFavoritoClick = async () => {
     if (!isLogged) {
       setIsLoginModalOpen(true);
       return;
     }
-    toggleFavorite();
+
+    // Actualización optimista (cambia el color instantáneamente para mejor UX)
+    const nuevoEstado = !isFavorite;
+    setIsFavorite(nuevoEstado);
+
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api';
+      const token = localStorage.getItem("token"); // Extraemos el token
+
+      const res = await fetch(`${apiUrl}/favorites/toggle`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ restauranteId: id })
+      });
+
+      const data = await res.json();
+      
+      if (!data.success) {
+        // Si el backend falla, revertimos el color del corazón
+        setIsFavorite(!nuevoEstado);
+        console.error("Error del servidor al guardar favorito:", data.error);
+      }
+    } catch (error) {
+      // Si hay error de red, revertimos
+      setIsFavorite(!nuevoEstado);
+      console.error("Error de conexión al guardar favorito:", error);
+    }
   };
 
   const handleEncuestaClick = () => {
