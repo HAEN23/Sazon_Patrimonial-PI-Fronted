@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import styles from "./vistaRestaurante.module.css";
 
-
 // IMPORTAMOS LOS MODALES DE SESIÓN
 import LoginModal from '../LoginModal/LoginModal';
 import LoginAdmin from '../LoginAdmin/LoginAdmin';
@@ -29,62 +28,10 @@ function RestauranteContenido() {
   const primeraEtiqueta = etiquetasArray.length > 0 ? etiquetasArray[0] : "General";
   const etiquetasExtra = etiquetasArray.slice(1);
 
-  // ✅ CAMBIO 1: Arrancamos con 0 fotos
+  // Estados para fotos
   const [fotos, setFotos] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
 
-  const handleSubirFoto = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
-
-    const token = localStorage.getItem("token");
-    if (!isLogged || !token) {
-      setIsLoginModalOpen(true);
-      return;
-    }
-
-    setIsUploading(true);
-
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api';
-
-      for (const file of Array.from(files)) {
-        const formData = new FormData();
-        formData.append('foto', file);
-
-        const res = await fetch(`${apiUrl}/restaurants/${id}/photos`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`
-            // IMPORTANTE: No pongas 'Content-Type' aquí, el navegador lo pone solo con el boundary
-          },
-          body: formData
-        });
-
-        const data = await res.json();
-
-        if (res.ok) {
-          const nuevaUrl = data.data?.url || data.data?.fileUrl || data.url;
-          if (nuevaUrl) {
-            setFotos((prev) => [...prev, nuevaUrl]);
-          }
-          alert("¡Foto subida con éxito!");
-        } else {
-          // 🚨 AQUÍ ESTÁ LA CLAVE: 
-          // Si el servidor manda un 403 (Restaurantero), mostramos SU mensaje de error.
-          alert(data.message || "No se pudo subir la foto.");
-          break; // Detenemos el bucle si hay error de permisos
-        }
-      }
-    } catch (error) {
-      console.log("Aviso de conexión al subir foto:", error);
-      alert("Hubo un problema de conexión al intentar subir la foto.");
-    } finally {
-      setIsUploading(false);
-      event.target.value = ''; 
-    }
-  };
-  
   // ESTADOS DE SESIÓN Y MODALES
   const [isLogged, setIsLogged] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
@@ -109,24 +56,12 @@ function RestauranteContenido() {
 
   // EFECTO PARA PERSISTENCIA DE FAVORITOS
   useEffect(() => {
-    // Si no hay ID de restaurante o el usuario no ha iniciado sesión, no hacemos nada
     if (!id || !isLogged) return;
 
     const verificarFavorito = async () => {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api';
-        
-        // 🚨 AQUÍ SUELE ESTAR EL DETALLE 🚨
-        // Revisa cómo guardas tu token en el LoginModal. Si lo guardaste como "token", esto funcionará:
         const token = localStorage.getItem("token"); 
-
-        /* Nota: Si en tu LoginModal guardaste el token dentro de un objeto JSON llamado "sesionActiva",
-           necesitarías extraerlo así:
-           const sesionObj = JSON.parse(localStorage.getItem("sesionActiva") || "{}");
-           const token = sesionObj.token;
-        */
-
-        console.log("Enviando petición check con token:", token ? "Token encontrado" : "NO HAY TOKEN");
 
         const res = await fetch(`${apiUrl}/favorites/check?id_restaurante=${id}`, {
           method: 'GET',
@@ -136,14 +71,9 @@ function RestauranteContenido() {
           }
         });
         
-        if (!res.ok) {
-           console.error(`Fallo la petición de verificación. Código de estado: ${res.status}`);
-           return;
-        }
+        if (!res.ok) return;
 
         const data = await res.json();
-        console.log("Respuesta del backend para favoritos:", data);
-
         if (data.success) {
           setIsFavorite(data.isFavorite);
         }
@@ -154,199 +84,6 @@ function RestauranteContenido() {
 
     verificarFavorito();
   }, [id, isLogged]);
-
-  const abrirModalMenu = () => setModalMenuOpen(true);
-  const cerrarModalMenu = () => setModalMenuOpen(false);
-
-  const toggleTags = () => setMostrarMasTags(!mostrarMasTags);
-  const toggleFavorite = () => setIsFavorite(!isFavorite);
-
-  // ==========================================
-  // FUNCIONES PARA PROTEGER LOS CLICS
-  // ==========================================
-  const handleFavoritoClick = async () => {
-    if (!isLogged) {
-      setIsLoginModalOpen(true);
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem('token');
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api';
-      
-      const res = await fetch(`${apiUrl}/favorites/toggle`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ id_restaurante: id }) 
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        setIsFavorite(!isFavorite);
-      } else {
-        // 🚨 AQUÍ ESTÁ LA LIMPIEZA: 
-        // Le decimos: "Busca si el backend mandó un 'message', si no, busca un 'error', y si no hay ninguno, pon un texto por defecto"
-        const mensajeLimpio = data.message || data.error || "No se pudo completar la acción.";
-        
-        // Lanzamos la alerta limpia, sin el "ERROR DEL SERVIDOR"
-        alert(mensajeLimpio);
-      }
-    } catch (error) {
-      console.log("Aviso de conexión:", error);
-      alert("Hubo un problema de conexión con el servidor.");
-    }
-  };
-
-  const handleEncuestaClick = async () => {
-    if (!isLogged) {
-      setIsLoginModalOpen(true);
-      return;
-    }
-
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api';
-      const token = localStorage.getItem("token");
-
-      const res = await fetch(`${apiUrl}/restaurants/${id}/survey/check`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      
-      const data = await res.json();
-
-      // 🚨 AQUÍ ATRAPAMOS EL RECHAZO DEL BACKEND (Si es restaurantero, caerá aquí)
-      if (!res.ok) {
-        alert(data.message || "No tienes permiso para responder encuestas.");
-        return; // Detenemos la ejecución
-      }
-
-      if (data.hasAnswered) {
-        alert("📝 Ya respondiste la encuesta para este restaurante. ¡Muchas gracias por tu opinión!");
-        return; 
-      }
-
-      // Si todo está bien y es cliente, lo mandamos a la encuesta
-      router.push(`/EncuestaModal?restauranteId=${id}`);
-
-    } catch (error) {
-      // Usamos console.log para evitar la pantalla roja de Turbopack
-      console.log("Aviso de conexión al verificar encuesta:", error);
-      alert("Hubo un problema de conexión al verificar la encuesta.");
-    }
-  };
-
-  const handleVerMenuClick = async () => {
-    // 1. Verificamos sesión
-    if (!isLogged) {
-      setIsLoginModalOpen(true);
-      return;
-    }
-
-    // 🔒 REGLA: Bloquear si es Restaurantero
-    const userStr = localStorage.getItem("user");
-    if (userStr) {
-      const user = JSON.parse(userStr);
-      if (user.id_rol === 2) {
-        alert("Como Restaurantero, tienes una vista de 'Solo Lectura'. No puedes descargar menús.");
-        return;
-      }
-    }
-
-    // 2. Verificamos si es favorito
-    if (!isFavorite) {
-      alert("❤️ ¡Para poder ver o descargar el menú, primero debes agregar este restaurante a tus Favoritos!");
-      return;
-    }
-
-    // 3. Registrar la "descarga" en el backend
-    try {
-      const token = localStorage.getItem('token');
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api';
-      
-      // ✅ AQUÍ ESTÁ LA CORRECCIÓN: Apuntamos a la ruta de tu server.ts
-      const res = await fetch(`${apiUrl}/restaurants/${id}/menu/click`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-        // No necesitamos mandar 'body' porque el ID ya va en la URL
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        console.log("✅ ¡Estadística de descarga de menú sumada con éxito!");
-      } else {
-        console.warn("⚠️ Aviso del backend al sumar estadística:", data);
-      }
-    } catch (error) {
-      console.error("Error de red registrando la vista del menú:", error);
-    }
-
-    // 4. Abrimos el modal para mostrar el PDF
-    abrirModalMenu();
-  };
-
-  const handleSubirFotoClick = async (e: React.MouseEvent) => {
-    e.preventDefault(); // Detenemos la ventanita automática de Windows
-
-    if (!isLogged) {
-      setIsLoginModalOpen(true);
-      return;
-    }
-
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api';
-      const token = localStorage.getItem("token");
-
-      // 🔒 1. PRIMERO: Le preguntamos al backend si tienes permiso (bloquea al Restaurantero)
-      const res = await fetch(`${apiUrl}/restaurants/${id}/photos/check`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      
-      const data = await res.json();
-
-      if (!res.ok) {
-        // 🚨 SI ERES RESTAURANTERO, TE DETIENE AQUÍ CON ESTE MENSAJE
-        alert(data.message || "Como Restaurantero, no puedes subir fotos de clientes.");
-        return; 
-      }
-
-      // 👤 2. SEGUNDO: Si pasaste la prueba del backend, significa que eres CLIENTE.
-      // Ahora sí, le exigimos al cliente que le dé Like.
-      if (!isFavorite) {
-        alert("❤️ ¡Para poder subir una foto, primero debes agregar este restaurante a tus Favoritos!");
-        return;
-      }
-
-      // ✅ 3. TERCERO: Si es cliente y ya tiene el Favorito, abrimos la ventanita
-      if (fileInputRef.current) {
-        fileInputRef.current.click();
-      }
-
-    } catch (error) {
-      console.log("Aviso de conexión al verificar permisos de foto:", error);
-      alert("Hubo un problema al verificar tus permisos.");
-    }
-  };
-  // ==========================================
-
-  // Funciones para manejar los modales
-  const handleLoginSuccess = () => {
-    setIsLogged(true);
-  };
-
-  const handleBackToLogin = () => {
-    setIsAdminModalOpen(false);
-    setIsRestModalOpen(false);
-    setIsUserModalOpen(false);
-    setIsRegistroOpen(false);
-    setIsLoginModalOpen(true);
-  };
 
   // Petición al backend para obtener los detalles del restaurante
   useEffect(() => {
@@ -360,7 +97,6 @@ function RestauranteContenido() {
         const res = await fetch(urlPeticion); 
         
         if (!res.ok) {
-          console.error(`Error del servidor: ${res.status}. La ruta no existe o falló.`);
           setLoading(false);
           return;
         }
@@ -387,8 +123,6 @@ function RestauranteContenido() {
     const cargarFotosDeUsuarios = async () => {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api';
-        
-        // Petición al backend a la ruta de fotos por restaurante
         const res = await fetch(`${apiUrl}/photos/restaurant/${id}`);
         
         if (!res.ok) return;
@@ -396,8 +130,8 @@ function RestauranteContenido() {
         const data = await res.json();
         
         if (data.success && data.data) {
-          // Ajusta data.url o data.ruta_archivo según cómo lo devuelva tu backend
-          const urlsReales = data.data.map((foto: any) => foto.url || foto.fileUrl || foto);
+          // Ajuste para capturar photoUrl
+          const urlsReales = data.data.map((foto: any) => foto.photoUrl || foto.url || foto.fileUrl || foto);
           setFotos(urlsReales);
         }
       } catch (error) {
@@ -408,6 +142,206 @@ function RestauranteContenido() {
     cargarFotosDeUsuarios();
   }, [id]);
 
+  const abrirModalMenu = () => setModalMenuOpen(true);
+  const cerrarModalMenu = () => setModalMenuOpen(false);
+  const toggleTags = () => setMostrarMasTags(!mostrarMasTags);
+
+  // ==========================================
+  // FUNCIONES DE INTERACCIÓN
+  // ==========================================
+  const handleFavoritoClick = async () => {
+    if (!isLogged) {
+      setIsLoginModalOpen(true);
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api';
+      
+      const res = await fetch(`${apiUrl}/favorites/toggle`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ id_restaurante: id }) 
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setIsFavorite(!isFavorite);
+      } else {
+        const mensajeLimpio = data.message || data.error || "No se pudo completar la acción.";
+        alert(mensajeLimpio);
+      }
+    } catch (error) {
+      alert("Hubo un problema de conexión con el servidor.");
+    }
+  };
+
+  const handleEncuestaClick = async () => {
+    if (!isLogged) {
+      setIsLoginModalOpen(true);
+      return;
+    }
+
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api';
+      const token = localStorage.getItem("token");
+
+      const res = await fetch(`${apiUrl}/restaurants/${id}/survey/check`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.message || "No tienes permiso para responder encuestas.");
+        return; 
+      }
+
+      if (data.hasAnswered) {
+        alert("📝 Ya respondiste la encuesta para este restaurante. ¡Muchas gracias por tu opinión!");
+        return; 
+      }
+
+      router.push(`/EncuestaModal?restauranteId=${id}`);
+
+    } catch (error) {
+      alert("Hubo un problema de conexión al verificar la encuesta.");
+    }
+  };
+
+  const handleVerMenuClick = async () => {
+    if (!isLogged) {
+      setIsLoginModalOpen(true);
+      return;
+    }
+
+    const userStr = localStorage.getItem("user");
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      if (user.id_rol === 2) {
+        alert("Como Restaurantero, tienes una vista de 'Solo Lectura'. No puedes descargar menús.");
+        return;
+      }
+    }
+
+    if (!isFavorite) {
+      alert("❤️ ¡Para poder ver o descargar el menú, primero debes agregar este restaurante a tus Favoritos!");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api';
+      
+      await fetch(`${apiUrl}/restaurants/${id}/menu/click`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+    } catch (error) {
+      console.error("Error de red registrando la vista del menú:", error);
+    }
+
+    abrirModalMenu();
+  };
+
+  const handleSubirFotoClick = async (e: React.MouseEvent) => {
+    e.preventDefault(); 
+
+    if (!isLogged) {
+      setIsLoginModalOpen(true);
+      return;
+    }
+
+    const userStr = localStorage.getItem("user");
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      if (user.id_rol === 2) {
+        alert("Como Restaurantero, no puedes subir fotos como evidencia de cliente.");
+        return; 
+      }
+    }
+
+    if (!isFavorite) {
+      alert("❤️ ¡Para poder subir una foto, primero debes agregar este restaurante a tus Favoritos!");
+      return;
+    }
+
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleSubirFoto = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    const token = localStorage.getItem("token");
+    if (!isLogged || !token) {
+      setIsLoginModalOpen(true);
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api';
+
+      for (const file of Array.from(files)) {
+        const formData = new FormData();
+        
+        formData.append('file', file);
+        if (id) formData.append('restaurantId', id.toString()); 
+
+        const res = await fetch(`${apiUrl}/photos`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: formData
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          const nuevaUrl = data.data?.photoUrl || data.data?.url || data.url;
+          if (nuevaUrl) {
+            setFotos((prev) => [...prev, nuevaUrl]);
+          }
+          alert("¡Foto subida con éxito!");
+        } else {
+          alert(data.message || data.error || "No se pudo subir la foto. (Asegúrate de haberle dado Favoritos).");
+          break; 
+        }
+      }
+    } catch (error) {
+      alert("Hubo un problema de conexión al intentar subir la foto.");
+    } finally {
+      setIsUploading(false);
+      event.target.value = ''; 
+    }
+  };
+
+  // Funciones para manejar los modales
+  const handleLoginSuccess = () => {
+    setIsLogged(true);
+  };
+
+  const handleBackToLogin = () => {
+    setIsAdminModalOpen(false);
+    setIsRestModalOpen(false);
+    setIsUserModalOpen(false);
+    setIsRegistroOpen(false);
+    setIsLoginModalOpen(true);
+  };
+
   if (loading) {
     return <div style={{ textAlign: 'center', marginTop: '100px', fontSize: '1.2rem', color: 'black' }}>Cargando información del restaurante...</div>;
   }
@@ -416,27 +350,20 @@ function RestauranteContenido() {
     return <div style={{ textAlign: 'center', marginTop: '100px', fontSize: '1.2rem', color: 'black' }}>No se encontró el restaurante o faltó el ID.</div>;
   }
 
-  // 1. Búsqueda exhaustiva de la URL del menú (con función auto-ejecutable)
   const urlDelMenu = (() => {
     if (restaurante?.menu_pdf) return restaurante.menu_pdf;
     if (restaurante?.pdf_url) return restaurante.pdf_url;
     if (restaurante?.application?.menu_pdf) return restaurante.application.menu_pdf;
     if (restaurante?.application?.menuUrl) return restaurante.application.menuUrl;
     
-    // Si viene en el arreglo "menus" (del backend actualizado)
     if (restaurante?.menus && restaurante.menus.length > 0) {
         return restaurante.menus[0].fileUrl || restaurante.menus[0].menuUrl || restaurante.menus[0].ruta_archivo;
     }
-    // Si viene en el arreglo "menu" (formato alternativo)
     if (restaurante?.menu && restaurante.menu.length > 0) {
         return restaurante.menu[0].ruta_archivo || restaurante.menu[0].fileUrl || restaurante.menu[0].menuUrl;
     }
     return null;
   })();
-
-  // 🔥 DEPURACIÓN: Esto imprimirá los datos exactos en la consola de tu navegador (F12)
-  console.log("DATOS COMPLETOS DEL RESTAURANTE:", restaurante);
-  console.log("URL DEL MENÚ ENCONTRADA:", urlDelMenu);
 
   return (
     <div className={styles.vistaPrincipal}>
@@ -557,20 +484,19 @@ function RestauranteContenido() {
             </ul>
 
             <div className={styles.actionRow}>
-              {/* Botón Ver Menú Protegido con Regla de Favoritos y Descarga */}
+              {/* Botón Ver Menú */}
               <button 
                 className={styles.btnMenu} 
                 onClick={handleVerMenuClick}
                 style={{ opacity: isFavorite ? 1 : 0.8 }}
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-                {/* 🔥 CORRECCIÓN EN EL RENDERIZADO DEL BOTÓN 🔥 */}
                 {urlDelMenu 
                   ? (isFavorite ? "Ver Menú" : "Menú (Requiere Like)") 
                   : "Menú (No disponible)"}
               </button>
               
-              {/* Botón Favoritos Protegido */}
+              {/* Botón Favoritos */}
               <button className={styles.btnFav} onClick={handleFavoritoClick}>
                 {isFavorite ? (
                   <svg width="32" height="32" viewBox="0 0 24 24" fill="#6b1e1e" stroke="#6b1e1e" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
@@ -616,7 +542,7 @@ function RestauranteContenido() {
                 </div>
               ))}
 
-              {/* Botón Encuesta Protegido */}
+              {/* Botón Encuesta */}
               <div className={styles.tagRow}>
                 <div className={styles.iconContainer}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b1e1e" strokeWidth="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
@@ -634,7 +560,7 @@ function RestauranteContenido() {
             <h3>Fotos de Usuarios</h3>
             <div className={styles.fotosUsuariosRow}>
               
-              {/* ✅ CAMBIO 2: Condición para mostrar fotos solo si existen */}
+              {/* Fotos mostradas */}
               {fotos && fotos.length > 0 && fotos.map((foto, index) => (
                 <div key={index} className={styles.fotoMini}>
                   <Image
@@ -647,7 +573,7 @@ function RestauranteContenido() {
                 </div>
               ))}
 
-              {/* Botón Subir Foto Protegido */}
+              {/* Botón Subir Foto */}
               <div className={styles.btnSubirFoto} onClick={handleSubirFotoClick} style={{ cursor: 'pointer' }}>
                 <svg
                   width="24"
@@ -661,15 +587,17 @@ function RestauranteContenido() {
                   <circle cx="12" cy="13" r="4" />
                 </svg>
                 Subir Foto
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  hidden
-                  ref={fileInputRef} // 👈 ENLAZAMOS LA VENTANITA AQUÍ
-                  onChange={handleSubirFoto}
-                />
               </div>
+
+              {/* 👇 EL INPUT DEBE ESTAR AFUERA DEL DIV 👇 */}
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                hidden
+                ref={fileInputRef} 
+                onChange={handleSubirFoto}
+              />
             </div>
           </div>
 
@@ -708,10 +636,9 @@ function RestauranteContenido() {
         </div>
       </footer>
 
-      {/* MODAL MENÚ (Incrustado) */}
+      {/* MODAL MENÚ */}
       {modalMenuOpen && (
         <div className={styles.modalOverlay}>
-          {/* Hacemos el modal más grande para que el PDF se lea bien */}
           <div className={styles.modalContent} style={{ width: '90%', maxWidth: '900px', height: '85vh', display: 'flex', flexDirection: 'column' }}>
             <button className={styles.closeModal} onClick={cerrarModalMenu}>&times;</button>
             
@@ -719,14 +646,12 @@ function RestauranteContenido() {
               <h2 style={{ marginBottom: '15px' }}>Menú de {restaurante?.nombre}</h2>
               
               {urlDelMenu ? (
-                /* Usamos el visor de Google Docs para forzar la lectura del PDF sin descargarlo */
                 <iframe 
                   src={`https://docs.google.com/viewer?url=${encodeURIComponent(String(urlDelMenu))}&embedded=true`} 
                   style={{ width: "100%", flex: 1, border: "1px solid #ccc", borderRadius: "8px" }} 
                   title="Menú del Restaurante"
                 />
               ) : (
-                /* Muestra el mensaje si no hay PDF */
                 <p>Este restaurante aún no ha subido su menú.</p>
               )}
             </div>
@@ -751,4 +676,4 @@ export default function VistaRestaurante() {
       <RestauranteContenido />
     </Suspense>
   );
-}
+}  
