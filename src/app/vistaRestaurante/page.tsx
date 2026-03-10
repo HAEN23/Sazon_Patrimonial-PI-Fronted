@@ -188,13 +188,12 @@ function RestauranteContenido() {
       if (res.ok) {
         setIsFavorite(!isFavorite);
       } else {
-        // 🚨 AQUÍ ESTÁ EL CAMBIO: 
-        // Usamos JSON.stringify para obligar al navegador a mostrarnos el interior del error
-        const mensajeError = typeof data.message === 'string' 
-          ? data.message 
-          : JSON.stringify(data); // Si es un objeto, lo convierte a texto para poder leerlo
-
-        alert("ERROR DEL SERVIDOR: " + mensajeError);
+        // 🚨 AQUÍ ESTÁ LA LIMPIEZA: 
+        // Le decimos: "Busca si el backend mandó un 'message', si no, busca un 'error', y si no hay ninguno, pon un texto por defecto"
+        const mensajeLimpio = data.message || data.error || "No se pudo completar la acción.";
+        
+        // Lanzamos la alerta limpia, sin el "ERROR DEL SERVIDOR"
+        alert(mensajeLimpio);
       }
     } catch (error) {
       console.log("Aviso de conexión:", error);
