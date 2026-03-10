@@ -24,6 +24,9 @@ export default function EstadisticasPage() {
     descargasMenu: 0,
     respuestasEncuesta: 0,
     statsAspectos: [0, 0, 0, 0, 0],
+    votosAspectos: [0, 0, 0, 0, 0], // 👈 Guardamos los votos reales de aspectos
+    statsOrigen: [0, 0],
+    votosOrigen: [0, 0],           // 👈 Guardamos los votos reales de origen
     statsRecomendacion: [0, 0, 0, 0, 0]
   });
 
@@ -36,29 +39,29 @@ export default function EstadisticasPage() {
         const token = localStorage.getItem('token');
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api';
 
-        // 1. PRIMERO: Le preguntamos al backend cuál es el ID real de tu restaurante
         const resMiRest = await fetch(`${apiUrl}/mi-restaurante`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const dataMiRest = await resMiRest.json();
 
-        // Extraemos el verdadero id_restaurante (ej. Restaurante #2)
         const idRestauranteReal = dataMiRest.data?.id_restaurante;
 
-        // Si no tienes restaurante aprobado, detenemos la búsqueda
         if (!idRestauranteReal) {
            console.log("No se encontró el ID real del restaurante.");
            return; 
         }
 
-        // 2. SEGUNDO: Ahora sí pedimos las estadísticas usando el ID correcto
         const res = await fetch(`${apiUrl}/restaurants/${idRestauranteReal}/stats`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();
         
         if (data.success) {
-          setEstadisticasReales(data.data);
+          setEstadisticasReales({
+             ...data.data,
+             votosAspectos: data.data.votosAspectos || [0,0,0,0,0],
+             votosOrigen: data.data.votosOrigen || [0,0]
+          });
         }
       } catch (error) {
         console.error("Error cargando estadísticas:", error);
@@ -74,11 +77,24 @@ export default function EstadisticasPage() {
     scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
   };
 
+  // 🔥 PERSONALIZAMOS EL TOOLTIP DE BARRAS (ASPECTOS)
   const opcionesAspectos = {
     responsive: true,
     maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
-    scales: { y: { beginAtZero: true, max: 100, ticks: { precision: 0 } } } // Max 100 para porcentajes
+    plugins: { 
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: function(context: any) {
+            // Buscamos cuántas personas reales votaron por esta barra usando el índice
+            const index = context.dataIndex;
+            const votos = estadisticasReales.votosAspectos[index];
+            return ` ${votos} persona${votos === 1 ? '' : 's'} eligieron esto`;
+          }
+        }
+      }
+    },
+    scales: { y: { beginAtZero: true, max: 100, ticks: { precision: 0 } } }
   };
 
   const configLikes = {
@@ -92,12 +108,11 @@ export default function EstadisticasPage() {
   };
 
   const configAspectos = {
-    labels: ['Ambiente', 'Comida', 'Higiene'],
+    labels: ['Comida', 'Ubicación', 'Recomend.', 'Horario', 'Vista'],
     datasets: [{ 
       label: 'Porcentaje', 
-      // 🚨 Usamos los datos reales, y si no hay, ponemos ceros
-      data: estadisticasReales.statsAspectos?.length === 3 ? estadisticasReales.statsAspectos : [0, 0, 0], 
-      backgroundColor: ['#6b1e1e', '#c06060', '#efcfcf'], 
+      data: estadisticasReales.statsAspectos?.length === 5 ? estadisticasReales.statsAspectos : [0, 0, 0, 0, 0], 
+      backgroundColor: ['#6b1e1e', '#a83232', '#d65c5c', '#e88e8e', '#f5c6c6'], 
       borderRadius: 4 
     }],
   };
@@ -107,22 +122,41 @@ export default function EstadisticasPage() {
     datasets: [{ label: 'Votos', data: estadisticasReales.statsRecomendacion, backgroundColor: '#6b1e1e', borderRadius: 4 }],
   };
 
-  // 🔥 GRÁFICO CIRCULAR PARA ORIGEN
+  // 🔥 NORMALIZAMOS ORIGEN
+  const localesVal = estadisticasReales.statsOrigen?.[0] || 0;
+  const extranjerosVal = estadisticasReales.statsOrigen?.[1] || 0;
+  const totalOrigen = localesVal + extranjerosVal;
+  
+  const pctLocales = totalOrigen > 0 ? Math.round((localesVal / totalOrigen) * 100) : 0;
+  const pctExtranjeros = totalOrigen > 0 ? (100 - pctLocales) : 0;
+
   const configOrigen = {
     labels: ['Locales', 'Extranjeros'],
     datasets: [{
-      // 🚨 Dejamos en ceros hasta que programemos la encuesta
-      data: [0, 0], 
-      backgroundColor: ['#6b1e1e', '#e07878'],
+      data: totalOrigen > 0 ? [pctLocales, pctExtranjeros] : [100, 0], 
+      backgroundColor: totalOrigen > 0 ? ['#6b1e1e', '#e07878'] : ['#e0e0e0', '#e0e0e0'],
       borderColor: ['#ffffff', '#ffffff'],
-      borderWidth: 2
+      borderWidth: (pctLocales === 0 || pctExtranjeros === 0) ? 0 : 2
     }],
   };
 
+  // 🔥 PERSONALIZAMOS EL TOOLTIP DEL PASTEL (ORIGEN)
   const opcionesPie = {
     responsive: true,
     maintainAspectRatio: false,
-    plugins: { legend: { display: false } }
+    plugins: { 
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: function(context: any) {
+            if (totalOrigen === 0) return " Sin datos aún";
+            const index = context.dataIndex;
+            const votos = estadisticasReales.votosOrigen[index];
+            return ` ${votos} visitante${votos === 1 ? '' : 's'}`;
+          }
+        }
+      }
+    }
   };
 
   // Verificar si hay estadísticas disponibles
@@ -132,20 +166,17 @@ export default function EstadisticasPage() {
 
   return (
     <div className={styles.contenedor}>
-      {/* Botón de regreso en la esquina superior izquierda */}
       <button className={styles.btnBack} onClick={() => router.push('/vistaEdicionRest')}>
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6b1e1e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M19 12H5M12 19l-7-7 7-7"/>
         </svg>
       </button>
 
-      {/* Título principal con línea */}
       <div className={styles.headerTitulo}>
         <h1 className={styles.titulo}>Estadísticas de su restaurante</h1>
         <div className={styles.lineaSeparadora}></div>
       </div>
 
-      {/* Mostrar mensaje vacío si no hay estadísticas */}
       {!hayEstadisticas ? (
         <div className={styles.estadisticasVacias}>
           <h2>Aún no hay estadísticas disponibles</h2>
@@ -156,10 +187,9 @@ export default function EstadisticasPage() {
           </p>
         </div>
       ) : (
-        /* Grid de tarjetas con gráficas */
         <div className={styles.gridTarjetas}>
         
-        {/* Tarjeta 1: ASPECTOS DESTACADOS (GRÁFICO DE BARRAS) */}
+        {/* Tarjeta 1: ASPECTOS DESTACADOS */}
         <div className={`${styles.tarjeta} ${styles['efecto-brillante']}`}>
           <img src="/images/aspectos.png" alt="Aspectos" className={styles['icono-tarjeta']} />
           <h3>ASPECTOS DESTACADOS</h3>
@@ -167,9 +197,11 @@ export default function EstadisticasPage() {
             <Bar data={configAspectos} options={opcionesAspectos} />
           </div>
           <div className={styles['leyenda-aspectos']}>
-            <p><span className={styles['color-ambiente']}>■</span> Ambiente {estadisticasReales.statsAspectos?.[0] || 0}%</p>
-            <p><span className={styles['color-comida']}>■</span> Comida {estadisticasReales.statsAspectos?.[1] || 0}%</p>
-            <p><span className={styles['color-higiene']}>■</span> Higiene {estadisticasReales.statsAspectos?.[2] || 0}%</p>
+            <p><span style={{color: '#6b1e1e'}}>■</span> Comida {estadisticasReales.statsAspectos?.[0] || 0}%</p>
+            <p><span style={{color: '#a83232'}}>■</span> Ubicación {estadisticasReales.statsAspectos?.[1] || 0}%</p>
+            <p><span style={{color: '#d65c5c'}}>■</span> Recomendación {estadisticasReales.statsAspectos?.[2] || 0}%</p>
+            <p><span style={{color: '#e88e8e'}}>■</span> Horario {estadisticasReales.statsAspectos?.[3] || 0}%</p>
+            <p><span style={{color: '#f5c6c6'}}>■</span> Vista {estadisticasReales.statsAspectos?.[4] || 0}%</p>
           </div>
         </div>
 
@@ -187,27 +219,26 @@ export default function EstadisticasPage() {
           </div>
         </div>
 
-        {/* Tarjeta 3: ORIGEN (GRÁFICO CIRCULAR) */}
+        {/* Tarjeta 3: ORIGEN */}
         <div className={`${styles.tarjeta} ${styles['efecto-brillante']}`}>
           <img src="/images/visitas.png" alt="Origen" className={styles['icono-tarjeta']} />
           <h3>INTERÉS POR ORIGEN</h3>
           <div className={styles['leyenda-origen']}>
-            <p><span className={styles.locales}>● Locales 0%</span></p>
-            <p><span className={styles.extranjeros}>● Extranjeros 0%</span></p>
+            <p><span className={styles.locales}>● Locales {pctLocales}%</span></p>
+            <p><span className={styles.extranjeros}>● Extranjeros {pctExtranjeros}%</span></p>
           </div>
           <div className={styles['grafico-pastel']}>
             <Pie data={configOrigen} options={opcionesPie} />
           </div>
         </div>
 
-        {/* Tarjeta 4: LIKES - CENTRADO EN SEGUNDA FILA */}
+        {/* Tarjeta 4: LIKES */}
         <div className={`${styles.tarjeta} ${styles['efecto-brillante']} ${styles.tarjetaCentrada}`}>
           <img src="/images/rest_logo.png" alt="Likes" className={styles['icono-tarjeta']} />
           <h3>LIKES RECIBIDOS</h3>
           <div className={styles['descargas-info']}>
             <p>Total acumulados <span className={styles['numero-fuerte']}>{estadisticasReales.likes}</span></p>
           </div>
-          {/* 🔥 AQUÍ RESTAURÉ EL ICONO "EN VIVO" QUE DABA EL ESPACIADO CORRECTO */}
           <div className={styles['aumento-container']}>
             <img src="/images/aumento.png" className={styles['icono-aumento']} alt="Aumento" />
             <span className={styles['porcentaje-subida']}>En vivo</span>

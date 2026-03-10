@@ -1,11 +1,28 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation'; // 👈 Importamos useSearchParams
 import styles from './EncuestaModal.module.css';
 
 export default function Page() {
+  const router = useRouter();
+  const searchParams = useSearchParams(); // 👈 Para leer el ID de la URL
   const [atraccion, setAtraccion] = useState('');
   const [origen, setOrigen] = useState('');
+  const [restaurantId, setRestaurantId] = useState<string | null>(null);
+
+  // 👈 Obtenemos el ID del restaurante al cargar la página
+  useEffect(() => {
+    // Intentamos sacarlo de la URL (ej: /EncuestaModal?restauranteId=5)
+    const idFromUrl = searchParams.get('restauranteId');
+    if (idFromUrl) {
+      setRestaurantId(idFromUrl);
+    } else {
+      // Como respaldo, intentamos sacarlo de localStorage o ponemos 1 por defecto
+      const idFromStorage = localStorage.getItem('restauranteActivoId');
+      setRestaurantId(idFromStorage || '1');
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -15,11 +32,10 @@ export default function Page() {
       return;
     }
 
-    // Obtenemos el ID del restaurante (Asegúrate de cómo lo estás guardando cuando abres el modal)
-    // Usualmente lo guardas en localStorage o lo pasas en la URL. 
-    // Por ahora buscaré si está en la URL (ej. ?id=1) o usaré uno por defecto si estás probando.
-    const urlParams = new URLSearchParams(window.location.search);
-    const restaurantId = urlParams.get('id') || localStorage.getItem('restauranteActivoId') || 1; 
+    if (!restaurantId) {
+       alert("Error: No se encontró el ID del restaurante.");
+       return;
+    }
 
     try {
       const token = localStorage.getItem('token');
@@ -40,12 +56,15 @@ export default function Page() {
         alert("¡Gracias por tu respuesta! Encuesta guardada.");
         setAtraccion('');
         setOrigen('');
-        // Aquí podrías cerrar el modal o redirigir
+        
+        // 👈 MAGIA DIRECTA: Redirigimos EXACTAMENTE a la vista del restaurante
+        router.push(`/vistaRestaurante?id=${restaurantId}`); 
       } else {
         alert("Error: " + (data.error || data.message));
       }
     } catch (error) {
       console.error("Error enviando encuesta:", error);
+      alert("Hubo un problema de conexión al enviar la encuesta.");
     }
   };
 

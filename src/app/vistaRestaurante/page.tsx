@@ -461,7 +461,7 @@ function RestauranteContenido() {
         
         {/* Título y Regresar */}
         <div className={styles.headerTitle}>
-          <button className={styles.btnBack} onClick={() => router.back()}>
+          <button className={styles.btnBack} onClick={() => router.push('/')}>
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#6b1e1e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M19 12H5M12 19l-7-7 7-7"/>
             </svg>
