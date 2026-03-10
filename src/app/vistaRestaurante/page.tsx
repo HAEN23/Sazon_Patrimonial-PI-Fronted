@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import styles from "./vistaRestaurante.module.css";
+
 
 // IMPORTAMOS LOS MODALES DE SESIÓN
 import LoginModal from '../LoginModal/LoginModal';
@@ -49,13 +50,13 @@ function RestauranteContenido() {
 
       for (const file of Array.from(files)) {
         const formData = new FormData();
-        formData.append('foto', file); // Ajusta el nombre según tu backend
+        formData.append('foto', file);
 
         const res = await fetch(`${apiUrl}/restaurants/${id}/photos`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`
-            // OJO: Cuando envías archivos (FormData), NO debes poner 'Content-Type'
+            // IMPORTANTE: No pongas 'Content-Type' aquí, el navegador lo pone solo con el boundary
           },
           body: formData
         });
@@ -63,25 +64,24 @@ function RestauranteContenido() {
         const data = await res.json();
 
         if (res.ok) {
-          // Buscamos la URL de la foto en la respuesta
           const nuevaUrl = data.data?.url || data.data?.fileUrl || data.url;
-          
           if (nuevaUrl) {
             setFotos((prev) => [...prev, nuevaUrl]);
           }
           alert("¡Foto subida con éxito!");
         } else {
-          // 🚨 AQUÍ ATRAPAMOS EL RECHAZO DEL BACKEND
+          // 🚨 AQUÍ ESTÁ LA CLAVE: 
+          // Si el servidor manda un 403 (Restaurantero), mostramos SU mensaje de error.
           alert(data.message || "No se pudo subir la foto.");
+          break; // Detenemos el bucle si hay error de permisos
         }
       }
     } catch (error) {
-      // Usamos console.log para evitar la pantalla roja
       console.log("Aviso de conexión al subir foto:", error);
       alert("Hubo un problema de conexión al intentar subir la foto.");
     } finally {
       setIsUploading(false);
-      event.target.value = ''; // Resetea el input para poder subir más fotos
+      event.target.value = ''; 
     }
   };
   
@@ -97,6 +97,9 @@ function RestauranteContenido() {
   const [modalMenuOpen, setModalMenuOpen] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [mostrarMasTags, setMostrarMasTags] = useState(false);
+
+  // Referencia para controlar la ventana de archivos
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // EFECTO PARA VERIFICAR SI HAY SESIÓN ACTIVA
   useEffect(() => {
@@ -273,40 +276,46 @@ function RestauranteContenido() {
     abrirModalMenu();
   };
 
-  const handleSubirFotoClick = (e: React.MouseEvent) => {
-    // 1. Verificamos si tiene sesión iniciada
+  const handleSubirFotoClick = async (e: React.MouseEvent) => {
+    e.preventDefault(); // Detenemos la ventanita automática de Windows
+
     if (!isLogged) {
-      e.preventDefault();
       setIsLoginModalOpen(true);
       return;
     }
 
-    // 2. 🔒 PRIMERO verificamos si es Restaurantero para bloquearlo inmediatamente
-    const userStr = localStorage.getItem("user");
-    if (userStr) {
-      const user = JSON.parse(userStr);
-      const esRestaurantero = 
-        user.id_rol === 2 || 
-        user.rol_id === 2 || 
-        user.rol === 2 || 
-        user.tipo === "restaurantero" || 
-        user.rol === "restaurantero" || 
-        user.role === "restaurantero" ||
-        user.tipo === "Restaurantero";
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api';
+      const token = localStorage.getItem("token");
 
-      if (esRestaurantero) {
-        e.preventDefault(); // Evita que se abra la ventana de subir archivos
-        alert("Como Restaurantero, no puedes subir fotos de clientes.");
-        return; // Detenemos todo aquí
+      // 🔒 1. PRIMERO: Le preguntamos al backend si tienes permiso (bloquea al Restaurantero)
+      const res = await fetch(`${apiUrl}/restaurants/${id}/photos/check`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      const data = await res.json();
+
+      if (!res.ok) {
+        // 🚨 SI ERES RESTAURANTERO, TE DETIENE AQUÍ CON ESTE MENSAJE
+        alert(data.message || "Como Restaurantero, no puedes subir fotos de clientes.");
+        return; 
       }
-    }
 
-    // 3. Si llega hasta aquí, significa que es un CLIENTE. 
-    // Ahora sí verificamos si ya le dio "Me gusta"
-    if (!isFavorite) {
-      e.preventDefault();
-      alert("❤️ ¡Para poder subir una foto, primero debes agregar este restaurante a tus Favoritos!");
-      return;
+      // 👤 2. SEGUNDO: Si pasaste la prueba del backend, significa que eres CLIENTE.
+      // Ahora sí, le exigimos al cliente que le dé Like.
+      if (!isFavorite) {
+        alert("❤️ ¡Para poder subir una foto, primero debes agregar este restaurante a tus Favoritos!");
+        return;
+      }
+
+      // ✅ 3. TERCERO: Si es cliente y ya tiene el Favorito, abrimos la ventanita
+      if (fileInputRef.current) {
+        fileInputRef.current.click();
+      }
+
+    } catch (error) {
+      console.log("Aviso de conexión al verificar permisos de foto:", error);
+      alert("Hubo un problema al verificar tus permisos.");
     }
   };
   // ==========================================
@@ -623,8 +632,8 @@ function RestauranteContenido() {
                 </div>
               ))}
 
-              {/* Botón Subir Foto Protegido (SIEMPRE VISIBLE) */}
-              <label className={styles.btnSubirFoto} onClick={handleSubirFotoClick}>
+              {/* Botón Subir Foto Protegido */}
+              <div className={styles.btnSubirFoto} onClick={handleSubirFotoClick} style={{ cursor: 'pointer' }}>
                 <svg
                   width="24"
                   height="24"
@@ -642,9 +651,10 @@ function RestauranteContenido() {
                   accept="image/*"
                   multiple
                   hidden
+                  ref={fileInputRef} // 👈 ENLAZAMOS LA VENTANITA AQUÍ
                   onChange={handleSubirFoto}
                 />
-              </label>
+              </div>
             </div>
           </div>
 
