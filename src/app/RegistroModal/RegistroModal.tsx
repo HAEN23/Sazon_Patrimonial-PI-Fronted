@@ -97,6 +97,9 @@ export default function RegistroModal({
       if (data.data?.token) {
         localStorage.setItem("token", data.data.token);
         localStorage.setItem("user", JSON.stringify(data.data.user));
+        
+        // 👇 AGREGA ESTA LÍNEA 👇
+        localStorage.setItem("sesionActiva", "usuario");
       }
 
       // Limpiar formulario
