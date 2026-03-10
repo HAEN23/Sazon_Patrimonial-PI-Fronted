@@ -32,16 +32,31 @@ export default function EstadisticasPage() {
       try {
         const userStr = localStorage.getItem('user');
         if (!userStr) return;
-        const user = JSON.parse(userStr);
-        const idRestaurante = user.id_restaurante || user.id;
-
+        
         const token = localStorage.getItem('token');
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api';
 
-        const res = await fetch(`${apiUrl}/restaurants/${idRestaurante}/stats`, {
+        // 1. PRIMERO: Le preguntamos al backend cuál es el ID real de tu restaurante
+        const resMiRest = await fetch(`${apiUrl}/mi-restaurante`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const dataMiRest = await resMiRest.json();
+
+        // Extraemos el verdadero id_restaurante (ej. Restaurante #2)
+        const idRestauranteReal = dataMiRest.data?.id_restaurante;
+
+        // Si no tienes restaurante aprobado, detenemos la búsqueda
+        if (!idRestauranteReal) {
+           console.log("No se encontró el ID real del restaurante.");
+           return; 
+        }
+
+        // 2. SEGUNDO: Ahora sí pedimos las estadísticas usando el ID correcto
+        const res = await fetch(`${apiUrl}/restaurants/${idRestauranteReal}/stats`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();
+        
         if (data.success) {
           setEstadisticasReales(data.data);
         }
