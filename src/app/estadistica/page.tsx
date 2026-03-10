@@ -80,8 +80,9 @@ export default function EstadisticasPage() {
     labels: ['Ambiente', 'Comida', 'Higiene'],
     datasets: [{ 
       label: 'Porcentaje', 
-      data: [95, 75, 50], // Valores de diseño (se pueden conectar a BD después)
-      backgroundColor: ['#6b1e1e', '#c06060', '#efcfcf'], // Degradado de rojos como en la imagen
+      // 🚨 Usamos los datos reales, y si no hay, ponemos ceros
+      data: estadisticasReales.statsAspectos?.length === 3 ? estadisticasReales.statsAspectos : [0, 0, 0], 
+      backgroundColor: ['#6b1e1e', '#c06060', '#efcfcf'], 
       borderRadius: 4 
     }],
   };
@@ -91,11 +92,12 @@ export default function EstadisticasPage() {
     datasets: [{ label: 'Votos', data: estadisticasReales.statsRecomendacion, backgroundColor: '#6b1e1e', borderRadius: 4 }],
   };
 
-  // 🔥 GRÁFICO CIRCULAR PARA ORIGEN (Diseño de la imagen)
+  // 🔥 GRÁFICO CIRCULAR PARA ORIGEN
   const configOrigen = {
     labels: ['Locales', 'Extranjeros'],
     datasets: [{
-      data: [70, 30], // Diseño de muestra (se puede conectar a BD después)
+      // 🚨 Dejamos en ceros hasta que programemos la encuesta
+      data: [0, 0], 
       backgroundColor: ['#6b1e1e', '#e07878'],
       borderColor: ['#ffffff', '#ffffff'],
       borderWidth: 2
@@ -150,33 +152,33 @@ export default function EstadisticasPage() {
             <Bar data={configAspectos} options={opcionesAspectos} />
           </div>
           <div className={styles['leyenda-aspectos']}>
-            <p><span className={styles['color-ambiente']}>■</span> Ambiente 95%</p>
-            <p><span className={styles['color-comida']}>■</span> Comida 75%</p>
-            <p><span className={styles['color-higiene']}>■</span> Higiene 50%</p>
+            <p><span className={styles['color-ambiente']}>■</span> Ambiente {estadisticasReales.statsAspectos?.[0] || 0}%</p>
+            <p><span className={styles['color-comida']}>■</span> Comida {estadisticasReales.statsAspectos?.[1] || 0}%</p>
+            <p><span className={styles['color-higiene']}>■</span> Higiene {estadisticasReales.statsAspectos?.[2] || 0}%</p>
           </div>
         </div>
 
-        {/* Tarjeta 2: DESCARGAS (SIN GRÁFICO - Diseño de la imagen) */}
+        {/* Tarjeta 2: DESCARGAS */}
         <div className={`${styles.tarjeta} ${styles['efecto-brillante']}`}>
           <img src="/images/descargas-menu.png" alt="Descargas" className={styles['icono-tarjeta']} />
           <h3>DESCARGAS DE MENÚ</h3>
           <div className={styles['descargas-info']}>
-            <p>Esta semana <span className={styles['numero-fuerte']}>{Math.floor(estadisticasReales.descargasMenu / 2) || 87}</span></p>
-            <p>Total acumulados <span className={styles['numero-fuerte']}>{estadisticasReales.descargasMenu || 1450}</span></p>
+            <p>Esta semana <span className={styles['numero-fuerte']}>{estadisticasReales.descargasMenu}</span></p>
+            <p>Total acumulados <span className={styles['numero-fuerte']}>{estadisticasReales.descargasMenu}</span></p>
           </div>
           <div className={styles['aumento-container']}>
             <img src="/images/aumento.png" className={styles['icono-aumento']} alt="Aumento" />
-            <span className={styles['porcentaje-subida']}>+15%</span>
+            <span className={styles['porcentaje-subida']}>En vivo</span>
           </div>
         </div>
 
-        {/* Tarjeta 3: ORIGEN (GRÁFICO CIRCULAR - Diseño de la imagen) */}
+        {/* Tarjeta 3: ORIGEN (GRÁFICO CIRCULAR) */}
         <div className={`${styles.tarjeta} ${styles['efecto-brillante']}`}>
           <img src="/images/visitas.png" alt="Origen" className={styles['icono-tarjeta']} />
           <h3>INTERÉS POR ORIGEN</h3>
           <div className={styles['leyenda-origen']}>
-            <p><span className={styles.locales}>● Locales 70%</span></p>
-            <p><span className={styles.extranjeros}>● Extranjeros 30%</span></p>
+            <p><span className={styles.locales}>● Locales 0%</span></p>
+            <p><span className={styles.extranjeros}>● Extranjeros 0%</span></p>
           </div>
           <div className={styles['grafico-pastel']}>
             <Pie data={configOrigen} options={opcionesPie} />
