@@ -261,14 +261,30 @@ function RestauranteContenido() {
       return;
     }
 
-    // 3. NUEVO: Registrar la "descarga" silenciosamente en el backend
+    // 3. Registrar la "descarga" en el backend
     try {
+      const token = localStorage.getItem('token');
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api';
-      await fetch(`${apiUrl}/restaurants/${id}/menu/click`, {
-        method: 'POST'
+      
+      // ✅ AQUÍ ESTÁ LA CORRECCIÓN: Apuntamos a la ruta de tu server.ts
+      const res = await fetch(`${apiUrl}/restaurants/${id}/menu/click`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+        // No necesitamos mandar 'body' porque el ID ya va en la URL
       });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        console.log("✅ ¡Estadística de descarga de menú sumada con éxito!");
+      } else {
+        console.warn("⚠️ Aviso del backend al sumar estadística:", data);
+      }
     } catch (error) {
-      console.error("Error registrando la vista del menú:", error);
+      console.error("Error de red registrando la vista del menú:", error);
     }
 
     // 4. Abrimos el modal para mostrar el PDF
