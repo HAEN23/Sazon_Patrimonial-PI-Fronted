@@ -174,7 +174,6 @@ function RestauranteContenido() {
       const token = localStorage.getItem('token');
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api';
       
-      // Asegúrate de que esta sea la ruta correcta de tu backend
       const res = await fetch(`${apiUrl}/favorites/toggle`, {
         method: 'POST',
         headers: {
@@ -184,19 +183,20 @@ function RestauranteContenido() {
         body: JSON.stringify({ id_restaurante: id }) 
       });
 
-      // Leemos lo que nos contestó el backend (sea bueno o malo)
       const data = await res.json();
 
       if (res.ok) {
-        // Si todo salió bien, cambiamos el color del corazón
         setIsFavorite(!isFavorite);
       } else {
-        // 🚨 AQUÍ ESTÁ LA MAGIA: 
-        // Si el backend nos rechazó (ej. por ser Restaurantero), mostramos el mensaje que programamos en server.ts
-        alert(data.message || "No se pudo completar la acción.");
+        // 🚨 AQUÍ ESTÁ EL CAMBIO: 
+        // Usamos JSON.stringify para obligar al navegador a mostrarnos el interior del error
+        const mensajeError = typeof data.message === 'string' 
+          ? data.message 
+          : JSON.stringify(data); // Si es un objeto, lo convierte a texto para poder leerlo
+
+        alert("ERROR DEL SERVIDOR: " + mensajeError);
       }
     } catch (error) {
-      // Cambiamos console.error por console.log para que Next.js NO ponga la pantalla roja
       console.log("Aviso de conexión:", error);
       alert("Hubo un problema de conexión con el servidor.");
     }
