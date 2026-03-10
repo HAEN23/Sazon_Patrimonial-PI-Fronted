@@ -137,7 +137,10 @@ export default function Home() {
               </>
             )}
             {isLogged && (
-              <button className={styles['log-in-parent']} onClick={handleLogout}>Cerrar sesión</button>
+              <button className={styles['log-in-parent']} onClick={handleLogout}>
+                <img src="/images/logout.png" alt="Cerrar sesión" />
+                <span>Cerrar sesión</span>
+              </button>
             )}
           </nav>
         </div>
