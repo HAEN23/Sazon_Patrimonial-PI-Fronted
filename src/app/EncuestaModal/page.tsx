@@ -7,7 +7,7 @@ export default function Page() {
   const [atraccion, setAtraccion] = useState('');
   const [origen, setOrigen] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!atraccion || !origen) {
@@ -15,12 +15,38 @@ export default function Page() {
       return;
     }
 
-    console.log("Encuesta enviada:", { atraccion, origen });
+    // Obtenemos el ID del restaurante (Asegúrate de cómo lo estás guardando cuando abres el modal)
+    // Usualmente lo guardas en localStorage o lo pasas en la URL. 
+    // Por ahora buscaré si está en la URL (ej. ?id=1) o usaré uno por defecto si estás probando.
+    const urlParams = new URLSearchParams(window.location.search);
+    const restaurantId = urlParams.get('id') || localStorage.getItem('restauranteActivoId') || 1; 
 
-    // Aquí después puedes conectar la API
+    try {
+      const token = localStorage.getItem('token');
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api';
 
-    setAtraccion('');
-    setOrigen('');
+      const response = await fetch(`${apiUrl}/restaurants/${restaurantId}/survey`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ atraccion, origen })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("¡Gracias por tu respuesta! Encuesta guardada.");
+        setAtraccion('');
+        setOrigen('');
+        // Aquí podrías cerrar el modal o redirigir
+      } else {
+        alert("Error: " + (data.error || data.message));
+      }
+    } catch (error) {
+      console.error("Error enviando encuesta:", error);
+    }
   };
 
   return (
