@@ -88,9 +88,14 @@ export default function VistaPrincipalRestaurantero() {
   };
 
   const cerrarSesion = () => {
+    // 1. Limpiamos TODA la memoria del navegador relacionada con la sesión
     localStorage.removeItem("userRole");
     localStorage.removeItem("token"); 
-    router.push("/");
+    localStorage.removeItem("user");
+    localStorage.removeItem("sesionActiva");
+    
+    // 2. FORZAMOS la recarga para evitar el bug del doble clic
+    window.location.href = "/";
   };
 
   return (

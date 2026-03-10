@@ -97,7 +97,16 @@ export default function VistaPrincipalAdmin() {
   }, [vistaActiva]);
 
   const handleLogout = () => {
-    localStorage.clear();
+    // 1. Limpiamos TODA la memoria del navegador relacionada con la sesión de forma explícita
+    localStorage.removeItem("userRole");
+    localStorage.removeItem("token"); 
+    localStorage.removeItem("user");
+    localStorage.removeItem("sesionActiva");
+    
+    // Si quieres asegurarte de borrar TODO, puedes dejar el clear()
+    localStorage.clear(); 
+    
+    // 2. FORZAMOS la recarga para evitar el bug del doble clic
     window.location.href = "/";
   };
 
