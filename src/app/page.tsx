@@ -251,7 +251,7 @@ export default function Home() {
                 <option value="Estacionamiento">Estacionamiento</option>
               </select>
             </div>
-            <button className={styles['btn-filtrar']} onClick={() => { setBusqueda(""); setTipoComida(""); setAmbiente(""); setServicio(""); }}>
+            <button className={styles['btn-filtrar']} onClick={() => { setBusqueda(""); setTipoComida(""); setAmbiente(""); setServicio(""); setMostrarFavoritos(false); }}>
               <img src="/images/borrar.png" className={styles['icono-boton']} /> Limpiar Filtros
             </button>
           </div>

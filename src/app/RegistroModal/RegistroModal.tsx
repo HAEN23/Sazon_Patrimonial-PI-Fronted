@@ -92,32 +92,42 @@ export default function RegistroModal({
       const data = JSON.parse(textResponse);
 
       // 4. Si todo salió bien
-      alert("Registro exitoso");
-      
-      if (data.data?.token) {
-        localStorage.setItem("token", data.data.token);
-        localStorage.setItem("user", JSON.stringify(data.data.user));
-        
-        // 👇 AGREGA ESTA LÍNEA 👇
+      if (data.success) {
+        // 1. Limpiamos cualquier sesión fantasma anterior
+        localStorage.removeItem("userRole");
+        localStorage.removeItem("user");
+
+        // 2. Guardamos la nueva sesión explícitamente como 'usuario'
         localStorage.setItem("sesionActiva", "usuario");
-      }
+        localStorage.setItem("userRole", "usuario");
+        localStorage.setItem("token", data.token || data.data?.token);
 
-      // Limpiar formulario
-      setFormData({
-        nombre: "",
-        correo: "",
-        contrasena: "",
-        confirmar: "",
-        tipo: "usuario"
-      });
+        // 3. Guardamos el objeto user por si otras vistas lo necesitan
+        const usuarioData = data.user || data.data?.user || { rol: "usuario" };
+        localStorage.setItem("user", JSON.stringify(usuarioData));
 
-      // 5. Redirección
-      if (formData.tipo === "restaurantero") {
-        onClose();
-        router.push("/vistaPrincipalRestaurantero");
+        // 4. Limpiar formulario
+        setFormData({
+          nombre: "",
+          correo: "",
+          contrasena: "",
+          confirmar: "",
+          tipo: "usuario"
+        });
+
+        // 5. Mensaje de éxito
+        alert("Registro exitoso");
+
+        // 6. Redirección
+        if (formData.tipo === "restaurantero") {
+          onClose();
+          router.push("/vistaPrincipalRestaurantero");
+        } else {
+          onLoginSuccess();
+          onClose();
+        }
       } else {
-        onLoginSuccess();
-        onClose();
+        setError(data.message || data.error || 'Error al registrar usuario.');
       }
 
     } catch (err: any) {
