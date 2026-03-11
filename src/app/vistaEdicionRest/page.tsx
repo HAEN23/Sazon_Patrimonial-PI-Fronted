@@ -180,8 +180,14 @@ export default function EdicionRestaurante() {
   };
 
   const handleLogout = () => {
+    // 1. Limpiamos TODA la memoria del navegador relacionada con la sesión
     localStorage.removeItem("userRole");
-    router.push("/");
+    localStorage.removeItem("token"); 
+    localStorage.removeItem("user");
+    localStorage.removeItem("sesionActiva");
+    
+    // 2. FORZAMOS la recarga redirigiendo a la raíz, igual que en la otra vista
+    window.location.href = "/";
   };
   
   return (
