@@ -220,13 +220,22 @@ function RestauranteContenido() {
       return;
     }
 
+    // 1. Verificamos el rol estrictamente por texto, sin usar números
+    const userRole = localStorage.getItem("userRole");
     const userStr = localStorage.getItem("user");
+    let esRestaurantero = userRole === "restaurantero" || userRole === "rest";
+
     if (userStr) {
       const user = JSON.parse(userStr);
-      if (user.id_rol === 2) {
-        alert("Como Restaurantero, tienes una vista de 'Solo Lectura'. No puedes descargar menús.");
-        return;
+      if (user.rol === "restaurantero" || user.rol === "rest") {
+        esRestaurantero = true;
       }
+    }
+
+    // 2. Bloqueamos si es restaurantero con el mensaje solicitado
+    if (esRestaurantero) {
+      alert("Los restauranteros no pueden ver el menu");
+      return;
     }
 
     if (!isFavorite) {
@@ -260,13 +269,23 @@ function RestauranteContenido() {
       return;
     }
 
+    // 1. Verificamos el rol estrictamente por texto, sin usar números
+    const userRole = localStorage.getItem("userRole");
     const userStr = localStorage.getItem("user");
+    
+    let esRestaurantero = userRole === "restaurantero" || userRole === "rest";
+
     if (userStr) {
       const user = JSON.parse(userStr);
-      if (user.id_rol === 2) {
-        alert("Como Restaurantero, no puedes subir fotos como evidencia de cliente.");
-        return; 
+      if (user.rol === "restaurantero" || user.rol === "rest") {
+        esRestaurantero = true;
       }
+    }
+
+    // 2. Si detecta que es restaurantero, bloquea la acción
+    if (esRestaurantero) {
+      alert("Los restauranteros no pueden subir fotos");
+      return; 
     }
 
     if (!isFavorite) {

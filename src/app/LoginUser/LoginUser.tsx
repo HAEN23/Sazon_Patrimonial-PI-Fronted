@@ -38,8 +38,19 @@ export default function LoginUser({ isOpen, onClose, onBack, onLoginSuccess }: L
 
       if (res.ok && data.success) {
         // 3. ¡ÉXITO! Guardamos la sesión y el Token real en el navegador
+        
+        // 🔥 Limpiamos cualquier rastro de sesiones anteriores (como el de restaurantero)
+        localStorage.removeItem("userRole");
+        localStorage.removeItem("user");
+
+        // Guardamos explícitamente que es un usuario normal
         localStorage.setItem("sesionActiva", "usuario");
+        localStorage.setItem("userRole", "usuario");
         localStorage.setItem("token", data.token);
+
+        // Guardamos el objeto user por si otras vistas lo necesitan
+        const usuarioData = data.user || data.client || { rol: "usuario" };
+        localStorage.setItem("user", JSON.stringify(usuarioData));
 
         setCorreo('');
         setContrasena('');
