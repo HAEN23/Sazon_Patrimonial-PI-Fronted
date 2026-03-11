@@ -26,6 +26,10 @@ export default function Home() {
   const [restaurantes, setRestaurantes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Nuevos estados para el Filtro de Favoritos
+  const [favoritosIds, setFavoritosIds] = useState<number[]>([]);
+  const [mostrarFavoritos, setMostrarFavoritos] = useState(false);
+
   const handleLoginSuccess = () => {
     setIsLogged(true);
   };
@@ -87,6 +91,48 @@ export default function Home() {
     cargarRestaurantes();
   }, []);
 
+  // Efecto para cargar los restaurantes favoritos del usuario
+  const cargarFavoritos = async () => {
+    const userRole = localStorage.getItem("userRole");
+    const userStr = localStorage.getItem("user");
+    const token = localStorage.getItem("token");
+
+    if (userRole === "usuario" && userStr && token) {
+      try {
+        const user = JSON.parse(userStr);
+        // Cubrimos todas las posibles formas en las que se guarde el ID del usuario
+        const userId = user.id_usuario || user.id || user.userId; 
+        
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api';
+        
+        const res = await fetch(`${apiUrl}/clients/${userId}/favorites`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+          cache: 'no-store' // <--- Evita que el navegador guarde memoria vieja
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.data)) {
+            // Forzamos a que TODOS los IDs sean de tipo Number (Matemático)
+            const ids = data.data.map((fav: any) => 
+              Number(fav.id_restaurante || fav.restaurantId || fav.restaurante?.id_restaurante)
+            );
+            console.log("🔥 Mis Favoritos descargados:", ids); // <--- Te ayudará a ver si funciona en F12
+            setFavoritosIds(ids);
+          }
+        }
+      } catch (error) {
+        console.error("Error cargando favoritos:", error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (isLogged) {
+      cargarFavoritos();
+    }
+  }, [isLogged, mostrarFavoritos]); // <--- Agregamos mostrarFavoritos para que re-descargue al darle clic
+
   const handleLogout = () => {
     localStorage.removeItem("sesionActiva");
     setIsLogged(false);
@@ -102,6 +148,12 @@ export default function Home() {
 
   // NUEVA LÓGICA DE FILTRADO POR ETIQUETAS
   const restaurantesFiltrados = restaurantes.filter((rest) => {
+    // Si el botón de favoritos está activo, solo mostramos los que coincidan con los IDs
+    if (mostrarFavoritos) {
+      // Forzamos rest.id a número para que coincida perfecto con favoritosIds
+      return favoritosIds.includes(Number(rest.id));
+    }
+    
     const coincideBusqueda = rest.nombre ? rest.nombre.toLowerCase().includes(busqueda.toLowerCase()) : true;
     
     // Ponemos todas las etiquetas en minúsculas para facilitar la comparación
@@ -160,6 +212,17 @@ export default function Home() {
           </div>
 
           <div className={`${styles['barra-filtros-horizontal']} ${styles['filtros-abajo']}`}>
+            {/* Botón Exclusivo de Mis Favoritos (Solo para usuarios normales) */}
+            {isLogged && localStorage.getItem("userRole") === "usuario" && (
+              <button 
+                className={mostrarFavoritos ? styles.btnFavoritosActivo : styles.btnFavoritosInactivo} 
+                onClick={() => {
+                  setMostrarFavoritos(!mostrarFavoritos);
+                }}
+              >
+                ❤️ Mis Favoritos
+              </button>
+            )}
             <div className={styles['filtro-item']}>
               <img src="/images/menu.png" className={styles['icono-filtro']} />
               <select className={styles['filtro-select']} value={tipoComida} onChange={(e) => setTipoComida(e.target.value)}>
