@@ -146,6 +146,35 @@ function RestauranteContenido() {
   const cerrarModalMenu = () => setModalMenuOpen(false);
   const toggleTags = () => setMostrarMasTags(!mostrarMasTags);
 
+  // Función para regresar respetando el rol del usuario
+  const handleVolver = () => {
+    const userRole = localStorage.getItem("userRole");
+    const userStr = localStorage.getItem("user");
+    
+    let esRestaurantero = userRole === "restaurantero" || userRole === "rest";
+    let esAdmin = userRole === "admin";
+
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        if (user.rol === "restaurantero" || user.rol === "rest") esRestaurantero = true;
+        // Agregamos también la validación de admin por si acaso
+        if (user.rol === "admin" || user.id_rol === 1) esAdmin = true; 
+      } catch (e) {
+        console.error("Error leyendo usuario", e);
+      }
+    }
+
+    // Redirige al panel correspondiente según el rol
+    if (esAdmin) {
+      router.push('/vistaPrincipalAdmin');
+    } else if (esRestaurantero) {
+      router.push('/vistaPrincipalRestaurantero');
+    } else {
+      router.push('/'); // Usuarios normales o no logueados siempre van al inicio
+    }
+  };
+
   // ==========================================
   // FUNCIONES DE INTERACCIÓN
   // ==========================================
@@ -407,7 +436,7 @@ function RestauranteContenido() {
         
         {/* Título y Regresar */}
         <div className={styles.headerTitle}>
-          <button className={styles.btnBack} onClick={() => router.push('/')}>
+          <button className={styles.btnBack} onClick={handleVolver}>
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#6b1e1e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M19 12H5M12 19l-7-7 7-7"/>
             </svg>
