@@ -375,13 +375,6 @@ export default function VistaPrincipalAdmin() {
         </main>
       </div>
 
-      <footer className={styles.footer}>
-        <div className={styles.footerContactos}>
-          <h4>Contáctanos</h4>
-          <p>sazonpatrimonial@gmail.com</p>
-        </div>
-      </footer>
-
       {/* MODAL DE VISTA PREVIA DE IMAGEN */}
       {imagenSeleccionada && (
         <div onClick={() => setImagenSeleccionada(null)} style={{position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0, 0, 0, 0.85)', zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
