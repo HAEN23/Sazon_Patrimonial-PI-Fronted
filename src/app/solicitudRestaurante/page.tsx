@@ -6,10 +6,80 @@ import Image from "next/image";
 
 export default function SolicitudPage() {
   const [modalOpen, setModalOpen] = useState(false);
+  
+  // 1. Estados para capturar los datos del formulario
+  const [formData, setFormData] = useState({
+    nombre: '',
+    telefono: '',
+    facebook: '',
+    instagram: '',
+    direccion: '',
+    horario: ''
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // 2. Estados para los archivos
+  const [fotoPortada, setFotoPortada] = useState<File | null>(null);
+  const [foto2, setFoto2] = useState<File | null>(null);
+  const [foto3, setFoto3] = useState<File | null>(null);
+  const [comprobante, setComprobante] = useState<File | null>(null);
+  const [menuPdf, setMenuPdf] = useState<File | null>(null);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setModalOpen(true);
+
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api';
+      const token = localStorage.getItem('token');
+
+      if (!token) {
+        alert("Debes iniciar sesión para enviar una solicitud.");
+        return;
+      }
+
+      // 3. Crear el FormData
+      const formDataToSend = new FormData();
+      formDataToSend.append('nombre', formData.nombre);
+      formDataToSend.append('telefono', formData.telefono);
+      formDataToSend.append('facebook', formData.facebook);
+      formDataToSend.append('instagram', formData.instagram);
+      formDataToSend.append('direccion', formData.direccion);
+      formDataToSend.append('horario', formData.horario);
+      // Puedes enviar etiquetas vacías por ahora si tu backend lo requiere, o agregar un input
+      formDataToSend.append('etiquetas', ''); 
+
+      // 4. Agregar archivos si existen
+      if (fotoPortada) formDataToSend.append('foto_portada', fotoPortada);
+      if (foto2) formDataToSend.append('foto_2', foto2);
+      if (foto3) formDataToSend.append('foto_3', foto3);
+      if (menuPdf) formDataToSend.append('menu_pdf', menuPdf);
+      // OJO: Tu controlador updateRestaurant no parece procesar el 'comprobante_domicilio', 
+      // pero lo puedes mandar si lo agregas en el backend luego.
+
+      // 5. Enviar al backend
+      const response = await fetch(`${apiUrl}/mi-restaurante`, {
+        method: "PUT",
+        headers: {
+          'Authorization': `Bearer ${token}`
+          // No incluyas 'Content-Type': 'application/json' cuando envíes FormData
+        },
+        body: formDataToSend,
+      });
+
+      if (response.ok) {
+        setModalOpen(true);
+      } else {
+        const errData = await response.json();
+        alert("Error: " + (errData.error || errData.message));
+      }
+
+    } catch (error) {
+      console.error("Error al enviar solicitud:", error);
+      alert("Error de conexión al enviar la solicitud.");
+    }
   };
 
   return (
@@ -52,38 +122,38 @@ export default function SolicitudPage() {
               </p>
 
               <label>Restaurante</label>
-              <input className={styles.controls} type="text" />
+              <input className={styles.controls} type="text" name="nombre" value={formData.nombre} onChange={handleInputChange} required />
 
               <label>Número de celular</label>
-              <input className={styles.controls} type="tel" />
+              <input className={styles.controls} type="tel" name="telefono" value={formData.telefono} onChange={handleInputChange} required />
 
               <label>Facebook</label>
-              <input className={styles.controls} type="text" />
+              <input className={styles.controls} type="text" name="facebook" value={formData.facebook} onChange={handleInputChange} />
 
               <label>Instagram</label>
-              <input className={styles.controls} type="text" />
+              <input className={styles.controls} type="text" name="instagram" value={formData.instagram} onChange={handleInputChange} />
 
               <label>Dirección</label>
-              <input className={styles.controls} type="text" />
+              <input className={styles.controls} type="text" name="direccion" value={formData.direccion} onChange={handleInputChange} required />
 
               <label>Horarios</label>
-              <input className={styles.controls} type="text" />
+              <input className={styles.controls} type="text" name="horario" value={formData.horario} onChange={handleInputChange} required />
 
               <label>Imágenes (JPG o PNG)</label>
               <div className={styles.imagenesGroup}>
                 <label className={styles.inputFile}>
                   Imagen principal
-                  <input type="file" hidden accept="image/png, image/jpeg" />
+                  <input type="file" hidden accept="image/png, image/jpeg" onChange={(e) => setFotoPortada(e.target.files?.[0] || null)} />
                 </label>
 
                 <label className={styles.inputFile}>
                   Imagen secundaria
-                  <input type="file" hidden accept="image/png, image/jpeg" />
+                  <input type="file" hidden accept="image/png, image/jpeg" onChange={(e) => setFoto2(e.target.files?.[0] || null)} />
                 </label>
 
                 <label className={styles.inputFile}>
                   Imagen de platillo
-                  <input type="file" hidden accept="image/png, image/jpeg" />
+                  <input type="file" hidden accept="image/png, image/jpeg" onChange={(e) => setFoto3(e.target.files?.[0] || null)} />
                 </label>
               </div>
 
@@ -91,12 +161,12 @@ export default function SolicitudPage() {
               <div className={styles.imagenesGroup}>
                 <label className={styles.inputFile}>
                   Comprobante de domicilio
-                  <input type="file" hidden accept="application/pdf" />
+                  <input type="file" hidden accept="application/pdf" onChange={(e) => setComprobante(e.target.files?.[0] || null)} />
                 </label>
 
                 <label className={styles.inputFile}>
                   Menú del restaurante
-                  <input type="file" hidden accept="application/pdf" />
+                  <input type="file" hidden accept="application/pdf" onChange={(e) => setMenuPdf(e.target.files?.[0] || null)} />
                 </label>
               </div>
 
@@ -119,18 +189,7 @@ export default function SolicitudPage() {
       </main>
 
       <footer className={styles.footer}>
-        <div className={styles.footerContactos}>
-          <h4>Contáctanos</h4>
-          <p>sazonpatrimonial@gmail.com</p>
-          <p>+52 961 652 2093</p>
-          <p>@sazonpatrimonial</p>
-        </div>
-
-        <div className={styles.footerLogos}>
-          <Image src="/logo_sp_blanco.png" alt="logo" width={80} height={80} />
-          <Image src="/devbox_logo.png" alt="devbox" width={80} height={80} />
-          <Image src="/logo_uni.png" alt="uni" width={80} height={80} />
-        </div>
+        {/* ... tu footer igual ... */}
       </footer>
 
       {modalOpen && (
@@ -138,7 +197,11 @@ export default function SolicitudPage() {
           <div className={styles.modalContenido}>
             <span
               className={styles.cerrar}
-              onClick={() => setModalOpen(false)}
+              onClick={() => {
+                setModalOpen(false);
+                // Opcional: Redirigir al inicio o panel después del éxito
+                window.location.href = "/vistaPrincipalRestaurantero";
+              }}
             >
               &times;
             </span>

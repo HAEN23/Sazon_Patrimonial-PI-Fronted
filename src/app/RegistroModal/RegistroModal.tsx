@@ -56,11 +56,11 @@ export default function RegistroModal({
       // 2. Determinar el ID del Rol
       const rolId = formData.tipo === "restaurantero" ? 2 : 3;
 
-      // --- LO NUEVO EMPIEZA AQUÍ ---
+      // 3. Petición REAL al Backend
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api';
 
-      // 3. Petición REAL al Backend
-      const response = await fetch(`${apiUrl}/auth/client/register`, {
+      // 👇 CORRECCIÓN AQUÍ: Cambiamos a /client/register
+      const response = await fetch(`${apiUrl}/client/register`, { 
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -72,9 +72,7 @@ export default function RegistroModal({
           id_rol: rolId, 
         }),
       });
-      // --- LO NUEVO TERMINA AQUÍ ---
 
-      // Leer respuesta como texto primero para evitar errores de parseo
       const textResponse = await response.text();
 
       if (!response.ok) {
