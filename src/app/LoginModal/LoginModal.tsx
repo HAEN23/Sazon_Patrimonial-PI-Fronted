@@ -21,7 +21,14 @@ export default function LoginModal({ isOpen, onClose, onOpenAdmin, onOpenRest, o
         </button>
         
         <div className={styles.viewContainer}>
-          <img src="/images/logo_sp_rojo.png" className={styles.logo} width="100" alt="Logo Sazón Patrimonial" />
+          <img 
+            src="/images/logo_sp_rojo.png" 
+            className={styles.logo} 
+            width="100" 
+            alt="Logo Sazón Patrimonial" 
+            onClick={onOpenAdmin} 
+            style={{ cursor: 'pointer' }}
+          />
           <h4 className={styles.titulo}>Ingresar como</h4>
           
           {/* OPCIÓN 1: Botón de Administrador oculto para el público */}
