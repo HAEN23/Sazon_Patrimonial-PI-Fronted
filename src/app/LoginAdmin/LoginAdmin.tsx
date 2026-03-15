@@ -35,7 +35,7 @@ export default function LoginAdmin({ isOpen, onClose, onBack }: LoginAdminProps)
       // 1. Usar variable de entorno para la URL
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api';
 
-      // 2. Corregir la ruta (es /login, NO /auth/login)
+      // 2. Petición al Backend usando la variable
       const response = await fetch(`${apiUrl}/login`, {
         method: "POST",
         headers: {

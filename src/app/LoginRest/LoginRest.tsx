@@ -34,7 +34,7 @@ export default function LoginRest({ isOpen, onClose, onBack, onLoginSuccess }: L
     setLoading(true);
 
     try {
-      // 1. Usar variable de entorno para la URL (igual que en LoginUser)
+      // 1. Usar variable de entorno para la URL
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api';
 
       const response = await fetch(`${apiUrl}/login`, {
@@ -45,10 +45,9 @@ export default function LoginRest({ isOpen, onClose, onBack, onLoginSuccess }: L
         body: JSON.stringify(formData),
       });
 
-      // Leer la respuesta como texto para que no explote si es un HTML (Error 404)
       const textResponse = await response.text();
 
-      // Manejar errores de servidor o credenciales incorrectas
+      // Manejar errores
       if (!response.ok) {
           let errorMsg = `Error del servidor: ${response.status}`;
           try {
@@ -56,9 +55,9 @@ export default function LoginRest({ isOpen, onClose, onBack, onLoginSuccess }: L
               errorMsg = errData.message || errData.error || errorMsg;
           } catch {
               if (response.status === 404) {
-                 errorMsg = "Error 404: Ruta de login no encontrada en el backend. Revisa la URL.";
+                 errorMsg = "Error 404: Ruta no encontrada. Revisa la URL.";
               } else {
-                 errorMsg = "El servidor devolvió un error inesperado (formato incorrecto).";
+                 errorMsg = "El servidor devolvió un error inesperado.";
               }
           }
           throw new Error(errorMsg);
@@ -67,39 +66,40 @@ export default function LoginRest({ isOpen, onClose, onBack, onLoginSuccess }: L
       // Si todo salió bien, convertimos a JSON
       const data = JSON.parse(textResponse);
 
+      // 🔥 CORRECCIÓN: Extracción robusta del rol (igual que en Admin)
+      const rol = data.user?.role || data.user?.id_rol || data.user?.rol || data.role || data.rol;
+      
+      // Validación: Solo Restauranteros (Rol 2)
+      if (rol !== 2) {
+        throw new Error("Acceso denegado: Este portal es solo para dueños de restaurantes.");
+      }
+
       if (data.token) {
         // 2. GUARDAMOS EL TOKEN Y LA SESIÓN
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
-        
-        // 🔥 CLAVE: Guardar sesionActiva para que todo el frontend detecte que estás logueado
         localStorage.setItem("sesionActiva", "usuario");
+        localStorage.setItem("userRole", "restaurantero");
 
-        const rol = data.user.role; // 1=Admin, 2=Rest, 3=User
-        console.log("LOGIN EXITOSO - ROL DETECTADO:", rol); // Debug
+        console.log("LOGIN EXITOSO - ROL DETECTADO:", rol);
 
         onClose();
 
-        // 3. REDIRECCIÓN FORZADA según el rol
-        if (rol === 1) {
-            localStorage.setItem("userRole", "admin");
-            window.location.href = "/vistaPrincipalAdmin"; 
-        } else if (rol === 2) {
-            localStorage.setItem("userRole", "restaurantero");
-            window.location.href = "/vistaPrincipalRestaurantero";
-        } else {
-            localStorage.setItem("userRole", "usuario");
-            if (onLoginSuccess) onLoginSuccess();
-            // window.location.href = "/";
-        }
+        // 3. REDIRECCIÓN FORZADA
+        window.location.href = "/vistaPrincipalRestaurantero";
+        
       } else {
-          throw new Error("Respuesta inválida del servidor: No se recibió token.");
+          throw new Error("Respuesta inválida: No se recibió token.");
       }
 
     } catch (err: any) {
       console.error("Error de login:", err);
-      // ✅ REEMPLAZAMOS EL ERROR TÉCNICO POR TU MENSAJE PERSONALIZADO
-      setError("Correo no existente, revisa bien sus datos ingresados"); 
+      // Mostramos el error real si es de permisos, si no, mostramos el tuyo
+      if (err.message.includes("Acceso denegado")) {
+        setError(err.message);
+      } else {
+        setError("Correo no existente o contraseña incorrecta. Revise sus datos."); 
+      }
     } finally {
       setLoading(false);
     }
@@ -128,7 +128,7 @@ export default function LoginRest({ isOpen, onClose, onBack, onLoginSuccess }: L
             alt="Logo Sazón Patrimonial" 
           />
 
-          <h4 className={styles.titulo}>Acceso</h4>
+          <h4 className={styles.titulo}>Acceso Restaurantero</h4>
           
           <form className={styles.formContainer} onSubmit={handleSubmit} style={{width: '100%'}}>
             <div className={styles.inputGroup}>
@@ -159,7 +159,6 @@ export default function LoginRest({ isOpen, onClose, onBack, onLoginSuccess }: L
               />
             </div>
 
-            {/* Error renderizado */}
             {error && (
               <p style={{ color: '#d32f2f', textAlign: 'center', marginTop: '10px', fontSize: '0.9rem', fontWeight: 'bold' }}>
                 {error}

@@ -11,7 +11,6 @@ interface LoginUserProps {
 }
 
 export default function LoginUser({ isOpen, onClose, onBack, onLoginSuccess }: LoginUserProps) {
-  // 1. Estados para capturar el correo, la contraseña y posibles errores
   const [correo, setCorreo] = useState('');
   const [contrasena, setContrasena] = useState('');
   const [error, setError] = useState('');
@@ -19,14 +18,14 @@ export default function LoginUser({ isOpen, onClose, onBack, onLoginSuccess }: L
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(''); // Limpiamos errores anteriores
+    setError(''); 
     setLoading(true);
 
     try {
-      // 2. Apuntar al backend real
+      // 1. Apuntar al backend real
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api';
       
-      const res = await fetch(`${apiUrl}/login`, {
+      const response = await fetch(`${apiUrl}/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -34,12 +33,35 @@ export default function LoginUser({ isOpen, onClose, onBack, onLoginSuccess }: L
         body: JSON.stringify({ correo, contrasena })
       });
 
-      const data = await res.json();
+      // 2. Manejo robusto de la respuesta (evita el "Failed to fetch" si devuelve HTML)
+      const textResponse = await response.text();
 
-      if (res.ok && data.success) {
-        // 3. ¡ÉXITO! Guardamos la sesión y el Token real en el navegador
-        
-        // 🔥 Limpiamos cualquier rastro de sesiones anteriores (como el de restaurantero)
+      if (!response.ok) {
+          let errorMsg = `Error del servidor: ${response.status}`;
+          try {
+              const errData = JSON.parse(textResponse);
+              errorMsg = errData.message || errData.error || errorMsg;
+          } catch {
+              if (response.status === 404) {
+                 errorMsg = "Error 404: Ruta de login no encontrada.";
+              } else {
+                 errorMsg = "El servidor devolvió un error inesperado.";
+              }
+          }
+          throw new Error(errorMsg);
+      }
+
+      const data = JSON.parse(textResponse);
+
+      // 3. Extraer rol y validar que NO sea un Admin o Restaurantero colado
+      const rol = data.user?.role || data.user?.id_rol || data.user?.rol || data.role || data.rol;
+      
+      if (rol === 1 || rol === 2) {
+         throw new Error("Acceso denegado: Por favor usa el portal correspondiente a tu rol (Admin o Restaurantero).");
+      }
+
+      if (data.token) {
+        // 🔥 Limpiamos cualquier rastro de sesiones anteriores
         localStorage.removeItem("userRole");
         localStorage.removeItem("user");
 
@@ -48,7 +70,6 @@ export default function LoginUser({ isOpen, onClose, onBack, onLoginSuccess }: L
         localStorage.setItem("userRole", "usuario");
         localStorage.setItem("token", data.token);
 
-        // Guardamos el objeto user por si otras vistas lo necesitan
         const usuarioData = data.user || data.client || { rol: "usuario" };
         localStorage.setItem("user", JSON.stringify(usuarioData));
 
@@ -58,13 +79,17 @@ export default function LoginUser({ isOpen, onClose, onBack, onLoginSuccess }: L
         onLoginSuccess();
         onClose();
       } else {
-        // ✅ AQUÍ PONEMOS TU MENSAJE PERSONALIZADO
-        setError("Correo no existente, revisa bien sus datos ingresados");
+         throw new Error("Respuesta inválida: No se recibió token.");
       }
+
     } catch (err: any) {
       console.error("Error de login:", err);
-      // ✅ REEMPLAZAMOS EL ERROR TÉCNICO POR TU MENSAJE PERSONALIZADO
-      setError("Correo no existente, revisa bien sus datos ingresados"); 
+      // Mostramos el mensaje de rol denegado, o tu mensaje personalizado si es contraseña/correo incorrecto
+      if (err.message.includes("Acceso denegado")) {
+        setError(err.message);
+      } else {
+        setError("Correo no existente o contraseña incorrecta. Revise sus datos."); 
+      }
     } finally {
       setLoading(false);
     }
@@ -74,11 +99,11 @@ export default function LoginUser({ isOpen, onClose, onBack, onLoginSuccess }: L
     <div className={`${styles.overlay} ${isOpen ? styles.overlayShow : ''}`}>
       <section className={styles.modalBox}>
 
-        <button className={styles.backButton} onClick={onBack}>
+        <button className={styles.backButton} onClick={onBack} type="button">
           &#8592;
         </button>
 
-        <button className={styles.closeButton} onClick={onClose}>
+        <button className={styles.closeButton} onClick={onClose} type="button">
           &times;
         </button>
 
@@ -124,8 +149,8 @@ export default function LoginUser({ isOpen, onClose, onBack, onLoginSuccess }: L
             />
           </div>
 
-          <button className={styles.submitButton} type="submit">
-            Iniciar sesión
+          <button className={styles.submitButton} type="submit" disabled={loading}>
+            {loading ? "Entrando..." : "Iniciar sesión"}
           </button>
 
         </form>
