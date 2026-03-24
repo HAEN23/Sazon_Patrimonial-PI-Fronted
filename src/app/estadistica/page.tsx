@@ -8,13 +8,11 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, ArcElement, T
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
 
-// 👇 NUEVO: Definimos el icono de corazón como un SVG aquí mismo
-// Esto nos permite controlar su color exactamente con CSS.
+// Icono de corazón
 const HeartIcon = () => (
   <svg 
     viewBox="0 0 24 24" 
-    className={styles['icono-tarjeta']} // Reutiliza la clase existente para tamaño y margen
-    // 🔥 AQUÍ ESTÁ LA MAGIA: Le decimos que se llene del color marrón (#6b1e1e)
+    className={styles['icono-tarjeta']}
     style={{ fill: '#6b1e1e' }} 
     xmlns="http://www.w3.org/2000/svg"
   >
@@ -67,6 +65,13 @@ export default function EstadisticasPage() {
   }, []);
 
   // Configuraciones comunes
+  const opcionesGeneral = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+  };
+
   const opcionesTooltip = (datos: number[], suffix: string) => ({
     responsive: true, maintainAspectRatio: false, plugins: { 
       legend: { display: false },
@@ -75,7 +80,10 @@ export default function EstadisticasPage() {
     scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
   });
 
-  // Gráficas existentes
+  // Gráficas existentes actualizadas
+  const configLikes = { labels: ['Total de Likes'], datasets: [{ label: 'Likes', data: [estadisticasReales.likes], backgroundColor: '#6b1e1e', borderRadius: 4 }] };
+  const configDescargas = { labels: ['Total de Descargas'], datasets: [{ label: 'Descargas', data: [estadisticasReales.descargasMenu], backgroundColor: '#e69b35', borderRadius: 4 }] };
+  
   const configAspectos = {
     labels: ['Comida', 'Ubicación', 'Recomend.', 'Horario', 'Vista', 'Limpieza'],
     datasets: [{ data: estadisticasReales.statsAspectos, backgroundColor: ['#6b1e1e', '#a83232', '#d65c5c', '#e88e8e', '#f5c6c6', '#f2dfdf'], borderRadius: 4 }],
@@ -125,16 +133,15 @@ export default function EstadisticasPage() {
       ) : (
         <div className={styles.gridTarjetas}>
         
-        {/* GRUPO 1: CONTADORES NUMÉRICOS */}
+        {/* GRUPO 1: AHORA SON GRÁFICAS DE BARRAS TAMBIÉN */}
         
         {/* Tarjeta: LIKES */}
         <div className={`${styles.tarjeta} ${styles['efecto-brillante']}`}>
-          {/* 👇 AQUÍ ESTÁ EL CAMBIO: Reemplazamos <img> por <HeartIcon /> */}
           <HeartIcon />
-          
           <h3>LIKES RECIBIDOS</h3>
-          <div className={styles['descargas-info']}>
-            <p>Total acumulados <span className={styles['numero-fuerte']}>{estadisticasReales.likes}</span></p>
+          {/* Se eliminaron los números grandes y se agregó la gráfica de barras */}
+          <div className={styles['barras-aspectos']}>
+            <Bar data={configLikes} options={opcionesGeneral} />
           </div>
           <div className={styles['aumento-container']}>
             <img src="/images/aumento.png" className={styles['icono-aumento']} alt="Aumento" />
@@ -146,8 +153,9 @@ export default function EstadisticasPage() {
         <div className={`${styles.tarjeta} ${styles['efecto-brillante']}`}>
           <img src="/images/descargas-menu.png" alt="Descargas" className={styles['icono-tarjeta']} />
           <h3>DESCARGAS DE MENÚ</h3>
-          <div className={styles['descargas-info']}>
-            <p>Total acumulados <span className={styles['numero-fuerte']}>{estadisticasReales.descargasMenu}</span></p>
+          {/* Se eliminaron los números grandes y se agregó la gráfica de barras */}
+          <div className={styles['barras-aspectos']}>
+            <Bar data={configDescargas} options={opcionesGeneral} />
           </div>
           <div className={styles['aumento-container']}>
             <img src="/images/aumento.png" className={styles['icono-aumento']} alt="Aumento" />
