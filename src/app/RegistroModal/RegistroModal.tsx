@@ -31,6 +31,9 @@ export default function RegistroModal({
     tipo: "usuario" // Valores: 'usuario' | 'restaurantero'
   });
 
+  // NUEVO: Estado para el checkbox
+  const [aceptaTerminos, setAceptaTerminos] = useState(false);
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -47,6 +50,12 @@ export default function RegistroModal({
     // 1. Validar contraseñas
     if (formData.contrasena !== formData.confirmar) {
       alert("Las contraseñas no coinciden");
+      return;
+    }
+
+    // NUEVO: Validar que aceptó los términos
+    if (!aceptaTerminos) {
+      setError("Debes aceptar los Términos y Condiciones para registrarte.");
       return;
     }
 
@@ -108,7 +117,7 @@ export default function RegistroModal({
         const usuarioData = data.user || data.data?.user || { rol: "usuario" };
         localStorage.setItem("user", JSON.stringify(usuarioData));
 
-        // 4. Limpiar formulario
+        // 4. Limpiar formulario y checkbox
         setFormData({
           nombre: "",
           correo: "",
@@ -116,6 +125,7 @@ export default function RegistroModal({
           confirmar: "",
           tipo: "usuario"
         });
+        setAceptaTerminos(false);
 
         // 5. Mensaje de éxito
         alert("Registro exitoso");
@@ -235,14 +245,28 @@ export default function RegistroModal({
               />
             </div>
 
+            {/* NUEVO: Contenedor del aviso, usando estilos integrados para no alterar tu CSS */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginTop: '10px' }}>
+              <input
+                type="checkbox"
+                id="terminos"
+                checked={aceptaTerminos}
+                onChange={(e) => setAceptaTerminos(e.target.checked)}
+                required
+                style={{ marginTop: '3px', cursor: 'pointer' }}
+              />
+              <label htmlFor="terminos" style={{ fontSize: '12px', textAlign: 'justify', lineHeight: '1.4', cursor: 'pointer' }}>
+                He leído y acepto los <strong>Términos y Condiciones</strong>. Consiento que mis datos personales sean tratados conforme a la <em>Ley de Protección de Datos Personales</em>.
+              </label>
+            </div>
+
             {error && <p style={{color: '#912F2F', textAlign: 'center', marginTop: '10px'}}>{error}</p>}
 
-            {/* Este botón usa una clase diferente en tus capturas, parece ser 'botonRegistrar' o similar */}
-            {/* Si no tienes esa clase específica en tu CSS actual, usa este estilo inline para igualar el color */}
+            {/* Este botón conserva exactamente el estilo que nos enviaste */}
             <button 
               className={styles.roleButton} 
               type="submit" 
-              disabled={loading}
+              disabled={loading || !aceptaTerminos}
               style={{
                 marginTop: '20px',
                 backgroundColor: '#742A2A', /* Color marrón oscuro de la imagen */
