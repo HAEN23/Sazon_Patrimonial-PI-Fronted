@@ -23,10 +23,11 @@ export default function EstadisticasPage() {
     likes: 0,
     descargasMenu: 0,
     respuestasEncuesta: 0,
-    statsAspectos: [0, 0, 0, 0, 0],
-    votosAspectos: [0, 0, 0, 0, 0], // 👈 Guardamos los votos reales de aspectos
+    // AHORA SON 6 CEROS (Agregamos espacio para limpieza)
+    statsAspectos: [0, 0, 0, 0, 0, 0],
+    votosAspectos: [0, 0, 0, 0, 0, 0], 
     statsOrigen: [0, 0],
-    votosOrigen: [0, 0],           // 👈 Guardamos los votos reales de origen
+    votosOrigen: [0, 0],
     statsRecomendacion: [0, 0, 0, 0, 0]
   });
 
@@ -59,8 +60,9 @@ export default function EstadisticasPage() {
         if (data.success) {
           setEstadisticasReales({
              ...data.data,
-             votosAspectos: data.data.votosAspectos || [0,0,0,0,0],
-             votosOrigen: data.data.votosOrigen || [0,0]
+             // Aseguramos que si el backend manda 5, rellenamos con un 6to (hasta que actualices el backend)
+             votosAspectos: data.data.votosAspectos?.length === 6 ? data.data.votosAspectos : [...(data.data.votosAspectos || [0,0,0,0,0]), 0],
+             statsAspectos: data.data.statsAspectos?.length === 6 ? data.data.statsAspectos : [...(data.data.statsAspectos || [0,0,0,0,0]), 0]
           });
         }
       } catch (error) {
@@ -77,7 +79,6 @@ export default function EstadisticasPage() {
     scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
   };
 
-  // 🔥 PERSONALIZAMOS EL TOOLTIP DE BARRAS (ASPECTOS)
   const opcionesAspectos = {
     responsive: true,
     maintainAspectRatio: false,
@@ -86,9 +87,8 @@ export default function EstadisticasPage() {
       tooltip: {
         callbacks: {
           label: function(context: any) {
-            // Buscamos cuántas personas reales votaron por esta barra usando el índice
             const index = context.dataIndex;
-            const votos = estadisticasReales.votosAspectos[index];
+            const votos = estadisticasReales.votosAspectos[index] || 0;
             return ` ${votos} persona${votos === 1 ? '' : 's'} eligieron esto`;
           }
         }
@@ -108,11 +108,13 @@ export default function EstadisticasPage() {
   };
 
   const configAspectos = {
-    labels: ['Comida', 'Ubicación', 'Recomend.', 'Horario', 'Vista'],
+    // AGREGAMOS 'Limpieza' al final
+    labels: ['Comida', 'Ubicación', 'Recomend.', 'Horario', 'Vista', 'Limpieza'],
     datasets: [{ 
       label: 'Porcentaje', 
-      data: estadisticasReales.statsAspectos?.length === 5 ? estadisticasReales.statsAspectos : [0, 0, 0, 0, 0], 
-      backgroundColor: ['#6b1e1e', '#a83232', '#d65c5c', '#e88e8e', '#f5c6c6'], 
+      data: estadisticasReales.statsAspectos, 
+      // AGREGAMOS UN SEXTO COLOR ('#f2dfdf') para la nueva barra
+      backgroundColor: ['#6b1e1e', '#a83232', '#d65c5c', '#e88e8e', '#f5c6c6', '#f2dfdf'], 
       borderRadius: 4 
     }],
   };
@@ -122,7 +124,6 @@ export default function EstadisticasPage() {
     datasets: [{ label: 'Votos', data: estadisticasReales.statsRecomendacion, backgroundColor: '#6b1e1e', borderRadius: 4 }],
   };
 
-  // 🔥 NORMALIZAMOS ORIGEN
   const localesVal = estadisticasReales.statsOrigen?.[0] || 0;
   const extranjerosVal = estadisticasReales.statsOrigen?.[1] || 0;
   const totalOrigen = localesVal + extranjerosVal;
@@ -140,7 +141,6 @@ export default function EstadisticasPage() {
     }],
   };
 
-  // 🔥 PERSONALIZAMOS EL TOOLTIP DEL PASTEL (ORIGEN)
   const opcionesPie = {
     responsive: true,
     maintainAspectRatio: false,
@@ -151,7 +151,7 @@ export default function EstadisticasPage() {
           label: function(context: any) {
             if (totalOrigen === 0) return " Sin datos aún";
             const index = context.dataIndex;
-            const votos = estadisticasReales.votosOrigen[index];
+            const votos = estadisticasReales.votosOrigen[index] || 0;
             return ` ${votos} visitante${votos === 1 ? '' : 's'}`;
           }
         }
@@ -159,7 +159,6 @@ export default function EstadisticasPage() {
     }
   };
 
-  // Verificar si hay estadísticas disponibles
   const hayEstadisticas = estadisticasReales.likes > 0 || 
                           estadisticasReales.descargasMenu > 0 || 
                           estadisticasReales.respuestasEncuesta > 0;
@@ -202,6 +201,8 @@ export default function EstadisticasPage() {
             <p><span style={{color: '#d65c5c'}}>■</span> Recomendación {estadisticasReales.statsAspectos?.[2] || 0}%</p>
             <p><span style={{color: '#e88e8e'}}>■</span> Horario {estadisticasReales.statsAspectos?.[3] || 0}%</p>
             <p><span style={{color: '#f5c6c6'}}>■</span> Vista {estadisticasReales.statsAspectos?.[4] || 0}%</p>
+            {/* AGREGAMOS LA LEYENDA PARA LIMPIEZA */}
+            <p><span style={{color: '#f2dfdf'}}>■</span> Limpieza {estadisticasReales.statsAspectos?.[5] || 0}%</p>
           </div>
         </div>
 
