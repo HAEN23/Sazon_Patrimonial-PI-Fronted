@@ -8,6 +8,20 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, ArcElement, T
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
 
+// 👇 NUEVO: Definimos el icono de corazón como un SVG aquí mismo
+// Esto nos permite controlar su color exactamente con CSS.
+const HeartIcon = () => (
+  <svg 
+    viewBox="0 0 24 24" 
+    className={styles['icono-tarjeta']} // Reutiliza la clase existente para tamaño y margen
+    // 🔥 AQUÍ ESTÁ LA MAGIA: Le decimos que se llene del color marrón (#6b1e1e)
+    style={{ fill: '#6b1e1e' }} 
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+  </svg>
+);
+
 export default function EstadisticasPage() {
   const router = useRouter();
   const [estadisticasReales, setEstadisticasReales] = useState({
@@ -111,12 +125,13 @@ export default function EstadisticasPage() {
       ) : (
         <div className={styles.gridTarjetas}>
         
-        {/* GRUPO 1: CONTADORES NUMÉRICOS (Ahora aparecen primero) */}
+        {/* GRUPO 1: CONTADORES NUMÉRICOS */}
         
         {/* Tarjeta: LIKES */}
-        {/* 👇 CORRECCIÓN: Quitamos styles.tarjetaCentrada que descentraba */}
         <div className={`${styles.tarjeta} ${styles['efecto-brillante']}`}>
-          <img src="/images/rest_logo.png" alt="Likes" className={styles['icono-tarjeta']} />
+          {/* 👇 AQUÍ ESTÁ EL CAMBIO: Reemplazamos <img> por <HeartIcon /> */}
+          <HeartIcon />
+          
           <h3>LIKES RECIBIDOS</h3>
           <div className={styles['descargas-info']}>
             <p>Total acumulados <span className={styles['numero-fuerte']}>{estadisticasReales.likes}</span></p>
@@ -140,7 +155,7 @@ export default function EstadisticasPage() {
           </div>
         </div>
 
-        {/* GRUPO 2: GRÁFICAS DETALLADAS (Después) */}
+        {/* GRUPO 2: GRÁFICAS DETALLADAS */}
 
         {/* Tarjeta: ASPECTOS DESTACADOS */}
         <div className={`${styles.tarjeta} ${styles['efecto-brillante']}`}>
