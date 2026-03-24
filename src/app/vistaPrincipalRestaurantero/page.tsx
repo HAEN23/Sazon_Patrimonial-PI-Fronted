@@ -192,9 +192,9 @@ export default function VistaPrincipalRestaurantero() {
                 <div className={styles['card-restaurante']} style={{ cursor: 'pointer' }}>
                   <img src={rest.imagen} alt={rest.nombre} className={styles['imagen-restaurante']} style={{ objectFit: 'cover' }} />
                   <h3>{rest.nombre}</h3>
-                  <p>• {rest.etiqueta1}</p>
-                  {rest.etiqueta2 && <p>• {rest.etiqueta2}</p>}
-                  {rest.etiqueta3 && <p>• {rest.etiqueta3}</p>}
+                  <p style={{ fontWeight: 'bold', fontSize: '1.05rem' }}>• {rest.etiqueta1}</p>
+                  {rest.etiqueta2 && <p style={{ fontWeight: 'bold', fontSize: '1.05rem' }}>• {rest.etiqueta2}</p>}
+                  {rest.etiqueta3 && <p style={{ fontWeight: 'bold', fontSize: '1.05rem' }}>• {rest.etiqueta3}</p>}
                 </div>
               </Link>
             ))
