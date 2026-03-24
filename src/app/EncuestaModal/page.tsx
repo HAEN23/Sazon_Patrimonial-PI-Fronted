@@ -74,7 +74,7 @@ function EncuestaForm() {
         alt="Logo Sazón Patrimonial" 
         style={{ display: "block", margin: "0 auto 20px" }}
       />
-      {/* AQUÍ ESTÁ EL CAMBIO SOLICITADO */}
+      
       <h2 className={styles.titulo} style={{ textAlign: "center" }}>
         ¿Qué te atrajo más del lugar?
       </h2>
@@ -91,6 +91,8 @@ function EncuestaForm() {
             <option value="recomendacion">Recomendación</option>
             <option value="horario">El horario</option>
             <option value="vista">La vista</option>
+            {/* AQUÍ AGREGAMOS LA NUEVA OPCIÓN */}
+            <option value="limpieza">La limpieza</option>
           </select>
         </div>
 
