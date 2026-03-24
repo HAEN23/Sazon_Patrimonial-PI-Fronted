@@ -1,239 +1,200 @@
-/* DISEÑO ORIGINAL RESTAURADO */
+/* src/app/estadistica/estadistica.module.css */
+
 .contenedor {
-  width: 100%;
   min-height: 100vh;
-  background-color: #f5f5f5;
-  padding: 40px 60px;
-  font-family: 'Montserrat', sans-serif;
+  background-color: #fcf6f6; /* Rosa muy pálido de fondo */
+  padding: 40px 20px;
   position: relative;
+  font-family: 'Poppins', sans-serif;
+  box-sizing: border-box;
 }
 
 .btnBack {
   position: absolute;
-  top: 30px;
-  left: 30px;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  border: 2px solid #6b1e1e;
-  background: #fff;
+  top: 25px;
+  left: 25px;
+  background: none;
+  border: none;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: 8px;
+  transition: transform 0.2s;
+  z-index: 10;
 }
 
 .btnBack:hover {
-  background: #6b1e1e;
-  transform: scale(1.05);
-}
-
-.btnBack:hover svg {
-  stroke: #fff;
+  transform: scale(1.1);
 }
 
 .headerTitulo {
-  margin-top: 20px;
-  margin-bottom: 50px;
   text-align: center;
+  margin-bottom: 40px;
+  margin-top: 20px;
 }
 
 .titulo {
-  font-size: 2.5rem;
+  color: #6b1e1e; /* Marrón oscuro */
+  font-size: 28px;
   font-weight: 700;
-  color: #6b1e1e;
-  margin: 0 0 20px 0;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .lineaSeparadora {
-  width: 100%;
-  height: 3px;
-  background: #6b1e1e;
-  margin: 0 auto;
+  width: 100px;
+  height: 4px;
+  background-color: #e69b35; /* Naranja/Dorado */
+  margin: 15px auto 0;
+  border-radius: 2px;
 }
 
+/* 🔥 CUADRÍCULA CORREGIDA Y ACOMODADA */
 .gridTarjetas {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 30px;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-.tarjetaCentrada {
-  grid-column: 2 / 3;
-}
-
-.estadisticasVacias {
-  max-width: 700px;
-  margin: 80px auto;
-  padding: 80px 60px;
-  background: #fff;
-  border: 3px dashed #c06060;
-  border-radius: 12px;
-  text-align: center;
-  font-family: 'Montserrat', sans-serif;
-}
-
-.estadisticasVacias h2 {
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: #6b1e1e;
-  margin: 0 0 20px 0;
-}
-
-.estadisticasVacias p {
-  font-size: 1rem;
-  color: #666;
-  line-height: 1.6;
-  margin: 0;
-}
-
-/* CLASES ANTERIORES MANTENIDAS PARA COMPATIBILIDAD */
-.vista-principal { width: 100%; min-height: 100vh; background-color: #f5f5f5; }
-
-.header-principal {
-  position: fixed; top: 0; z-index: 1000; width: 100%;
-  background: #6b1e1e; color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-}
-
-.rectangle-parent {
-  display: flex; align-items: center; justify-content: flex-start;
-  height: 100px; padding-left: 40px; padding-right: 40px; gap: 32px;
-}
-
-.logo-blanco-parent { display: flex; align-items: center; gap: 10px; }
-.logo-blanco { height: 80px; width: auto; }
-.catlogo-de-restaurantes { font-size: 1.6rem; font-weight: 400; color: #fff; font-family: 'Montserrat', sans-serif; max-width: 200px; }
-
-.acciones-usuario { margin-left: auto; display: flex; gap: 18px; }
-.log-out-parent {
-  display: flex; align-items: center; gap: 8px; background: #8a2727;
-  border: none; border-radius: 8px; color: #fff; padding: 10px 18px;
-  font-size: 1rem; font-family: 'Montserrat', sans-serif; cursor: pointer; transition: background 0.2s;
-}
-.log-out-parent:hover { background: #521616; }
-.log-out-icon { height: 22px; width: 22px; }
-
-.icono-restaurantero { display: flex; align-items: center; }
-.icono-restaurantero img { height: 48px; width: 48px; border-radius: 50%; border: 2px solid white; }
-
-.restaurante-estadisticas-container {
-  max-width: 90%; margin: 140px auto 40px auto; background: #fff;
-  border-radius: 18px; padding: 32px 36px 36px 36px;
-  font-family: 'Montserrat', sans-serif; position: relative;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.btn-back {
-  background: none; border: none; position: absolute;
-  top: 24px; left: 24px; cursor: pointer; padding: 0; transition: transform 0.2s;
-}
-.btn-back:hover { transform: scale(1.1); }
-.icon-32 { width: 32px; height: 32px; }
-
-.restaurante-title {
-  text-align: center; font-size: 2.5rem; font-weight: 700;
-  color: #6b1e1e; margin: 0 0 8px 0;
-}
-
-.restaurante-divider {
-  border: none; border-top: 3px solid #6b1e1e; width: 80%;
-  margin: 0 auto 30px auto; border-radius: 2px;
-}
-
-.estadisticas-grid {
-  display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; margin-top: 20px;
+  /* Crea columnas automáticas y flexibles, mínimo 300px, máximo igual */
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 25px;
+  max-width: 1200px; /* Ancho máximo para que no se estiren demasiado */
+  margin: 0 auto;    /* Centra el grid en la pantalla */
+  padding: 0 10px;   /* Pequeño colchón lateral */
+  justify-content: center; /* Centra las tarjetas si hay espacios vacíos */
 }
 
 .tarjeta {
-  border: 2px solid #6b1e1e; border-radius: 12px; padding: 24px; width: 320px;
-  font-family: 'Montserrat', sans-serif; text-align: center; color: #6b1e1e;
-  background: #fff; display: flex; flex-direction: column; align-items: center;
-}
-
-.icono-tarjeta { 
-  width: 50px; 
-  height: 50px;
-  object-fit: contain;
-  margin-bottom: 12px;
-  filter: brightness(0) saturate(100%) invert(15%) sepia(62%) saturate(2273%) hue-rotate(340deg) brightness(92%) contrast(88%);
-}
-.tarjeta h3 { font-size: 1.1rem; margin-bottom: 20px; font-weight: bold; }
-
-.efecto-brillante { transition: transform 0.3s ease, box-shadow 0.3s ease; }
-.efecto-brillante:hover { transform: translateY(-5px); box-shadow: 0 8px 16px rgba(107, 30, 30, 0.2); }
-
-/* Contenidos específicos de tarjetas */
-.descargas-info { width: 100%; text-align: left; margin-bottom: 20px; font-size: 1.1rem; }
-.descargas-info p { display: flex; justify-content: space-between; margin: 8px 0; border-bottom: 1px solid #eee; padding-bottom: 5px; }
-.numero-fuerte { font-weight: bold; font-size: 1.2rem; }
-
-.aumento-container { display: flex; align-items: center; justify-content: center; gap: 15px; margin-top: auto; }
-.icono-aumento { width: 60px; height: auto; }
-.porcentaje-subida { font-size: 2rem; font-weight: bold; color: #6b1e1e; }
-
-.leyenda-origen { display: flex; justify-content: space-around; width: 100%; margin-bottom: 15px; }
-.locales { color: #6b1e1e; font-weight: bold; }
-.extranjeros { color: #e07878; font-weight: bold; }
-.grafico-pastel { width: 180px; height: 180px; margin: 0 auto; }
-
-.barras-aspectos { width: 100%; height: 160px; margin-bottom: 15px; }
-.leyenda-aspectos { text-align: left; width: 100%; font-size: 0.9rem; font-weight: bold; }
-.leyenda-aspectos p { margin: 4px 0; }
-.color-ambiente { color: #6b1e1e; font-size: 1.2rem; margin-right: 5px; }
-.color-comida { color: #c06060; font-size: 1.2rem; margin-right: 5px; }
-.color-higiene { color: #efcfcf; font-size: 1.2rem; margin-right: 5px; }
-
-/* Footer */
-.rectangle-container {
-  width: 100%; background: #6b1e1e; color: #fff; display: flex; flex-wrap: wrap;
-  align-items: flex-start; justify-content: space-between; padding: 32px 40px 20px 40px; gap: 32px;
-}
-.contctanos { font-size: 1.2rem; font-weight: 600; margin-bottom: 16px; width: 100%; }
-.contactos-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px 40px; }
-.contacto-item { display: flex; align-items: center; gap: 10px; font-size: 1rem; }
-.llamada-telefonica-2-icon { width: 26px; height: 26px; }
-.sazonpatrimonialgmailcom { font-size: 1rem; color: #fff; }
-.footer-logos { display: flex; align-items: center; gap: 18px; margin-left: auto; }
-.logo-blanco-2, .logo-equipo, .logo-universidad { height: 80px; width: auto; object-fit: contain; }
-
-/* ESTILOS PARA ESTADO SIN DATOS O CARGANDO */
-.loadingContainer {
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   text-align: center;
-  padding: 60px 20px;
-  font-size: 1.2rem;
-  color: #666;
-  font-weight: 500;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 380px; /* Asegura que todas tengan la misma altura mínima */
 }
 
-.noDataContainer {
+.tarjeta:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(107, 30, 30, 0.1);
+}
+
+.icono-tarjeta {
+  width: 50px;
+  height: 50px;
+  margin-bottom: 15px;
+  object-fit: contain;
+}
+
+.tarjeta h3 {
+  color: #a83232; /* Rojo oscuro suave */
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 20px 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Estilos para likes y descargas (los contadores) */
+.descargas-info {
+  margin-top: auto;   /* Empuja hacia abajo */
+  margin-bottom: auto; /* Empuja hacia arriba (centra verticalmente) */
+}
+
+.descargas-info p {
+  color: #333;
+  font-size: 14px;
+  margin: 8px 0;
+}
+
+.numero-fuerte {
+  color: #6b1e1e;
+  font-size: 36px;
+  font-weight: 800;
+  display: block;
+  margin-top: 5px;
+}
+
+.aumento-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #fff4e5; /* Fondo naranja pálido */
+  padding: 6px 12px;
+  border-radius: 20px;
+  margin-top: 15px;
+  position: absolute;
+  top: 15px;
+  right: 15px;
+}
+
+.icono-aumento {
+  width: 16px;
+  height: 16px;
+}
+
+.porcentaje-subida {
+  color: #e69b35;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Contenedores de Gráficas */
+.barras-aspectos,
+.grafico-pastel {
+  width: 100%;
+  height: 220px; /* Altura fija para las gráficas */
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 40px 20px 80px 20px;
+  margin-top: auto; /* Empuja la gráfica hacia abajo de la tarjeta */
 }
 
-.noDataBox {
-  background-color: #fcfcfc;
-  border: 2px dashed #d1a3a3;
-  border-radius: 15px;
-  padding: 50px 40px;
+/* Pantalla vacía */
+.estadisticasVacias {
   text-align: center;
-  max-width: 600px;
+  color: #a87c7c;
+  padding: 60px 20px;
 }
 
-.noDataBox h2 {
-  color: #6b1e1e;
+.estadisticasVacias h2 {
+  font-size: 22px;
   margin-bottom: 15px;
-  font-size: 1.5rem;
 }
 
-.noDataBox p {
-  color: #555;
+.estadisticasVacias p {
+  max-width: 500px;
+  margin: 0 auto;
   line-height: 1.6;
-  font-size: 1.05rem;
+}
+
+/* Efecto brillante original... */
+.efecto-brillante::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    to bottom right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0) 40%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0) 60%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: rotate(45deg);
+  transition: all 0.6s ease;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.efecto-brillante:hover::after {
+  left: 100%;
+  top: 100%;
 }

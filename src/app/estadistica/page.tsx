@@ -53,13 +53,6 @@ export default function EstadisticasPage() {
   }, []);
 
   // Configuraciones comunes
-  const opcionesGeneral = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
-    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
-  };
-
   const opcionesTooltip = (datos: number[], suffix: string) => ({
     responsive: true, maintainAspectRatio: false, plugins: { 
       legend: { display: false },
@@ -69,8 +62,6 @@ export default function EstadisticasPage() {
   });
 
   // Gráficas existentes
-  const configLikes = { labels: ['Total'], datasets: [{ label: 'Likes', data: [estadisticasReales.likes], backgroundColor: '#6b1e1e', borderRadius: 4 }] };
-  const configDescargas = { labels: ['Total'], datasets: [{ label: 'Descargas', data: [estadisticasReales.descargasMenu], backgroundColor: '#e69b35', borderRadius: 4 }] };
   const configAspectos = {
     labels: ['Comida', 'Ubicación', 'Recomend.', 'Horario', 'Vista', 'Limpieza'],
     datasets: [{ data: estadisticasReales.statsAspectos, backgroundColor: ['#6b1e1e', '#a83232', '#d65c5c', '#e88e8e', '#f5c6c6', '#f2dfdf'], borderRadius: 4 }],
@@ -120,21 +111,11 @@ export default function EstadisticasPage() {
       ) : (
         <div className={styles.gridTarjetas}>
         
-        {/* TARJETAS ORIGINALES (Aspectos y Origen) */}
+        {/* GRUPO 1: CONTADORES NUMÉRICOS (Ahora aparecen primero) */}
+        
+        {/* Tarjeta: LIKES */}
+        {/* 👇 CORRECCIÓN: Quitamos styles.tarjetaCentrada que descentraba */}
         <div className={`${styles.tarjeta} ${styles['efecto-brillante']}`}>
-          <img src="/images/aspectos.png" alt="Aspectos" className={styles['icono-tarjeta']} />
-          <h3>ASPECTOS DESTACADOS</h3>
-          <div className={styles['barras-aspectos']}><Bar data={configAspectos} options={{...opcionesTooltip(estadisticasReales.votosAspectos, 'votos'), scales: { y: { max: 100 }}}} /></div>
-        </div>
-
-        <div className={`${styles.tarjeta} ${styles['efecto-brillante']}`}>
-          <img src="/images/visitas.png" alt="Origen" className={styles['icono-tarjeta']} />
-          <h3>INTERÉS POR ORIGEN</h3>
-          <div className={styles['grafico-pastel']}><Pie data={configOrigen} /></div>
-        </div>
-
-        {/* TARJETAS RESTAURADAS (Likes y Descargas de menú) */}
-        <div className={`${styles.tarjeta} ${styles['efecto-brillante']} ${styles.tarjetaCentrada}`}>
           <img src="/images/rest_logo.png" alt="Likes" className={styles['icono-tarjeta']} />
           <h3>LIKES RECIBIDOS</h3>
           <div className={styles['descargas-info']}>
@@ -144,16 +125,13 @@ export default function EstadisticasPage() {
             <img src="/images/aumento.png" className={styles['icono-aumento']} alt="Aumento" />
             <span className={styles['porcentaje-subida']}>En vivo</span>
           </div>
-          <div className={styles['barras-aspectos']}>
-            <Bar data={configLikes} options={opcionesGeneral} />
-          </div>
         </div>
 
+        {/* Tarjeta: DESCARGAS */}
         <div className={`${styles.tarjeta} ${styles['efecto-brillante']}`}>
           <img src="/images/descargas-menu.png" alt="Descargas" className={styles['icono-tarjeta']} />
           <h3>DESCARGAS DE MENÚ</h3>
           <div className={styles['descargas-info']}>
-            <p>Esta semana <span className={styles['numero-fuerte']}>{estadisticasReales.descargasMenu}</span></p>
             <p>Total acumulados <span className={styles['numero-fuerte']}>{estadisticasReales.descargasMenu}</span></p>
           </div>
           <div className={styles['aumento-container']}>
@@ -162,7 +140,23 @@ export default function EstadisticasPage() {
           </div>
         </div>
 
-        {/* NUEVAS TARJETAS (Platillos y Mejoras) */}
+        {/* GRUPO 2: GRÁFICAS DETALLADAS (Después) */}
+
+        {/* Tarjeta: ASPECTOS DESTACADOS */}
+        <div className={`${styles.tarjeta} ${styles['efecto-brillante']}`}>
+          <img src="/images/aspectos.png" alt="Aspectos" className={styles['icono-tarjeta']} />
+          <h3>ASPECTOS DESTACADOS</h3>
+          <div className={styles['barras-aspectos']}><Bar data={configAspectos} options={{...opcionesTooltip(estadisticasReales.votosAspectos, 'votos'), scales: { y: { max: 100 }}}} /></div>
+        </div>
+
+        {/* Tarjeta: ORIGEN */}
+        <div className={`${styles.tarjeta} ${styles['efecto-brillante']}`}>
+          <img src="/images/visitas.png" alt="Origen" className={styles['icono-tarjeta']} />
+          <h3>INTERÉS POR ORIGEN</h3>
+          <div className={styles['grafico-pastel']}><Pie data={configOrigen} /></div>
+        </div>
+
+        {/* Tarjeta: PLATILLOS FAVORITOS */}
         <div className={`${styles.tarjeta} ${styles['efecto-brillante']}`}>
           <img src="/images/coctel.png" alt="Platillos" className={styles['icono-tarjeta']} />
           <h3 style={{fontSize: '12px'}}>PLATILLOS/BEBIDAS FAVORITAS</h3>
@@ -171,6 +165,7 @@ export default function EstadisticasPage() {
           </div>
         </div>
 
+        {/* Tarjeta: ÁREAS DE OPORTUNIDAD */}
         <div className={`${styles.tarjeta} ${styles['efecto-brillante']}`}>
           <img src="/images/estadisticas.png" alt="Mejoras" className={styles['icono-tarjeta']} />
           <h3 style={{fontSize: '12px'}}>ÁREAS DE OPORTUNIDAD</h3>
