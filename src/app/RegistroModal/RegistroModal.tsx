@@ -31,8 +31,8 @@ export default function RegistroModal({
     tipo: "usuario" // Valores: 'usuario' | 'restaurantero'
   });
 
-  // Estado para el checkbox
-  const [aceptaTerminos, setAceptaTerminos] = useState(false);
+  // NUEVO: Estado para controlar si el mini modal de términos está visible
+  const [showTermsModal, setShowTermsModal] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -43,29 +43,27 @@ export default function RegistroModal({
     });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Esta función ahora solo valida y abre el mini modal
+  const handleInitialSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    // 1. Validar contraseñas
+    // Validar contraseñas
     if (formData.contrasena !== formData.confirmar) {
       alert("Las contraseñas no coinciden");
       return;
     }
 
-    // NUEVO: Alerta si no marcan la casilla de términos
-    if (!aceptaTerminos) {
-      alert("Debes aceptar los Términos y Condiciones para poder registrarte.");
-      return;
-    }
+    // Si todo está bien, mostramos el mini modal de términos y condiciones
+    setShowTermsModal(true);
+  };
 
+  // Esta es la función que realmente envía los datos al backend si aceptan los términos
+  const confirmRegistration = async () => {
     setLoading(true);
 
     try {
-      // 2. Determinar el ID del Rol
       const rolId = formData.tipo === "restaurantero" ? 2 : 3;
-
-      // 3. Petición REAL al Backend
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api';
 
       const response = await fetch(`${apiUrl}/client/register`, { 
@@ -98,25 +96,19 @@ export default function RegistroModal({
         throw new Error(errorMsg);
       }
 
-      // Si todo salió bien, convertir a JSON
       const data = JSON.parse(textResponse);
 
-      // 4. Si todo salió bien
       if (data.success) {
-        // Limpiamos cualquier sesión fantasma anterior
         localStorage.removeItem("userRole");
         localStorage.removeItem("user");
 
-        // Guardamos la nueva sesión explícitamente como 'usuario'
         localStorage.setItem("sesionActiva", "usuario");
         localStorage.setItem("userRole", "usuario");
         localStorage.setItem("token", data.token || data.data?.token);
 
-        // Guardamos el objeto user por si otras vistas lo necesitan
         const usuarioData = data.user || data.data?.user || { rol: "usuario" };
         localStorage.setItem("user", JSON.stringify(usuarioData));
 
-        // Limpiar formulario y checkbox
         setFormData({
           nombre: "",
           correo: "",
@@ -124,12 +116,10 @@ export default function RegistroModal({
           confirmar: "",
           tipo: "usuario"
         });
-        setAceptaTerminos(false);
-
-        // Mensaje de éxito
+        
+        setShowTermsModal(false); // Cerramos el mini modal
         alert("Registro exitoso");
 
-        // Redirección
         if (formData.tipo === "restaurantero") {
           onClose();
           router.push("/vistaPrincipalRestaurantero");
@@ -139,12 +129,14 @@ export default function RegistroModal({
         }
       } else {
         setError(data.message || data.error || 'Error al registrar usuario.');
+        setShowTermsModal(false);
       }
 
     } catch (err: any) {
       console.error("Error de registro:", err);
       alert(err.message);
       setError(err.message);
+      setShowTermsModal(false);
     } finally {
       setLoading(false);
     }
@@ -153,136 +145,153 @@ export default function RegistroModal({
   if (!isOpen) return null;
 
   return (
-    <div className={`${styles.overlay} ${isOpen ? styles.overlayShow : ''}`}>
-      <section className={styles.modalBox}>
+    <>
+      <div className={`${styles.overlay} ${isOpen ? styles.overlayShow : ''}`}>
+        <section className={styles.modalBox}>
 
-        <button className={styles.backButton} onClick={onBack} type="button">
-          &#8592;
-        </button>
+          <button className={styles.backButton} onClick={onBack} type="button">
+            &#8592;
+          </button>
 
-        <button className={styles.closeButton} onClick={onClose} type="button">
-          &times;
-        </button>
+          <button className={styles.closeButton} onClick={onClose} type="button">
+            &times;
+          </button>
 
-        <div className={styles.viewContainer}>
-          <Image
-            src="/images/logo_sp_rojo.png"
-            alt="Logo"
-            width={100}
-            height={100}
-            className={styles.logo}
-          />
+          <div className={styles.viewContainer}>
+            <Image
+              src="/images/logo_sp_rojo.png"
+              alt="Logo"
+              width={100}
+              height={100}
+              className={styles.logo}
+            />
 
-          <h4 className={styles.titulo}>Registro de usuario</h4>
+            <h4 className={styles.titulo}>Registro de usuario</h4>
 
-          <form className={styles.formContainer} onSubmit={handleSubmit} style={{width: '100%'}}>
-            
-            <div className={styles.inputGroup}>
-              <label className={styles.label}>Nombre:</label>
-              <input
-                className={styles.controls}
-                type="text"
-                name="nombre"
-                value={formData.nombre}
-                onChange={handleChange}
-                placeholder="Ingrese su nombre"
-                required
-              />
-            </div>
+            {/* Fíjate que el onSubmit ahora llama a handleInitialSubmit */}
+            <form className={styles.formContainer} onSubmit={handleInitialSubmit} style={{width: '100%'}}>
+              
+              <div className={styles.inputGroup}>
+                <label className={styles.label}>Nombre:</label>
+                <input className={styles.controls} type="text" name="nombre" value={formData.nombre} onChange={handleChange} placeholder="Ingrese su nombre" required />
+              </div>
 
-            <div className={styles.inputGroup}>
-              <label className={styles.label}>Correo:</label>
-              <input
-                className={styles.controls}
-                type="email"
-                name="correo"
-                value={formData.correo}
-                onChange={handleChange}
-                placeholder="Ingrese su correo"
-                required
-              />
-            </div>
+              <div className={styles.inputGroup}>
+                <label className={styles.label}>Correo:</label>
+                <input className={styles.controls} type="email" name="correo" value={formData.correo} onChange={handleChange} placeholder="Ingrese su correo" required />
+              </div>
 
-            <div className={styles.inputGroup}>
-              <label className={styles.label}>Tipo de cuenta:</label>
-              <select
-                className={styles.controls}
-                name="tipo"
-                value={formData.tipo}
-                onChange={handleChange}
+              <div className={styles.inputGroup}>
+                <label className={styles.label}>Tipo de cuenta:</label>
+                <select className={styles.controls} name="tipo" value={formData.tipo} onChange={handleChange}>
+                  <option value="usuario">Usuario</option>
+                  <option value="restaurantero">Restaurantero</option>
+                </select>
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label className={styles.label}>Contraseña:</label>
+                <input className={styles.controls} type="password" name="contrasena" value={formData.contrasena} onChange={handleChange} placeholder="Ingrese su contraseña" required minLength={6} />
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label className={styles.label}>Confirmar contraseña:</label>
+                <input className={styles.controls} type="password" name="confirmar" value={formData.confirmar} onChange={handleChange} placeholder="Confirmar contraseña" required minLength={6} />
+              </div>
+
+              {error && <p style={{color: '#912F2F', textAlign: 'center', marginTop: '10px'}}>{error}</p>}
+
+              <button 
+                className={styles.roleButton} 
+                type="submit" 
+                style={{
+                  marginTop: '20px',
+                  backgroundColor: '#742A2A',
+                  color: 'white',
+                  width: '100%',
+                  borderRadius: '8px',
+                  padding: '12px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontWeight: 'bold'
+                }}
               >
-                <option value="usuario">Usuario</option>
-                <option value="restaurantero">Restaurantero</option>
-              </select>
+                Registrarse
+              </button>
+            </form>
+          </div>
+        </section>
+      </div>
+
+      {/* NUEVO: MINI MODAL DE TÉRMINOS Y CONDICIONES */}
+      {showTermsModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          backgroundColor: 'rgba(0, 0, 0, 0.6)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 9999 /* Asegura que esté por encima del otro modal */
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            padding: '25px',
+            borderRadius: '12px',
+            width: '90%',
+            maxWidth: '400px',
+            boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+            textAlign: 'center',
+            fontFamily: 'system-ui, -apple-system, sans-serif'
+          }}>
+            <h3 style={{ color: '#742A2A', marginBottom: '15px', marginTop: 0 }}>Aviso de Privacidad</h3>
+            
+            <p style={{ fontSize: '14px', color: '#444', textAlign: 'justify', lineHeight: '1.5', marginBottom: '25px' }}>
+              Para completar tu registro, es necesario que aceptes nuestros <strong>Términos y Condiciones</strong>. <br/><br/>
+              Al continuar, consientes que tus datos personales sean tratados conforme a la <em>Ley de Protección de Datos Personales</em>, con la finalidad exclusiva de gestionar tu acceso y perfil dentro de la plataforma.
+            </p>
+
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+              <button 
+                onClick={() => setShowTermsModal(false)}
+                disabled={loading}
+                style={{
+                  padding: '10px 15px',
+                  backgroundColor: '#e0e0e0',
+                  color: '#333',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  fontWeight: 'bold',
+                  flex: 1
+                }}
+              >
+                Cancelar
+              </button>
+              
+              <button 
+                onClick={confirmRegistration}
+                disabled={loading}
+                style={{
+                  padding: '10px 15px',
+                  backgroundColor: '#742A2A',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  fontWeight: 'bold',
+                  flex: 1
+                }}
+              >
+                {loading ? "Procesando..." : "Aceptar y Continuar"}
+              </button>
             </div>
-
-            <div className={styles.inputGroup}>
-              <label className={styles.label}>Contraseña:</label>
-              <input
-                className={styles.controls}
-                type="password"
-                name="contrasena"
-                value={formData.contrasena}
-                onChange={handleChange}
-                placeholder="Ingrese su contraseña"
-                required
-                minLength={6}
-              />
-            </div>
-
-            <div className={styles.inputGroup}>
-              <label className={styles.label}>Confirmar contraseña:</label>
-              <input
-                className={styles.controls}
-                type="password"
-                name="confirmar"
-                value={formData.confirmar}
-                onChange={handleChange}
-                placeholder="Confirmar contraseña"
-                required
-                minLength={6}
-              />
-            </div>
-
-            {/* Cuadro de Términos y Condiciones */}
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginTop: '10px' }}>
-              <input
-                type="checkbox"
-                id="terminos"
-                checked={aceptaTerminos}
-                onChange={(e) => setAceptaTerminos(e.target.checked)}
-                /* Se quita el 'required' de HTML para que el form intente enviarse y podamos lanzar el alert() personalizado */
-                style={{ marginTop: '3px', cursor: 'pointer' }}
-              />
-              <label htmlFor="terminos" style={{ fontSize: '12px', textAlign: 'justify', lineHeight: '1.4', cursor: 'pointer' }}>
-                He leído y acepto los <strong>Términos y Condiciones</strong>. Consiento que mis datos personales sean tratados conforme a la <em>Ley de Protección de Datos Personales</em>.
-              </label>
-            </div>
-
-            {error && <p style={{color: '#912F2F', textAlign: 'center', marginTop: '10px'}}>{error}</p>}
-
-            {/* Botón original sin alteraciones */}
-            <button 
-              className={styles.roleButton} 
-              type="submit" 
-              disabled={loading}
-              style={{
-                marginTop: '20px',
-                backgroundColor: '#742A2A', /* Color marrón oscuro de la imagen */
-                color: 'white',
-                width: '100%',
-                borderRadius: '8px',
-                padding: '12px',
-                border: 'none',
-                cursor: 'pointer',
-                fontWeight: 'bold'
-              }}
-            >
-              {loading ? "Registrando..." : "Registrarse"}
-            </button>
-          </form>
+          </div>
         </div>
-      </section>
-    </div>
+      )}
+    </>
   );
 }
