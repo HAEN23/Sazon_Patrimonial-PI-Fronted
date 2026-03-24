@@ -87,10 +87,49 @@ function EncuestaForm() {
       
       <form className={styles.formContainer} onSubmit={handleSubmit}>
         
-        {/* PREGUNTA 1 */}
-        <h2 className={styles.titulo} style={{ textAlign: "center", fontSize: '18px' }}>¿Qué te atrajo más del lugar?</h2>
+        {/* PREGUNTA 1: MEJORAS (Movida al principio) */}
+        <h2 className={styles.titulo} style={{ textAlign: "center", fontSize: '20px', fontWeight: 'bold' }}>¿Qué aspecto puede mejorar el establecimiento?</h2>
         <div className={styles['select-container']} style={{ marginBottom: "20px" }}>
-          <select className={styles['selec-filtro']} value={atraccion} onChange={(e) => setAtraccion(e.target.value)}>
+          <select 
+            className={styles['selec-filtro']} 
+            value={mejora} 
+            onChange={(e) => setMejora(e.target.value)}
+            style={{ fontSize: '16px', fontWeight: 'bold', padding: '10px' }}
+          >
+            <option value="" disabled>Selecciona una opción</option>
+            <option value="limpieza">La limpieza</option>
+            <option value="tiempo">Tiempo de espera de la comida</option>
+            <option value="comida">La comida</option>
+            <option value="etiquetas">Cumplir con las etiquetas asignadas</option>
+            <option value="atencion">Atención al comensal</option>
+          </select>
+        </div>
+
+        {/* PREGUNTA 2: PLATILLOS (Movida al segundo lugar) */}
+        <h2 className={styles.titulo} style={{ textAlign: "center", fontSize: '20px', fontWeight: 'bold' }}>¿Qué platillo o bebida te llamó la atención? (Elige máxima 2 opciones)</h2>
+        <div style={{ marginBottom: "20px", display: 'flex', flexDirection: 'column', gap: '12px', padding: '0 10px' }}>
+          {['Tostadas', 'Garnachas', 'Empanadas', 'Gorditas', 'Pozol'].map(item => (
+            <label key={item} style={{ cursor: 'pointer', fontSize: '18px', color: '#333', fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+              <input 
+                type="checkbox" 
+                checked={platillos.includes(item)}
+                onChange={() => handlePlatilloChange(item)}
+                style={{ marginRight: '12px', width: '22px', height: '22px', accentColor: '#742A2A', cursor: 'pointer' }}
+              />
+              {item}
+            </label>
+          ))}
+        </div>
+
+        {/* PREGUNTA 3: ATRACCIÓN */}
+        <h2 className={styles.titulo} style={{ textAlign: "center", fontSize: '20px', fontWeight: 'bold' }}>¿Qué te atrajo más del lugar?</h2>
+        <div className={styles['select-container']} style={{ marginBottom: "20px" }}>
+          <select 
+            className={styles['selec-filtro']} 
+            value={atraccion} 
+            onChange={(e) => setAtraccion(e.target.value)}
+            style={{ fontSize: '16px', fontWeight: 'bold', padding: '10px' }}
+          >
             <option value="" disabled>Selecciona una opción</option>
             <option value="comida">La comida</option>
             <option value="ubicacion">La ubicación</option>
@@ -101,46 +140,22 @@ function EncuestaForm() {
           </select>
         </div>
 
-        {/* PREGUNTA 2 */}
-        <h2 className={styles.titulo} style={{ textAlign: "center", fontSize: '18px' }}>¿De dónde nos visitas?</h2>
+        {/* PREGUNTA 4: ORIGEN */}
+        <h2 className={styles.titulo} style={{ textAlign: "center", fontSize: '20px', fontWeight: 'bold' }}>¿De dónde nos visitas?</h2>
         <div className={styles['select-container']} style={{ marginBottom: "20px" }}>
-          <select className={styles['selec-filtro']} value={origen} onChange={(e) => setOrigen(e.target.value)}>
+          <select 
+            className={styles['selec-filtro']} 
+            value={origen} 
+            onChange={(e) => setOrigen(e.target.value)}
+            style={{ fontSize: '16px', fontWeight: 'bold', padding: '10px' }}
+          >
             <option value="" disabled>Selecciona una opción</option>
             <option value="nacional">Nacional</option>
             <option value="extranjero">Extranjero</option>
           </select>
         </div>
 
-        {/* PREGUNTA 3 (NUEVA) */}
-        <h2 className={styles.titulo} style={{ textAlign: "center", fontSize: '18px' }}>¿Qué platillo o bebida te llamó la atención? (Elige máx 2)</h2>
-        <div style={{ marginBottom: "20px", display: 'flex', flexDirection: 'column', gap: '8px', padding: '0 10px' }}>
-          {['Tostadas', 'Garnachas', 'Empanadas', 'Gorditas', 'Pozol'].map(item => (
-            <label key={item} style={{ cursor: 'pointer', fontSize: '15px', color: '#333' }}>
-              <input 
-                type="checkbox" 
-                checked={platillos.includes(item)}
-                onChange={() => handlePlatilloChange(item)}
-                style={{ marginRight: '10px', accentColor: '#742A2A' }}
-              />
-              {item}
-            </label>
-          ))}
-        </div>
-
-        {/* PREGUNTA 4 (NUEVA) */}
-        <h2 className={styles.titulo} style={{ textAlign: "center", fontSize: '18px' }}>¿Qué aspecto puede mejorar el establecimiento?</h2>
-        <div className={styles['select-container']} style={{ marginBottom: "20px" }}>
-          <select className={styles['selec-filtro']} value={mejora} onChange={(e) => setMejora(e.target.value)}>
-            <option value="" disabled>Selecciona una opción</option>
-            <option value="limpieza">La limpieza</option>
-            <option value="tiempo">Tiempo de espera de la comida</option>
-            <option value="comida">La comida</option>
-            <option value="etiquetas">Cumplir con las etiquetas asignadas</option>
-            <option value="atencion">Atención al comensal</option>
-          </select>
-        </div>
-
-        <button type="submit" className={styles.button} style={{ width: "100%", marginTop: '10px' }}>
+        <button type="submit" className={styles.button} style={{ width: "100%", marginTop: '10px', fontSize: '18px', fontWeight: 'bold', padding: '12px' }}>
           Enviar Respuestas
         </button>
       </form>
