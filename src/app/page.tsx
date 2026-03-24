@@ -227,10 +227,8 @@ export default function Home() {
               <img src="/images/menu.png" className={styles['icono-filtro']} />
               <select className={styles['filtro-select']} value={tipoComida} onChange={(e) => setTipoComida(e.target.value)}>
                 <option value="">Tipo de comida</option>
-                <option value="Comida Rápida">Comida Rápida</option>
-                <option value="Gourmet">Gourmet</option>
-                <option value="Vegetariano">Vegetariano</option>
-                <option value="Económico">Económico</option>
+                <option value="Tradicional">Tradicional</option>
+                <option value="Típica">Típica</option>
               </select>
             </div>
             <div className={styles['filtro-item']}>

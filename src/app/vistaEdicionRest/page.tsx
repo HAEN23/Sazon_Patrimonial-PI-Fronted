@@ -410,10 +410,8 @@ export default function EdicionRestaurante() {
                 <option value="Familiar">Familiar</option>
                 <option value="Pet Friendly">Pet Friendly</option>
                 <option value="Terraza">Terraza</option>
-                <option value="Comida Rápida">Comida Rápida</option>
-                <option value="Gourmet">Gourmet</option>
-                <option value="Vegetariano">Vegetariano</option>
-                <option value="Económico">Económico</option>
+                <option value="Tradicional">Tradicional</option>
+                <option value="Típica">Típica</option>
             </select>
 
             <select name="etiqueta2" className={styles.select} value={formData.etiqueta2} onChange={handleInputChange}>
@@ -424,10 +422,8 @@ export default function EdicionRestaurante() {
                 <option value="Familiar">Familiar</option>
                 <option value="Pet Friendly">Pet Friendly</option>
                 <option value="Terraza">Terraza</option>
-                <option value="Comida Rápida">Comida Rápida</option>
-                <option value="Gourmet">Gourmet</option>
-                <option value="Vegetariano">Vegetariano</option>
-                <option value="Económico">Económico</option>
+                <option value="Tradicional">Tradicional</option>
+                <option value="Típica">Típica</option>
             </select>
 
             <select name="etiqueta3" className={styles.select} value={formData.etiqueta3} onChange={handleInputChange}>
@@ -438,10 +434,8 @@ export default function EdicionRestaurante() {
                 <option value="Familiar">Familiar</option>
                 <option value="Pet Friendly">Pet Friendly</option>
                 <option value="Terraza">Terraza</option>
-                <option value="Comida Rápida">Comida Rápida</option>
-                <option value="Gourmet">Gourmet</option>
-                <option value="Vegetariano">Vegetariano</option>
-                <option value="Económico">Económico</option>
+                <option value="Tradicional">Tradicional</option>
+                <option value="Típica">Típica</option>
             </select>
 
           </div>
