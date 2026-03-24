@@ -64,29 +64,43 @@ export default function EstadisticasPage() {
     fetchStats();
   }, []);
 
-  // Configuraciones comunes
+  // Configuraciones de gráficas base (Likes, Descargas)
   const opcionesGeneral = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: { legend: { display: false } },
-    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+    scales: { 
+      y: { 
+        beginAtZero: true, 
+        ticks: { precision: 0, stepSize: 1 },
+        suggestedMax: 4 // Mantiene la cuadrícula bonita aunque esté en 0
+      } 
+    }
   };
 
+  // Configuraciones para Tooltips personalizados (Barras de Encuestas)
   const opcionesTooltip = (datos: number[], suffix: string) => ({
-    responsive: true, maintainAspectRatio: false, plugins: { 
+    responsive: true, 
+    maintainAspectRatio: false, 
+    plugins: { 
       legend: { display: false },
       tooltip: { callbacks: { label: (ctx: any) => ` ${datos[ctx.dataIndex] || 0} ${suffix}` } }
     },
-    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+    scales: { 
+      y: { 
+        beginAtZero: true, 
+        ticks: { precision: 0, stepSize: 1 },
+        suggestedMax: 4 // Fuerza a la gráfica a mostrar líneas 1, 2, 3, 4 aunque nadie haya votado
+      } 
+    }
   });
 
-  // Gráficas existentes actualizadas
   const configLikes = { labels: ['Total de Likes'], datasets: [{ label: 'Likes', data: [estadisticasReales.likes], backgroundColor: '#6b1e1e', borderRadius: 4 }] };
   const configDescargas = { labels: ['Total de Descargas'], datasets: [{ label: 'Descargas', data: [estadisticasReales.descargasMenu], backgroundColor: '#e69b35', borderRadius: 4 }] };
   
   const configAspectos = {
     labels: ['Comida', 'Ubicación', 'Recomend.', 'Horario', 'Vista', 'Limpieza'],
-    datasets: [{ data: estadisticasReales.statsAspectos, backgroundColor: ['#6b1e1e', '#a83232', '#d65c5c', '#e88e8e', '#f5c6c6', '#f2dfdf'], borderRadius: 4 }],
+    datasets: [{ label: 'Porcentaje', data: estadisticasReales.statsAspectos, backgroundColor: ['#6b1e1e', '#a83232', '#d65c5c', '#e88e8e', '#f5c6c6', '#f2dfdf'], borderRadius: 4 }],
   };
 
   const totalOrigen = (estadisticasReales.statsOrigen?.[0] || 0) + (estadisticasReales.statsOrigen?.[1] || 0);
@@ -102,15 +116,15 @@ export default function EstadisticasPage() {
     }],
   };
 
-  // NUEVAS GRÁFICAS
+  // NUEVAS GRÁFICAS DE BARRAS (Platillos y Mejoras)
   const configPlatillos = {
     labels: ['Tostadas', 'Garnachas', 'Empanadas', 'Gorditas', 'Pozol'],
-    datasets: [{ data: estadisticasReales.votosPlatillos, backgroundColor: '#c85a5a', borderRadius: 4 }],
+    datasets: [{ label: 'Votos', data: estadisticasReales.votosPlatillos, backgroundColor: '#c85a5a', borderRadius: 4 }],
   };
 
   const configMejoras = {
     labels: ['Limpieza', 'Tiempo', 'Comida', 'Etiquetas', 'Atención'],
-    datasets: [{ data: estadisticasReales.votosMejoras, backgroundColor: ['#5c1a1a', '#8f2929', '#c23b3b', '#e66565', '#f29b9b'], borderWidth: 0 }],
+    datasets: [{ label: 'Votos', data: estadisticasReales.votosMejoras, backgroundColor: ['#5c1a1a', '#8f2929', '#c23b3b', '#e66565', '#f29b9b'], borderRadius: 4 }],
   };
 
   const hayEstadisticas = estadisticasReales.likes > 0 || estadisticasReales.descargasMenu > 0 || estadisticasReales.respuestasEncuesta > 0;
@@ -133,13 +147,11 @@ export default function EstadisticasPage() {
       ) : (
         <div className={styles.gridTarjetas}>
         
-        {/* GRUPO 1: AHORA SON GRÁFICAS DE BARRAS TAMBIÉN */}
+        {/* GRUPO 1: LIKES Y DESCARGAS */}
         
-        {/* Tarjeta: LIKES */}
         <div className={`${styles.tarjeta} ${styles['efecto-brillante']}`}>
           <HeartIcon />
           <h3>LIKES RECIBIDOS</h3>
-          {/* Se eliminaron los números grandes y se agregó la gráfica de barras */}
           <div className={styles['barras-aspectos']}>
             <Bar data={configLikes} options={opcionesGeneral} />
           </div>
@@ -149,11 +161,9 @@ export default function EstadisticasPage() {
           </div>
         </div>
 
-        {/* Tarjeta: DESCARGAS */}
         <div className={`${styles.tarjeta} ${styles['efecto-brillante']}`}>
           <img src="/images/descargas-menu.png" alt="Descargas" className={styles['icono-tarjeta']} />
           <h3>DESCARGAS DE MENÚ</h3>
-          {/* Se eliminaron los números grandes y se agregó la gráfica de barras */}
           <div className={styles['barras-aspectos']}>
             <Bar data={configDescargas} options={opcionesGeneral} />
           </div>
@@ -163,23 +173,22 @@ export default function EstadisticasPage() {
           </div>
         </div>
 
-        {/* GRUPO 2: GRÁFICAS DETALLADAS */}
+        {/* GRUPO 2: GRÁFICAS DE ENCUESTAS */}
 
-        {/* Tarjeta: ASPECTOS DESTACADOS */}
         <div className={`${styles.tarjeta} ${styles['efecto-brillante']}`}>
           <img src="/images/aspectos.png" alt="Aspectos" className={styles['icono-tarjeta']} />
           <h3>ASPECTOS DESTACADOS</h3>
           <div className={styles['barras-aspectos']}><Bar data={configAspectos} options={{...opcionesTooltip(estadisticasReales.votosAspectos, 'votos'), scales: { y: { max: 100 }}}} /></div>
         </div>
 
-        {/* Tarjeta: ORIGEN */}
         <div className={`${styles.tarjeta} ${styles['efecto-brillante']}`}>
           <img src="/images/visitas.png" alt="Origen" className={styles['icono-tarjeta']} />
           <h3>INTERÉS POR ORIGEN</h3>
           <div className={styles['grafico-pastel']}><Pie data={configOrigen} /></div>
         </div>
 
-        {/* Tarjeta: PLATILLOS FAVORITOS */}
+        {/* GRUPO 3: PLATILLOS Y MEJORAS (AMBAS COMO BARRAS AHORA) */}
+        
         <div className={`${styles.tarjeta} ${styles['efecto-brillante']}`}>
           <img src="/images/coctel.png" alt="Platillos" className={styles['icono-tarjeta']} />
           <h3 style={{fontSize: '12px'}}>PLATILLOS/BEBIDAS FAVORITAS</h3>
@@ -188,12 +197,12 @@ export default function EstadisticasPage() {
           </div>
         </div>
 
-        {/* Tarjeta: ÁREAS DE OPORTUNIDAD */}
         <div className={`${styles.tarjeta} ${styles['efecto-brillante']}`}>
           <img src="/images/estadisticas.png" alt="Mejoras" className={styles['icono-tarjeta']} />
           <h3 style={{fontSize: '12px'}}>ÁREAS DE OPORTUNIDAD</h3>
-          <div className={styles['grafico-pastel']}>
-            <Pie data={configMejoras} />
+          {/* 👇 AQUÍ SE CAMBIÓ LA CLASE DE grafico-pastel a barras-aspectos Y LA GRÁFICA A <Bar> */}
+          <div className={styles['barras-aspectos']}>
+            <Bar data={configMejoras} options={opcionesTooltip(estadisticasReales.votosMejoras, 'votos')} />
           </div>
         </div>
 
