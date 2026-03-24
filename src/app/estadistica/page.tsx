@@ -18,8 +18,8 @@ export default function EstadisticasPage() {
     votosAspectos: [0, 0, 0, 0, 0, 0], 
     statsOrigen: [0, 0],
     votosOrigen: [0, 0],
-    votosPlatillos: [0, 0, 0, 0, 0], // NUEVO
-    votosMejoras: [0, 0, 0, 0, 0]    // NUEVO
+    votosPlatillos: [0, 0, 0, 0, 0],
+    votosMejoras: [0, 0, 0, 0, 0]
   });
 
   useEffect(() => {
@@ -53,6 +53,13 @@ export default function EstadisticasPage() {
   }, []);
 
   // Configuraciones comunes
+  const opcionesGeneral = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+  };
+
   const opcionesTooltip = (datos: number[], suffix: string) => ({
     responsive: true, maintainAspectRatio: false, plugins: { 
       legend: { display: false },
@@ -113,7 +120,7 @@ export default function EstadisticasPage() {
       ) : (
         <div className={styles.gridTarjetas}>
         
-        {/* TARJETAS ORIGINALES */}
+        {/* TARJETAS ORIGINALES (Aspectos y Origen) */}
         <div className={`${styles.tarjeta} ${styles['efecto-brillante']}`}>
           <img src="/images/aspectos.png" alt="Aspectos" className={styles['icono-tarjeta']} />
           <h3>ASPECTOS DESTACADOS</h3>
@@ -126,12 +133,40 @@ export default function EstadisticasPage() {
           <div className={styles['grafico-pastel']}><Pie data={configOrigen} /></div>
         </div>
 
-        {/* NUEVAS TARJETAS */}
+        {/* TARJETAS RESTAURADAS (Likes y Descargas de menú) */}
+        <div className={`${styles.tarjeta} ${styles['efecto-brillante']} ${styles.tarjetaCentrada}`}>
+          <img src="/images/rest_logo.png" alt="Likes" className={styles['icono-tarjeta']} />
+          <h3>LIKES RECIBIDOS</h3>
+          <div className={styles['descargas-info']}>
+            <p>Total acumulados <span className={styles['numero-fuerte']}>{estadisticasReales.likes}</span></p>
+          </div>
+          <div className={styles['aumento-container']}>
+            <img src="/images/aumento.png" className={styles['icono-aumento']} alt="Aumento" />
+            <span className={styles['porcentaje-subida']}>En vivo</span>
+          </div>
+          <div className={styles['barras-aspectos']}>
+            <Bar data={configLikes} options={opcionesGeneral} />
+          </div>
+        </div>
+
+        <div className={`${styles.tarjeta} ${styles['efecto-brillante']}`}>
+          <img src="/images/descargas-menu.png" alt="Descargas" className={styles['icono-tarjeta']} />
+          <h3>DESCARGAS DE MENÚ</h3>
+          <div className={styles['descargas-info']}>
+            <p>Esta semana <span className={styles['numero-fuerte']}>{estadisticasReales.descargasMenu}</span></p>
+            <p>Total acumulados <span className={styles['numero-fuerte']}>{estadisticasReales.descargasMenu}</span></p>
+          </div>
+          <div className={styles['aumento-container']}>
+            <img src="/images/aumento.png" className={styles['icono-aumento']} alt="Aumento" />
+            <span className={styles['porcentaje-subida']}>En vivo</span>
+          </div>
+        </div>
+
+        {/* NUEVAS TARJETAS (Platillos y Mejoras) */}
         <div className={`${styles.tarjeta} ${styles['efecto-brillante']}`}>
           <img src="/images/coctel.png" alt="Platillos" className={styles['icono-tarjeta']} />
           <h3 style={{fontSize: '12px'}}>PLATILLOS/BEBIDAS FAVORITAS</h3>
           <div className={styles['barras-aspectos']}>
-            {/* Gráfica de Barras para conteo de votos */}
             <Bar data={configPlatillos} options={opcionesTooltip(estadisticasReales.votosPlatillos, 'votos')} />
           </div>
         </div>
@@ -140,7 +175,6 @@ export default function EstadisticasPage() {
           <img src="/images/estadisticas.png" alt="Mejoras" className={styles['icono-tarjeta']} />
           <h3 style={{fontSize: '12px'}}>ÁREAS DE OPORTUNIDAD</h3>
           <div className={styles['grafico-pastel']}>
-             {/* Gráfica de Dona (Doughnut) usando la configuración Pie para las Mejoras */}
             <Pie data={configMejoras} />
           </div>
         </div>
