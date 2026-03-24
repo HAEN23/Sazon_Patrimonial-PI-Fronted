@@ -74,8 +74,9 @@ function EncuestaForm() {
         alt="Logo Sazón Patrimonial" 
         style={{ display: "block", margin: "0 auto 20px" }}
       />
+      {/* AQUÍ ESTÁ EL CAMBIO SOLICITADO */}
       <h2 className={styles.titulo} style={{ textAlign: "center" }}>
-        ¿Qué te atrajo del restaurante?
+        ¿Qué te atrajo más del lugar?
       </h2>
       <form className={styles.formContainer} onSubmit={handleSubmit}>
         <div className={styles['select-container']} style={{ marginBottom: "20px" }}>
