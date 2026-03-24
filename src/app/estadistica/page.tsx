@@ -3,10 +3,10 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './estadistica.module.css';
-import { Bar, Pie } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend } from 'chart.js';
+import { Bar, Pie, Line } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement, PointElement, ArcElement, Title, Tooltip, Legend } from 'chart.js';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, ArcElement, Title, Tooltip, Legend);
 
 // Icono de corazón
 const HeartIcon = () => (
@@ -95,8 +95,8 @@ export default function EstadisticasPage() {
     }
   });
 
-  const configLikes = { labels: ['Total de Likes'], datasets: [{ label: 'Likes', data: [estadisticasReales.likes], backgroundColor: '#6b1e1e', borderRadius: 4 }] };
-  const configDescargas = { labels: ['Total de Descargas'], datasets: [{ label: 'Descargas', data: [estadisticasReales.descargasMenu], backgroundColor: '#e69b35', borderRadius: 4 }] };
+  const configLikes = { labels: ['Total de Likes'], datasets: [{ label: 'Likes', data: [estadisticasReales.likes], backgroundColor: '#6b1e1e', borderColor: '#6b1e1e', borderWidth: 2, tension: 0.4 }] };
+  const configDescargas = { labels: ['Total de Descargas'], datasets: [{ label: 'Descargas', data: [estadisticasReales.descargasMenu], backgroundColor: '#e69b35', borderColor: '#e69b35', borderWidth: 2, tension: 0.4 }] };
   
   const configAspectos = {
     labels: ['Comida', 'Ubicación', 'Recomend.', 'Horario', 'Vista', 'Limpieza'],
@@ -153,7 +153,7 @@ export default function EstadisticasPage() {
           <HeartIcon />
           <h3>LIKES RECIBIDOS</h3>
           <div className={styles['barras-aspectos']}>
-            <Bar data={configLikes} options={opcionesGeneral} />
+            <Line data={configLikes} options={opcionesGeneral} />
           </div>
           <div className={styles['aumento-container']}>
             <img src="/images/aumento.png" className={styles['icono-aumento']} alt="Aumento" />
@@ -165,7 +165,7 @@ export default function EstadisticasPage() {
           <img src="/images/descargas-menu.png" alt="Descargas" className={styles['icono-tarjeta']} />
           <h3>DESCARGAS DE MENÚ</h3>
           <div className={styles['barras-aspectos']}>
-            <Bar data={configDescargas} options={opcionesGeneral} />
+            <Line data={configDescargas} options={opcionesGeneral} />
           </div>
           <div className={styles['aumento-container']}>
             <img src="/images/aumento.png" className={styles['icono-aumento']} alt="Aumento" />
