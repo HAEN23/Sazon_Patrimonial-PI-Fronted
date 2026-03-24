@@ -31,7 +31,7 @@ export default function RegistroModal({
     tipo: "usuario" // Valores: 'usuario' | 'restaurantero'
   });
 
-  // NUEVO: Estado para el checkbox
+  // Estado para el checkbox
   const [aceptaTerminos, setAceptaTerminos] = useState(false);
 
   const handleChange = (
@@ -53,9 +53,9 @@ export default function RegistroModal({
       return;
     }
 
-    // NUEVO: Validar que aceptó los términos
+    // NUEVO: Alerta si no marcan la casilla de términos
     if (!aceptaTerminos) {
-      setError("Debes aceptar los Términos y Condiciones para registrarte.");
+      alert("Debes aceptar los Términos y Condiciones para poder registrarte.");
       return;
     }
 
@@ -68,7 +68,6 @@ export default function RegistroModal({
       // 3. Petición REAL al Backend
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api';
 
-      // 👇 CORRECCIÓN AQUÍ: Cambiamos a /client/register
       const response = await fetch(`${apiUrl}/client/register`, { 
         method: "POST",
         headers: {
@@ -104,20 +103,20 @@ export default function RegistroModal({
 
       // 4. Si todo salió bien
       if (data.success) {
-        // 1. Limpiamos cualquier sesión fantasma anterior
+        // Limpiamos cualquier sesión fantasma anterior
         localStorage.removeItem("userRole");
         localStorage.removeItem("user");
 
-        // 2. Guardamos la nueva sesión explícitamente como 'usuario'
+        // Guardamos la nueva sesión explícitamente como 'usuario'
         localStorage.setItem("sesionActiva", "usuario");
         localStorage.setItem("userRole", "usuario");
         localStorage.setItem("token", data.token || data.data?.token);
 
-        // 3. Guardamos el objeto user por si otras vistas lo necesitan
+        // Guardamos el objeto user por si otras vistas lo necesitan
         const usuarioData = data.user || data.data?.user || { rol: "usuario" };
         localStorage.setItem("user", JSON.stringify(usuarioData));
 
-        // 4. Limpiar formulario y checkbox
+        // Limpiar formulario y checkbox
         setFormData({
           nombre: "",
           correo: "",
@@ -127,10 +126,10 @@ export default function RegistroModal({
         });
         setAceptaTerminos(false);
 
-        // 5. Mensaje de éxito
+        // Mensaje de éxito
         alert("Registro exitoso");
 
-        // 6. Redirección
+        // Redirección
         if (formData.tipo === "restaurantero") {
           onClose();
           router.push("/vistaPrincipalRestaurantero");
@@ -245,14 +244,14 @@ export default function RegistroModal({
               />
             </div>
 
-            {/* NUEVO: Contenedor del aviso, usando estilos integrados para no alterar tu CSS */}
+            {/* Cuadro de Términos y Condiciones */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginTop: '10px' }}>
               <input
                 type="checkbox"
                 id="terminos"
                 checked={aceptaTerminos}
                 onChange={(e) => setAceptaTerminos(e.target.checked)}
-                required
+                /* Se quita el 'required' de HTML para que el form intente enviarse y podamos lanzar el alert() personalizado */
                 style={{ marginTop: '3px', cursor: 'pointer' }}
               />
               <label htmlFor="terminos" style={{ fontSize: '12px', textAlign: 'justify', lineHeight: '1.4', cursor: 'pointer' }}>
@@ -262,11 +261,11 @@ export default function RegistroModal({
 
             {error && <p style={{color: '#912F2F', textAlign: 'center', marginTop: '10px'}}>{error}</p>}
 
-            {/* Este botón conserva exactamente el estilo que nos enviaste */}
+            {/* Botón original sin alteraciones */}
             <button 
               className={styles.roleButton} 
               type="submit" 
-              disabled={loading || !aceptaTerminos}
+              disabled={loading}
               style={{
                 marginTop: '20px',
                 backgroundColor: '#742A2A', /* Color marrón oscuro de la imagen */
