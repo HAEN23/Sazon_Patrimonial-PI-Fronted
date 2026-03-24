@@ -100,7 +100,7 @@ export default function EstadisticasPage() {
   const descargasHistorico = Array.from({ length: 7 }, (_, i) => Math.max(0, estadisticasReales.descargasMenu - (6 - i)));
   
   const configLikes = { 
-    labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'], 
+    labels: ['', '', '', '', '', '', ''], 
     datasets: [{ 
       label: 'Likes', 
       data: likesHistorico, 
@@ -115,7 +115,7 @@ export default function EstadisticasPage() {
   };
   
   const configDescargas = { 
-    labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'], 
+    labels: ['', '', '', '', '', '', ''], 
     datasets: [{ 
       label: 'Descargas', 
       data: descargasHistorico, 
