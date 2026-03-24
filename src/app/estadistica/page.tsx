@@ -95,9 +95,15 @@ export default function EstadisticasPage() {
     }
   });
 
-  // Simular datos históricos para mostrar líneas
-  const likesHistorico = Array.from({ length: 7 }, (_, i) => Math.max(0, estadisticasReales.likes - (6 - i)));
-  const descargasHistorico = Array.from({ length: 7 }, (_, i) => Math.max(0, estadisticasReales.descargasMenu - (6 - i)));
+  // Simular datos históricos para mostrar líneas - comienza desde valor inicial y crece gradualmente
+  const likesHistorico = Array.from({ length: 7 }, (_, i) => {
+    if (estadisticasReales.likes === 0) return 0;
+    return Math.max(1, Math.round((estadisticasReales.likes / 6) * i));
+  });
+  const descargasHistorico = Array.from({ length: 7 }, (_, i) => {
+    if (estadisticasReales.descargasMenu === 0) return 0;
+    return Math.max(1, Math.round((estadisticasReales.descargasMenu / 6) * i));
+  });
   
   const configLikes = { 
     labels: ['', '', '', '', '', '', ''], 
