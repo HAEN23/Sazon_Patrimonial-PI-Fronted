@@ -31,7 +31,6 @@ export default function RegistroModal({
     tipo: "usuario" // Valores: 'usuario' | 'restaurantero'
   });
 
-  // NUEVO: Estado para controlar si el mini modal de términos está visible
   const [showTermsModal, setShowTermsModal] = useState(false);
 
   const handleChange = (
@@ -43,14 +42,22 @@ export default function RegistroModal({
     });
   };
 
-  // Esta función ahora solo valida y abre el mini modal
+  // 🔥 AQUÍ AGREGAMOS LA VALIDACIÓN DE CONTRASEÑA SEGURA
   const handleInitialSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    // Validar contraseñas
+    // Expresión regular: Mínimo 8 caracteres, al menos 1 letra, 1 número y 1 carácter especial
+    const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+
+    if (!passwordRegex.test(formData.contrasena)) {
+      setError("La contraseña debe tener mínimo 8 caracteres, incluir letras, números y al menos un carácter especial (ej. @$!%*?&).");
+      return;
+    }
+
+    // Validar que las contraseñas coincidan
     if (formData.contrasena !== formData.confirmar) {
-      alert("Las contraseñas no coinciden");
+      setError("Las contraseñas no coinciden.");
       return;
     }
 
@@ -134,7 +141,6 @@ export default function RegistroModal({
 
     } catch (err: any) {
       console.error("Error de registro:", err);
-      alert(err.message);
       setError(err.message);
       setShowTermsModal(false);
     } finally {
@@ -168,7 +174,6 @@ export default function RegistroModal({
 
             <h4 className={styles.titulo}>Registro de usuario</h4>
 
-            {/* Fíjate que el onSubmit ahora llama a handleInitialSubmit */}
             <form className={styles.formContainer} onSubmit={handleInitialSubmit} style={{width: '100%'}}>
               
               <div className={styles.inputGroup}>
@@ -191,15 +196,17 @@ export default function RegistroModal({
 
               <div className={styles.inputGroup}>
                 <label className={styles.label}>Contraseña:</label>
-                <input className={styles.controls} type="password" name="contrasena" value={formData.contrasena} onChange={handleChange} placeholder="Ingrese su contraseña" required minLength={6} />
+                {/* Cambiamos el minLength a 8 */}
+                <input className={styles.controls} type="password" name="contrasena" value={formData.contrasena} onChange={handleChange} placeholder="Ingrese su contraseña" required minLength={8} />
               </div>
 
               <div className={styles.inputGroup}>
                 <label className={styles.label}>Confirmar contraseña:</label>
-                <input className={styles.controls} type="password" name="confirmar" value={formData.confirmar} onChange={handleChange} placeholder="Confirmar contraseña" required minLength={6} />
+                {/* Cambiamos el minLength a 8 */}
+                <input className={styles.controls} type="password" name="confirmar" value={formData.confirmar} onChange={handleChange} placeholder="Confirmar contraseña" required minLength={8} />
               </div>
 
-              {error && <p style={{color: '#912F2F', textAlign: 'center', marginTop: '10px'}}>{error}</p>}
+              {error && <p style={{color: '#912F2F', textAlign: 'center', marginTop: '10px', fontSize: '13px', fontWeight: 'bold'}}>{error}</p>}
 
               <button 
                 className={styles.roleButton} 
@@ -223,7 +230,7 @@ export default function RegistroModal({
         </section>
       </div>
 
-      {/* NUEVO: MINI MODAL DE TÉRMINOS Y CONDICIONES */}
+      {/* MINI MODAL DE TÉRMINOS Y CONDICIONES */}
       {showTermsModal && (
         <div style={{
           position: 'fixed',
@@ -235,7 +242,7 @@ export default function RegistroModal({
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          zIndex: 9999 /* Asegura que esté por encima del otro modal */
+          zIndex: 9999 
         }}>
           <div style={{
             backgroundColor: 'white',
