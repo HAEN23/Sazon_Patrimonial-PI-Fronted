@@ -44,6 +44,9 @@ function RestauranteContenido() {
   const [modalMenuOpen, setModalMenuOpen] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [mostrarMasTags, setMostrarMasTags] = useState(false);
+  
+  // NUEVO ESTADO: Para ver la foto a pantalla completa
+  const [fotoSeleccionada, setFotoSeleccionada] = useState<string | null>(null);
 
   // Referencia para controlar la ventana de archivos
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -608,9 +611,15 @@ function RestauranteContenido() {
             <h3>Fotos de Usuarios</h3>
             <div className={styles.fotosUsuariosRow}>
               
-              {/* Fotos mostradas */}
+              {/* Fotos mostradas: AQUÍ ESTÁ EL CAMBIO PARA EL CLIC */}
               {fotos && fotos.length > 0 && fotos.map((foto, index) => (
-                <div key={index} className={styles.fotoMini}>
+                <div 
+                  key={index} 
+                  className={styles.fotoMini}
+                  onClick={() => setFotoSeleccionada(foto)} 
+                  style={{ cursor: 'pointer' }}
+                  title="Ver foto completa"
+                >
                   <Image
                     src={foto}
                     alt={`Foto de usuario ${index + 1}`}
@@ -637,7 +646,7 @@ function RestauranteContenido() {
                 Subir Foto
               </div>
 
-              {/* 👇 EL INPUT DEBE ESTAR AFUERA DEL DIV 👇 */}
+              {/* EL INPUT DEBE ESTAR AFUERA DEL DIV */}
               <input
                 type="file"
                 accept="image/*"
@@ -707,6 +716,57 @@ function RestauranteContenido() {
         </div>
       )}
 
+      {/* AQUÍ ESTÁ EL NUEVO MODAL PARA VER FOTOS A PANTALLA COMPLETA */}
+      {fotoSeleccionada && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 10000,
+            cursor: 'zoom-out'
+          }}
+          onClick={() => setFotoSeleccionada(null)}
+        >
+          <button 
+            onClick={() => setFotoSeleccionada(null)}
+            style={{
+              position: 'absolute',
+              top: '20px',
+              right: '30px',
+              background: 'transparent',
+              border: 'none',
+              color: 'white',
+              fontSize: '40px',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              zIndex: 10001
+            }}
+          >
+            &times;
+          </button>
+
+          <img 
+            src={fotoSeleccionada} 
+            alt="Foto en tamaño completo" 
+            style={{
+              maxWidth: '90%',
+              maxHeight: '90%',
+              objectFit: 'contain',
+              borderRadius: '8px',
+              boxShadow: '0 0 20px rgba(0,0,0,0.5)'
+            }}
+            onClick={(e) => e.stopPropagation()} 
+          />
+        </div>
+      )}
+
       {/* MODALES DE SESIÓN */}
       <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} onOpenAdmin={() => { setIsLoginModalOpen(false); setIsAdminModalOpen(true); }} onOpenRest={() => { setIsLoginModalOpen(false); setIsRestModalOpen(true); }} onOpenUser={() => { setIsLoginModalOpen(false); setIsUserModalOpen(true); }} onOpenRegistro={() => { setIsLoginModalOpen(false); setIsRegistroOpen(true); }} />
       <LoginAdmin isOpen={isAdminModalOpen} onClose={() => setIsAdminModalOpen(false)} onBack={handleBackToLogin} />
@@ -724,4 +784,4 @@ export default function VistaRestaurante() {
       <RestauranteContenido />
     </Suspense>
   );
-}  
+}
